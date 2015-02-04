@@ -201,7 +201,7 @@ static const digit_anim_t moving_anim[] = {
 
 static const digit_anim_t fixed_digits_anim[10] = {
     // -1 - 0
-    {{{true, true, true, false, true, true, true}}, {{0, 0}}, 1, -1},
+    {{{true, true, true, false, true, true, true}}, {{0, 0}}, 1, 1},
     // -2 - 1
     {{{false, false, true, false, false, true, false}}, {{0, 0}}, 3, 16},
     // -3 - 2

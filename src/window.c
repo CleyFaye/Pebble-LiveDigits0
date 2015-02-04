@@ -4,6 +4,8 @@
 #include "digitlayer.h"
 #include "window.h"
 
+static const int FAST_SPEED = 80;
+    
 typedef struct {
     DigitLayer* hour_tens;
     DigitLayer* hour_units;
@@ -21,6 +23,7 @@ static void main_window_disappear(Window* window);
 static void main_window_unload(Window* window);
 static void handle_time_tick(struct tm* tick_time, TimeUnits units_changed);
 static void main_window_update_time(struct tm* tick_time, window_info_t* info, bool animate);
+static void main_window_set_anim_speed(window_info_t* info, int anim_speed);
     
 static void main_window_load(Window* window)
 {
@@ -51,6 +54,7 @@ static void main_window_appear(Window* window)
         digit_layer_set_number(info->minute_tens, minutes / 10, false);
         digit_layer_set_number(info->minute_units, minutes % 10, false);
         main_window_update_time(tick_time, info, true);
+        main_window_set_anim_speed(info, FAST_SPEED);
     } else {
         main_window_update_time(tick_time, info, false);
     }
@@ -86,6 +90,17 @@ static void main_window_update_time(struct tm* tick_time, window_info_t* info, b
     digit_layer_set_number(info->hour_units, hours % 10, animate);
     digit_layer_set_number(info->minute_tens, minutes / 10, animate);
     digit_layer_set_number(info->minute_units, minutes % 10, animate);
+    main_window_set_anim_speed(info, 0);
+}
+
+static void main_window_set_anim_speed(window_info_t* info, int anim_speed)
+{
+    if (info->hour_tens) {
+        digit_layer_set_animate_speed(info->hour_tens, anim_speed);
+        digit_layer_set_animate_speed(info->hour_units, anim_speed);
+        digit_layer_set_animate_speed(info->minute_tens, anim_speed);
+        digit_layer_set_animate_speed(info->minute_units, anim_speed);
+    }
 }
 
 MainWindow* main_window_create(void)

@@ -18,7 +18,7 @@ static const int BIG_WIDTH = 46;
 static const int BIG_HEIGHT = 83;
 static const int SMALL_WIDTH = 42;
 static const int SMALL_HEIGHT = 77;
-static const int DEFAULT_SPEED = 150;
+static const int DEFAULT_SPEED = 110;
 
 typedef struct {
     digit_orientation_t orientation;
@@ -174,9 +174,10 @@ void digit_layer_animate(DigitLayer* layer)
     if (++info->current_anim_position == 9 || info->current_anim < 0) {
         // Animation complete, go to the next one
         info->current_anim_position = 0;
-        if (info->quick_wrap && info->current_number == info->max_number) {
+        if (info->quick_wrap && ((-info->current_anim) - 1) == info->max_number) {
             // Don't switch to the next animation but use the quick back to 0 one
-            info->current_anim = anim_get_next_quick_anim(info->current_anim);
+            int next_anim = anim_get_next_quick_anim(info->current_anim);
+            info->current_anim = next_anim;
         } else {
             info->current_anim = anim_get_next_anim(info->current_anim);
             if (info->current_anim < 0) {
