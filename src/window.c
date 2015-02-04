@@ -4,7 +4,7 @@
 #include "digitlayer.h"
 #include "window.h"
 
-static const int FAST_SPEED = 80;
+static const int FAST_SPEED = 60;
     
 typedef struct {
     DigitLayer* hour_tens;
@@ -12,6 +12,7 @@ typedef struct {
     DigitLayer* minute_tens;
     DigitLayer* minute_units;
     InverterLayer* inverter;
+    bool tap_registered;
 } window_info_t;
 
 static window_info_t* window_info_in_global_variable_just_because = NULL;
@@ -24,6 +25,8 @@ static void main_window_unload(Window* window);
 static void handle_time_tick(struct tm* tick_time, TimeUnits units_changed);
 static void main_window_update_time(struct tm* tick_time, window_info_t* info, bool animate);
 static void main_window_set_anim_speed(window_info_t* info, int anim_speed);
+static void main_window_tap_handler(AccelAxisType axis, int32_t direction);
+static void main_window_random_shake(window_info_t* info, struct tm* tick_time);
     
 static void main_window_load(Window* window)
 {
@@ -37,7 +40,6 @@ static void main_window_load(Window* window)
     layer_add_child(window_get_root_layer(window), info->hour_units);
     layer_add_child(window_get_root_layer(window), info->minute_tens);
     layer_add_child(window_get_root_layer(window), info->minute_units);
-    main_window_update_config();
 }
 
 static void main_window_appear(Window* window)
@@ -46,15 +48,9 @@ static void main_window_appear(Window* window)
     window_info_t* info = window_get_user_data(window);
     time_t temp = time(NULL);
     struct tm* tick_time = localtime(&temp);
+    main_window_update_config();
     if (config_get_animate_on_display()) {
-        int hours = rand() % (clock_is_24h_style() ? 24 : 13);
-        int minutes = rand() % 60;
-        digit_layer_set_number(info->hour_tens, hours / 10, false);
-        digit_layer_set_number(info->hour_units, hours % 10, false);
-        digit_layer_set_number(info->minute_tens, minutes / 10, false);
-        digit_layer_set_number(info->minute_units, minutes % 10, false);
-        main_window_update_time(tick_time, info, true);
-        main_window_set_anim_speed(info, FAST_SPEED);
+        main_window_random_shake(info, tick_time);
     } else {
         main_window_update_time(tick_time, info, false);
     }
@@ -63,6 +59,11 @@ static void main_window_appear(Window* window)
 static void main_window_disappear(Window* window)
 {
     tick_timer_service_unsubscribe();
+    window_info_t* info = window_get_user_data(window);
+    if (info->tap_registered) {
+        accel_tap_service_unsubscribe();
+        info->tap_registered = false;
+    }
 }
 
 static void main_window_unload(Window* window)
@@ -101,6 +102,25 @@ static void main_window_set_anim_speed(window_info_t* info, int anim_speed)
         digit_layer_set_animate_speed(info->minute_tens, anim_speed);
         digit_layer_set_animate_speed(info->minute_units, anim_speed);
     }
+}
+
+static void main_window_tap_handler(AccelAxisType axis, int32_t direction)
+{
+    time_t temp = time(NULL);
+    struct tm* tick_time = localtime(&temp);
+    main_window_random_shake(window_info_in_global_variable_just_because, tick_time);
+}
+
+static void main_window_random_shake(window_info_t* info, struct tm* tick_time)
+{
+    int hours = rand() % (clock_is_24h_style() ? 24 : 13);
+    int minutes = rand() % 60;
+    digit_layer_set_number(info->hour_tens, hours / 10, false);
+    digit_layer_set_number(info->hour_units, hours % 10, false);
+    digit_layer_set_number(info->minute_tens, minutes / 10, false);
+    digit_layer_set_number(info->minute_units, minutes % 10, false);
+    main_window_update_time(tick_time, info, true);
+    main_window_set_anim_speed(info, FAST_SPEED);
 }
 
 MainWindow* main_window_create(void)
@@ -158,6 +178,12 @@ void main_window_update_config(void)
         if (info->inverter) {
             inverter_layer_destroy(info->inverter);
             info->inverter = NULL;
+        }
+    }
+    if (config_get_animate_on_shake()) {
+        if (!info->tap_registered) {
+            accel_tap_service_subscribe(main_window_tap_handler);
+            info->tap_registered = true;
         }
     }
 }

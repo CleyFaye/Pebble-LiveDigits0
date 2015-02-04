@@ -97,7 +97,7 @@ void config_set_white_background(bool white_bg)
 
 bool config_get_quick_wrap(void)
 {
-    return quick_wrap || true;
+    return quick_wrap;
 }
 
 void config_set_quick_wrap(bool value)
