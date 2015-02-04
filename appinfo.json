@@ -1,7 +1,12 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "anim_on_shake": 2,
+        "anim_on_start": 1,
+        "quick_wrap": 4,
+        "white_background": 3
+    },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "Cley Faye's stuff",
     "longName": "LiveDigits0",

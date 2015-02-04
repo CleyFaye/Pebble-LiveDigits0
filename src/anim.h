@@ -64,5 +64,7 @@ const animation_digit_segment_t* anim_get_segment_anim(int digit_anim_id);
 
 int anim_get_next_anim(int digit_anim_id);
 
+int anim_get_next_quick_anim(int digit_anim_id);
+
 #endif
     
