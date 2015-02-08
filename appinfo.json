@@ -1,7 +1,12 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "anim_on_shake": 2,
+        "anim_on_start": 1,
+        "quick_wrap": 4,
+        "white_background": 3
+    },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "Cley Faye's stuff",
     "longName": "LiveDigits0",
@@ -213,7 +218,7 @@
     "shortName": "LiveDigits0",
     "uuid": "25d9a4fb-18fd-4508-ab41-4b217ebb2161",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }

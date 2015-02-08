@@ -9,12 +9,16 @@ typedef struct {
     int current_anim;
     int current_anim_position;
     AppTimer* anim_timer;
+    int max_number;
+    int animate_speed;
+    bool quick_wrap;
 } digit_info_t;
 
 static const int BIG_WIDTH = 46;
 static const int BIG_HEIGHT = 83;
 static const int SMALL_WIDTH = 42;
 static const int SMALL_HEIGHT = 77;
+static const int DEFAULT_SPEED = 110;
 
 typedef struct {
     digit_orientation_t orientation;
@@ -92,12 +96,12 @@ static void digit_layer_check_timer_status(struct Layer* layer)
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     if (info->current_number != info->target_number) {
         if (info->anim_timer == NULL) {
-            info->anim_timer = app_timer_register(150, digit_layer_anim_timer, layer);
+            info->anim_timer = app_timer_register(info->animate_speed, digit_layer_anim_timer, layer);
         }
     }
 }
 
-DigitLayer* digit_layer_create(digit_size_t size, GPoint offset)
+DigitLayer* digit_layer_create(digit_size_t size, GPoint offset, int max_number)
 {
     GRect layer_rect;
     layer_rect.origin = offset;
@@ -119,8 +123,27 @@ DigitLayer* digit_layer_create(digit_size_t size, GPoint offset)
     info->current_anim = -1;
     info->current_anim_position = 0;
     info->anim_timer = NULL;
+    info->max_number = max_number;
+    info->animate_speed = DEFAULT_SPEED;
+    info->quick_wrap = false;
     layer_set_update_proc(result, handle_layer_update);
     return result;
+}
+
+void digit_layer_set_quick_wrap(DigitLayer* layer, bool quick_wrap)
+{
+    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    info->quick_wrap = quick_wrap;
+}
+
+void digit_layer_set_animate_speed(DigitLayer* layer, int animate_interval)
+{
+    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    if (animate_interval == 0) {
+        info->animate_speed = DEFAULT_SPEED;
+    } else {
+        info->animate_speed = animate_interval;
+    }
 }
 
 void digit_layer_set_number(DigitLayer* layer, int target_number, bool animate)
@@ -151,9 +174,15 @@ void digit_layer_animate(DigitLayer* layer)
     if (++info->current_anim_position == 9 || info->current_anim < 0) {
         // Animation complete, go to the next one
         info->current_anim_position = 0;
-        info->current_anim = anim_get_next_anim(info->current_anim);
-        if (info->current_anim < 0) {
-            info->current_number = -info->current_anim - 1;
+        if (info->quick_wrap && ((-info->current_anim) - 1) == info->max_number) {
+            // Don't switch to the next animation but use the quick back to 0 one
+            int next_anim = anim_get_next_quick_anim(info->current_anim);
+            info->current_anim = next_anim;
+        } else {
+            info->current_anim = anim_get_next_anim(info->current_anim);
+            if (info->current_anim < 0) {
+                info->current_number = -info->current_anim - 1;
+            }
         }
     }
     layer_mark_dirty(layer);
