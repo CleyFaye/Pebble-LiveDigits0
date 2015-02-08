@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>LiveDigits Configuration</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+        <script type="text/javascript">
+var transitionTime=600;function saveOptions(){var a={};$('textarea, select, [type="hidden"], [type="password"], [type="text"]').each(function(){a[$(this).attr("id")]=$(this).val()});$('[type="checkbox"]').each(function(){a[$(this).attr("id")]=$(this).is(":checked")?"true":"false"});$('[type="radio"]').each(function(){if($(this).is(":checked")){a[$(this).attr("name")]=$(this).attr("value")}});return a}function loadOptions(){var a=window.location.search.substring(1);if(a.length==0){return false}var b=jQuery.parseJSON(decodeURIComponent(a));for(key in b){var c="#"+key;if($(c).length==0){$('input[name="'+key+'"][value="'+b[key]+'"]').attr("checked",true).checkboxradio("refresh")}else{$(c).val(b[key]);if($(c).is(".ui-slider-switch")){$(c).slider("refresh")}else{if($(c).is("select")){$(c).selectmenu("refresh")}else{if($(c).is('[type="checkbox"]')){$(c).attr("checked",b[key]=="true");$(c).checkboxradio("refresh")}}}}}return true}function onReady(){$("#b-cancel").click(function(){document.location="pebblejs://close"});$("#b-submit").click(function(){var b=saveOptions();var c=JSON.stringify(b);var a="pebblejs://close#"+encodeURIComponent(c);document.location=a});$("#force_button").click(function(){$("#config_box").show(transitionTime);$("#message_box").hide(transitionTime)});if(loadOptions()){$("#config_box").show(transitionTime)}else{$("#message_box").show(transitionTime)}$("#loading_box").hide(transitionTime)}$().ready(onReady);
+        </script>
+        </head>
+        <body>
+            <div data-role="page" id="main">
+                <div data-role="header" class="jqm-header">
+                    <h1>LiveDigits0</h1>
+                </div>
+                <div data-role="content" id="loading_box">Please wait, loading...</div>
+                <div data-role="content" id="message_box" style="display: none;">
+                    <p>Thanks for installing this WatchFace! To open the configuration panel, make sure that the watchface is currently active on your Pebble. Then go to the Pebble App on your phone, select the watchface, and choose "Settings".</p>
+                    <p>If after following this procedure you keep getting this message, <a href="#" id="force_button">touch here</a> to open it anyway. Note that in that case your old settings may not be displayed correctly.</p>
+                </div>
+                <div data-role="content" id="config_box" style="display: none;">
+
+                    <div data-role="fieldcontain">
+                        <label for="anim_on_open">Animate when loaded</label>
+                        <select name="anim_on_open" id="anim_on_open" data-role="slider">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                        </select>
+                    </div>
+                    <div data-role="fieldcontain">
+                        <label for="anim_on_shake">Animate on shake</label>
+                        <select name="anim_on_shake" id="anim_on_shake" data-role="slider">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                        </select>
+                    </div>
+                    <div data-role="fieldcontain">
+                        <label for="invert_colors">Invert colors</label>
+                        <input type="checkbox" name="invert_colors" id="invert_colors" />
+                    </div>
+                    <div data-role="fieldcontain">
+                        <label for="quickwrap">Wrap numbers quickly</label>
+                        <input type="checkbox" name="quickwrap" id="quickwrap" />
+                    </div>
+
+                    <!--
+                    <p>Soon available:</p>
+
+                    <div data-role="fieldcontain">
+                        <label for="display_date">Display date</label>
+                        <select name="display_date" id="display_date" data-role="slider">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                        </select>
+                    </div>
+
+                    <div data-role="fieldcontain">
+                        <label for="display_bluetooth">Display Bluetooth state</label>
+                        <select name="display_bluetooth" id="display_bluetooth" data-role="slider">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                        </select>
+                    </div>
+
+                    <div data-role="fieldcontain">
+                        <label for="display_battery">Display battery state</label>
+                        <select name="display_battery" id="display_battery" data-role="slider">
+                            <option value="off">Off</option>
+                            <option value="on">On</option>
+                        </select>
+                    </div>
+
+                    <div data-role="fieldcontain">
+                        <label for="alternativescheme">Alternative display scheme</label>
+                        <input type="checkbox" name="alternativescheme" id="alternativescheme" />
+                    </div>
+
+                    <div data-role="fieldcontain">
+                        <label for="base_animation_speed">Normal animation speed</label>
+                        <select name="base_animation_speed" id="base_animation_speed">
+                            <option value="slowbasic">Slow, separate each step</option>
+                            <option value="fastbasic">Fast, separate each step</option>
+                            <option value="slowmerge">Slow, merge steps</option>
+                            <option value="fastmerge">Fast, merge steps</option>
+                        </select>
+                    </div>
+
+                    <div data-role="fieldcontain">
+                        <label for="forced_animation_speed">Forced animation speed</label>
+                        <select name="forced_animation_speed" id="forced_animation_speed">
+                            <option value="slowbasic">Slow, separate each step</option>
+                            <option value="fastbasic">Fast, separate each step</option>
+                            <option value="slowmerge">Slow, merge steps</option>
+                            <option value="fastmerge">Fast, merge steps</option>
+                        </select>
+                    </div>
+
+                    <fieldset data-role="controlgroup">
+                        <legend>Display seconds</legend>
+                        <input type="radio" name="second_display" id="second_display_none" value="off" />
+                        <label for="second_display_none">Disabled</label>
+                        <input type="radio" name="second_display" id="second_display_ticker" value="ticker" />
+                        <label for="second_display_ticker">Display a ticking dot</label>
+                        <input type="radio" name="second_display" id="second_display_digits" value="digits" />
+                        <label for="second_display_digits">Fixed digits</label>
+                        <input type="radio" name="second_display" id="second_display_digitsod" value="digitsod" />
+                        <label for="second_display_digitsod">Fixed digits (on shake)</label>
+                        <input type="radio" name="second_display" id="second_display_anim" value="anim" />
+                        <label for="second_display_anim">Animated digits</label>
+                    </fieldset>
+
+                    <fieldset data-role="controlgroup">
+                        <legend>Vibrate</legend>
+                        <input type="radio" name="vibrate" id="vibrate_no" value="off" />
+                        <label for="vibrate_no">Disabled</label>
+                        <input type="radio" name="vibrate" id="vibrate_min" value="min" />
+                        <label for="vibrate_min">Every minute</label>
+                        <input type="radio" name="vibrate" id="vibrate_hour" value="hour" />
+                        <label for="vibrate_hour">Every hour</label>
+                    </fieldset>
+                    -->
+
+                    <div class="ui-body ui-body-b">
+                        <fieldset class="ui-grid-a">
+                            <div class="ui-block-a"><button type="submit" data-theme="d" id="b-cancel">Cancel</button></div>
+                            <div class="ui-block-b"><button type="submit" data-theme="a" id="b-submit">Submit</button></div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
