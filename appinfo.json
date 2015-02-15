@@ -1,9 +1,28 @@
 {
     "appKeys": {
-        "anim_on_shake": 2,
-        "anim_on_start": 1,
-        "quick_wrap": 4,
-        "white_background": 3
+        "CONFIG": 0,
+        "anim_on_load": 10,
+        "anim_on_shake": 11,
+        "anim_on_time": 8,
+        "anim_speed_forced": 13,
+        "anim_speed_normal": 9,
+        "base_layout": 3,
+        "battery_position": 21,
+        "battery_style": 22,
+        "bluetooth_position": 19,
+        "bluetooth_style": 20,
+        "date_position": 15,
+        "date_style": 16,
+        "demo_mode": 6,
+        "display_widgets": 14,
+        "force_light": 12,
+        "hour_position": 1,
+        "invert_colors": 4,
+        "minutes_position": 2,
+        "seconds_position": 17,
+        "seconds_style": 18,
+        "skip_digits": 7,
+        "vibrate_every": 5
     },
     "capabilities": [
         "configurable"

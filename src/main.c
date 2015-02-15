@@ -11,9 +11,9 @@ static void clear(void);
 static void init(void)
 {
     srand(time(NULL));
-    config_init();
     load_images();
     main_window = main_window_create();
+    cfg_init(main_window_update_config, main_window);
     window_stack_push(main_window, true);
 }
 
@@ -21,7 +21,7 @@ static void clear(void)
 {
     main_window_destroy(main_window);
     unload_images();
-    config_clear();
+    cfg_clear();
 }
 
 int main(void)

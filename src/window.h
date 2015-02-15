@@ -7,7 +7,7 @@ typedef Window MainWindow;
     
 MainWindow* main_window_create(void);
 void main_window_destroy(MainWindow* window);
-void main_window_update_config(void);
+void main_window_update_config(void* data);
     
 #endif
     

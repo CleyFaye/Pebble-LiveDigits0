@@ -48,8 +48,8 @@ static void main_window_appear(Window* window)
     window_info_t* info = window_get_user_data(window);
     time_t temp = time(NULL);
     struct tm* tick_time = localtime(&temp);
-    main_window_update_config();
-    if (config_get_animate_on_display()) {
+    main_window_update_config(window);
+    if (cfg_get_anim_on_load()) {
         main_window_random_shake(info, tick_time);
     } else {
         main_window_update_time(tick_time, info, false);
@@ -160,16 +160,16 @@ void main_window_destroy(MainWindow* window)
     window_destroy(window);
 }
 
-void main_window_update_config(void)
+void main_window_update_config(void* data)
 {
-    window_info_t* info = window_info_in_global_variable_just_because;
-    MainWindow* window = main_window_in_global;
-    bool quick_wrap = config_get_quick_wrap();
+    MainWindow* window = (MainWindow*) data;
+    window_info_t* info = window_get_user_data(window);
+    bool quick_wrap = cfg_get_skip_digits();
     digit_layer_set_quick_wrap(info->hour_tens, quick_wrap);
     digit_layer_set_quick_wrap(info->hour_units, quick_wrap);
     digit_layer_set_quick_wrap(info->minute_tens, quick_wrap);
     digit_layer_set_quick_wrap(info->minute_units, quick_wrap);
-    if (config_get_white_background()) {
+    if (cfg_get_invert_colors()) {
         if (!info->inverter) {
             info->inverter = inverter_layer_create(GRect(0, 0, 144, 168));
             layer_add_child(window_get_root_layer(window), inverter_layer_get_layer(info->inverter));
@@ -180,7 +180,7 @@ void main_window_update_config(void)
             info->inverter = NULL;
         }
     }
-    if (config_get_animate_on_shake()) {
+    if (cfg_get_anim_on_shake()) {
         if (!info->tap_registered) {
             accel_tap_service_subscribe(main_window_tap_handler);
             info->tap_registered = true;
