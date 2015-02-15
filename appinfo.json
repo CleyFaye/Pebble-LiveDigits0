@@ -34,92 +34,92 @@
         "media": [
             {
                 "file": "images/2.png",
-                "name": "SEGMENT_SMALL_2",
+                "name": "SEGMENT_MEDIUM_2",
                 "type": "png-trans"
             },
             {
                 "file": "images/17.png",
-                "name": "SEGMENT_SMALL_17",
+                "name": "SEGMENT_MEDIUM_17",
                 "type": "png-trans"
             },
             {
                 "file": "images/16.png",
-                "name": "SEGMENT_SMALL_16",
+                "name": "SEGMENT_MEDIUM_16",
                 "type": "png-trans"
             },
             {
                 "file": "images/15.png",
-                "name": "SEGMENT_SMALL_15",
+                "name": "SEGMENT_MEDIUM_15",
                 "type": "png-trans"
             },
             {
                 "file": "images/14.png",
-                "name": "SEGMENT_SMALL_14",
+                "name": "SEGMENT_MEDIUM_14",
                 "type": "png-trans"
             },
             {
                 "file": "images/13.png",
-                "name": "SEGMENT_SMALL_13",
+                "name": "SEGMENT_MEDIUM_13",
                 "type": "png-trans"
             },
             {
                 "file": "images/12.png",
-                "name": "SEGMENT_SMALL_12",
+                "name": "SEGMENT_MEDIUM_12",
                 "type": "png-trans"
             },
             {
                 "file": "images/11.png",
-                "name": "SEGMENT_SMALL_11",
+                "name": "SEGMENT_MEDIUM_11",
                 "type": "png-trans"
             },
             {
                 "file": "images/10.png",
-                "name": "SEGMENT_SMALL_10",
+                "name": "SEGMENT_MEDIUM_10",
                 "type": "png-trans"
             },
             {
                 "file": "images/9.png",
-                "name": "SEGMENT_SMALL_9",
+                "name": "SEGMENT_MEDIUM_9",
                 "type": "png-trans"
             },
             {
                 "file": "images/8.png",
-                "name": "SEGMENT_SMALL_8",
+                "name": "SEGMENT_MEDIUM_8",
                 "type": "png-trans"
             },
             {
                 "file": "images/7.png",
-                "name": "SEGMENT_SMALL_7",
+                "name": "SEGMENT_MEDIUM_7",
                 "type": "png-trans"
             },
             {
                 "file": "images/6.png",
-                "name": "SEGMENT_SMALL_6",
+                "name": "SEGMENT_MEDIUM_6",
                 "type": "png-trans"
             },
             {
                 "file": "images/5.png",
-                "name": "SEGMENT_SMALL_5",
+                "name": "SEGMENT_MEDIUM_5",
                 "type": "png-trans"
             },
             {
                 "file": "images/4.png",
-                "name": "SEGMENT_SMALL_4",
+                "name": "SEGMENT_MEDIUM_4",
                 "type": "png-trans"
             },
             {
                 "file": "images/3.png",
-                "name": "SEGMENT_SMALL_3",
+                "name": "SEGMENT_MEDIUM_3",
                 "type": "png-trans"
             },
             {
                 "file": "images/1.png",
-                "name": "SEGMENT_SMALL_1",
+                "name": "SEGMENT_MEDIUM_1",
                 "type": "png-trans"
             },
             {
                 "file": "images/0.png",
-                "name": "SEGMENT_SMALL_0",
+                "name": "SEGMENT_MEDIUM_0",
                 "type": "png-trans"
             },
             {
@@ -214,12 +214,12 @@
             },
             {
                 "file": "images/Small_Vertical.png",
-                "name": "SMALLDIGIT_VERTICAL",
+                "name": "MEDIUMDIGIT_VERTICAL",
                 "type": "png-trans"
             },
             {
                 "file": "images/Small_Horizontal.png",
-                "name": "SMALLDIGIT_HORIZONTAL",
+                "name": "MEDIUMDIGIT_HORIZONTAL",
                 "type": "png-trans"
             },
             {

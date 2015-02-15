@@ -1,11 +1,11 @@
 #include <pebble.h>
 #include "config.h"
-#include "images.h"
+#include "digit_info.h"
 #include "digitlayer.h"
 #include "window.h"
 
 static const int FAST_SPEED = 60;
-    
+
 typedef struct {
     DigitLayer* hour_tens;
     DigitLayer* hour_units;
@@ -27,15 +27,15 @@ static void main_window_update_time(struct tm* tick_time, window_info_t* info, b
 static void main_window_set_anim_speed(window_info_t* info, int anim_speed);
 static void main_window_tap_handler(AccelAxisType axis, int32_t direction);
 static void main_window_random_shake(window_info_t* info, struct tm* tick_time);
-    
+
 static void main_window_load(Window* window)
 {
     window_set_background_color(window, GColorBlack);
     window_info_t* info = window_get_user_data(window);
-    info->hour_tens = digit_layer_create(DIGIT_BIG, GPoint(8, 3), 2);
-    info->hour_units = digit_layer_create(DIGIT_BIG, GPoint(61, 3), 9);
-    info->minute_tens = digit_layer_create(DIGIT_SMALL, GPoint(50, 89), 5);
-    info->minute_units = digit_layer_create(DIGIT_SMALL, GPoint(95, 89), 9);
+    info->hour_tens = digit_layer_create(DS_BIG, GPoint(8, 3), 2);
+    info->hour_units = digit_layer_create(DS_BIG, GPoint(61, 3), 9);
+    info->minute_tens = digit_layer_create(DS_MEDIUM, GPoint(50, 89), 5);
+    info->minute_units = digit_layer_create(DS_MEDIUM, GPoint(95, 89), 9);
     layer_add_child(window_get_root_layer(window), info->hour_tens);
     layer_add_child(window_get_root_layer(window), info->hour_units);
     layer_add_child(window_get_root_layer(window), info->minute_tens);
@@ -49,6 +49,7 @@ static void main_window_appear(Window* window)
     time_t temp = time(NULL);
     struct tm* tick_time = localtime(&temp);
     main_window_update_config(window);
+
     if (cfg_get_anim_on_load()) {
         main_window_random_shake(info, tick_time);
     } else {
@@ -60,6 +61,7 @@ static void main_window_disappear(Window* window)
 {
     tick_timer_service_unsubscribe();
     window_info_t* info = window_get_user_data(window);
+
     if (info->tap_registered) {
         accel_tap_service_unsubscribe();
         info->tap_registered = false;
@@ -81,11 +83,13 @@ static void main_window_update_time(struct tm* tick_time, window_info_t* info, b
 {
     int hours;
     int minutes;
+
     if (clock_is_24h_style()) {
         hours = tick_time->tm_hour;
     } else {
         hours = (tick_time->tm_hour > 12) ? tick_time->tm_hour - 12 : tick_time->tm_hour;
     }
+
     minutes = tick_time->tm_min;
     digit_layer_set_number(info->hour_tens, hours / 10, animate);
     digit_layer_set_number(info->hour_units, hours % 10, animate);
@@ -128,9 +132,9 @@ MainWindow* main_window_create(void)
     Window* result = window_create();
     window_set_window_handlers(result, (WindowHandlers) {
         .load = main_window_load,
-        .appear = main_window_appear,
-        .disappear = main_window_disappear,
-        .unload = main_window_unload
+         .appear = main_window_appear,
+          .disappear = main_window_disappear,
+           .unload = main_window_unload
     });
     window_info_t* info = malloc(sizeof(window_info_t));
     info->hour_tens = NULL;
@@ -147,15 +151,18 @@ MainWindow* main_window_create(void)
 void main_window_destroy(MainWindow* window)
 {
     window_info_t* info = window_get_user_data(window);
+
     if (info->hour_tens != NULL) {
         digit_layer_destroy(info->hour_tens);
         digit_layer_destroy(info->hour_units);
         digit_layer_destroy(info->minute_tens);
         digit_layer_destroy(info->minute_units);
     }
+
     if (info->inverter != NULL) {
         inverter_layer_destroy(info->inverter);
     }
+
     free(info);
     window_destroy(window);
 }
@@ -169,6 +176,7 @@ void main_window_update_config(void* data)
     digit_layer_set_quick_wrap(info->hour_units, quick_wrap);
     digit_layer_set_quick_wrap(info->minute_tens, quick_wrap);
     digit_layer_set_quick_wrap(info->minute_units, quick_wrap);
+
     if (cfg_get_invert_colors()) {
         if (!info->inverter) {
             info->inverter = inverter_layer_create(GRect(0, 0, 144, 168));
@@ -180,6 +188,7 @@ void main_window_update_config(void* data)
             info->inverter = NULL;
         }
     }
+
     if (cfg_get_anim_on_shake()) {
         if (!info->tap_registered) {
             accel_tap_service_subscribe(main_window_tap_handler);
@@ -187,3 +196,4 @@ void main_window_update_config(void* data)
         }
     }
 }
+

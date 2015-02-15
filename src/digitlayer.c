@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "anim.h"
+#include "digit_info.h"
 #include "digitlayer.h"
 
 typedef struct {
@@ -21,28 +22,28 @@ static const int SMALL_HEIGHT = 77;
 static const int DEFAULT_SPEED = 110;
 
 typedef struct {
-    digit_orientation_t orientation;
+    segment_orientation_t orientation;
     GPoint offset;
 } digit_draw_info_t;
 
 static const digit_draw_info_t big_digit_draw_info[7] = {
-    {DIGIT_HORIZONTAL, { .x = 6, .y = 0}},
-    {DIGIT_VERTICAL, { .x = 0, .y = 6}},
-    {DIGIT_VERTICAL, { .x = 37, .y = 6}},
-    {DIGIT_HORIZONTAL, { .x = 6, .y = 37}},
-    {DIGIT_VERTICAL, { .x = 0, .y = 43}},
-    {DIGIT_VERTICAL, { .x = 37, .y = 43}},
-    {DIGIT_HORIZONTAL, { .x = 6, .y = 74}}
+    {SO_HORIZONTAL, { .x = 6, .y = 0}},
+    {SO_VERTICAL, { .x = 0, .y = 6}},
+    {SO_VERTICAL, { .x = 37, .y = 6}},
+    {SO_HORIZONTAL, { .x = 6, .y = 37}},
+    {SO_VERTICAL, { .x = 0, .y = 43}},
+    {SO_VERTICAL, { .x = 37, .y = 43}},
+    {SO_HORIZONTAL, { .x = 6, .y = 74}}
 };
 
 static const digit_draw_info_t small_digit_draw_info[7] = {
-    {DIGIT_HORIZONTAL, { .x = 5, .y = 0}},
-    {DIGIT_VERTICAL, { .x = 0, .y = 5}},
-    {DIGIT_VERTICAL, { .x = 35, .y = 5}},
-    {DIGIT_HORIZONTAL, { .x = 5, .y = 35}},
-    {DIGIT_VERTICAL, { .x = 0, .y = 40}},
-    {DIGIT_VERTICAL, { .x = 35, .y = 40}},
-    {DIGIT_HORIZONTAL, { .x = 5, .y = 70}}
+    {SO_HORIZONTAL, { .x = 5, .y = 0}},
+    {SO_VERTICAL, { .x = 0, .y = 5}},
+    {SO_VERTICAL, { .x = 35, .y = 5}},
+    {SO_HORIZONTAL, { .x = 5, .y = 35}},
+    {SO_VERTICAL, { .x = 0, .y = 40}},
+    {SO_VERTICAL, { .x = 35, .y = 40}},
+    {SO_HORIZONTAL, { .x = 5, .y = 70}}
 };
 
 static void handle_layer_update(struct Layer* layer, GContext* ctx);
@@ -54,21 +55,27 @@ static void handle_layer_update(struct Layer* layer, GContext* ctx)
     GRect layer_bounds = layer_get_bounds(layer);
     graphics_context_set_compositing_mode(ctx, GCompOpOr);
     // Draw digit
-    const digit_draw_info_t* digit_draw_info = (info->size == DIGIT_BIG) ? big_digit_draw_info : small_digit_draw_info;
+    const digit_draw_info_t* digit_draw_info = (info->size == DS_BIG) ? big_digit_draw_info : small_digit_draw_info;
     const animation_fixed_digits_t* fixed_digits = anim_get_fixed_digits(info->current_anim);
+
     for (int i = 0; i < 7; ++i) {
         if (!fixed_digits->enabled[i]) {
             continue;
         }
+
         GRect draw_rect;
         draw_rect.origin = digit_draw_info[i].offset;
         draw_rect.origin.x += layer_bounds.origin.x;
         draw_rect.origin.y += layer_bounds.origin.y;
-        GBitmap* digit_bitmap = get_digit_image(digit_draw_info[i].orientation, info->size, &draw_rect.size);
+        GBitmap* digit_bitmap = segment_get_image(info->size,
+                                digit_draw_info[i].orientation,
+                                &draw_rect.size);
         graphics_draw_bitmap_in_rect(ctx, digit_bitmap, draw_rect);
     }
+
     // Draw moving parts
     const animation_digit_segment_t* segment_anim = anim_get_segment_anim(info->current_anim);
+
     for (int i = 0; i < 2; ++i) {
         if (segment_anim->segment_anim[i] != 0) {
             const animated_segment_info_t* segment_info = anim_segment_get(segment_anim->segment_anim[i], info->current_anim_position, info->size);
@@ -76,7 +83,9 @@ static void handle_layer_update(struct Layer* layer, GContext* ctx)
             draw_rect.origin = segment_info->offset;
             draw_rect.origin.x += layer_bounds.origin.x;
             draw_rect.origin.y += layer_bounds.origin.y;
-            GBitmap* digit_bitmap = get_anim_image(info->size, segment_info->segment_angle, &draw_rect.size);
+            GBitmap* digit_bitmap = segment_get_image(info->size,
+                                    segment_info->segment_angle,
+                                    &draw_rect.size);
             graphics_draw_bitmap_in_rect(ctx, digit_bitmap, draw_rect);
         }
     }
@@ -94,6 +103,7 @@ static void digit_layer_anim_timer(void* data)
 static void digit_layer_check_timer_status(struct Layer* layer)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+
     if (info->current_number != info->target_number) {
         if (info->anim_timer == NULL) {
             info->anim_timer = app_timer_register(info->animate_speed, digit_layer_anim_timer, layer);
@@ -105,16 +115,22 @@ DigitLayer* digit_layer_create(digit_size_t size, GPoint offset, int max_number)
 {
     GRect layer_rect;
     layer_rect.origin = offset;
+    segment_load_images(size);
+
     switch (size) {
-        case DIGIT_BIG:
+    default:
+    case DS_BIG:
         layer_rect.size.w = BIG_WIDTH;
         layer_rect.size.h = BIG_HEIGHT;
         break;
-        case DIGIT_SMALL:
+
+    case DS_MEDIUM:
         layer_rect.size.w = SMALL_WIDTH;
         layer_rect.size.h = SMALL_HEIGHT;
         break;
+
     }
+
     DigitLayer* result = layer_create_with_data(layer_rect, sizeof(digit_info_t));
     digit_info_t* info = (digit_info_t*) layer_get_data(result);
     info->size = size;
@@ -139,6 +155,7 @@ void digit_layer_set_quick_wrap(DigitLayer* layer, bool quick_wrap)
 void digit_layer_set_animate_speed(DigitLayer* layer, int animate_interval)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+
     if (animate_interval == 0) {
         info->animate_speed = DEFAULT_SPEED;
     } else {
@@ -150,11 +167,13 @@ void digit_layer_set_number(DigitLayer* layer, int target_number, bool animate)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     info->target_number = target_number % 10;
+
     if (!animate) {
         info->current_number = info->target_number;
         info->current_anim = -info->current_number - 1;
         info->current_anim_position = 0;
     }
+
     digit_layer_check_timer_status(layer);
 }
 
@@ -167,28 +186,36 @@ bool digit_layer_need_animation(DigitLayer* layer)
 void digit_layer_animate(DigitLayer* layer)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+
     if (info->current_number == info->target_number) {
         return;
     }
+
     // Negative animation have only one frame (the static digit)
     if (++info->current_anim_position == 9 || info->current_anim < 0) {
         // Animation complete, go to the next one
         info->current_anim_position = 0;
+
         if (info->quick_wrap && ((-info->current_anim) - 1) == info->max_number) {
             // Don't switch to the next animation but use the quick back to 0 one
             int next_anim = anim_get_next_quick_anim(info->current_anim);
             info->current_anim = next_anim;
         } else {
             info->current_anim = anim_get_next_anim(info->current_anim);
+
             if (info->current_anim < 0) {
                 info->current_number = -info->current_anim - 1;
             }
         }
     }
+
     layer_mark_dirty(layer);
 }
 
 void digit_layer_destroy(DigitLayer* layer)
 {
+    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    segment_unload_images(info->size);
     layer_destroy(layer);
 }
+

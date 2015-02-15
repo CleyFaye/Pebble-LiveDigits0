@@ -2,8 +2,8 @@
 #define INCL_DIGITLAYER_H
 
 #include <pebble.h>
-#include "images.h"
-    
+#include "digit_info.h"
+
 typedef Layer DigitLayer;
 
 DigitLayer* digit_layer_create(digit_size_t size, GPoint offset, int max_number);
@@ -15,3 +15,4 @@ void digit_layer_animate(DigitLayer* layer);
 void digit_layer_destroy(DigitLayer* layer);
 
 #endif
+

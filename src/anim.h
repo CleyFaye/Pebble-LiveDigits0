@@ -2,7 +2,8 @@
 #define INCL_ANIM_H
 
 #include <pebble.h>
-#include "images.h"
+#include "digit_info.h"
+#include "digit_images.h"
 
 /** List of animations (segment to segment):
  * 1 = 1 -> 0
@@ -16,7 +17,7 @@
  */
 
 typedef struct {
-    int segment_angle;
+    segment_orientation_t segment_angle;
     GPoint offset;
 } animated_segment_info_t;
 
@@ -67,4 +68,4 @@ int anim_get_next_anim(int digit_anim_id);
 int anim_get_next_quick_anim(int digit_anim_id);
 
 #endif
-    
+
