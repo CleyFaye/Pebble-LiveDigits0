@@ -1,136 +1,178 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>LiveDigits Configuration</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
-        <script type="text/javascript">
-var transitionTime=600;function saveOptions(){var a={};$('textarea, select, [type="hidden"], [type="password"], [type="text"]').each(function(){a[$(this).attr("id")]=$(this).val()});$('[type="checkbox"]').each(function(){a[$(this).attr("id")]=$(this).is(":checked")?"true":"false"});$('[type="radio"]').each(function(){if($(this).is(":checked")){a[$(this).attr("name")]=$(this).attr("value")}});return a}function loadOptions(){var a=window.location.search.substring(1);if(a.length==0){return false}var b=jQuery.parseJSON(decodeURIComponent(a));for(key in b){var c="#"+key;if($(c).length==0){$('input[name="'+key+'"][value="'+b[key]+'"]').attr("checked",true).checkboxradio("refresh")}else{$(c).val(b[key]);if($(c).is(".ui-slider-switch")){$(c).slider("refresh")}else{if($(c).is("select")){$(c).selectmenu("refresh")}else{if($(c).is('[type="checkbox"]')){$(c).attr("checked",b[key]=="true");$(c).checkboxradio("refresh")}}}}}return true}function onReady(){$("#b-cancel").click(function(){document.location="pebblejs://close"});$("#b-submit").click(function(){var b=saveOptions();var c=JSON.stringify(b);var a="pebblejs://close#"+encodeURIComponent(c);document.location=a});$("#force_button").click(function(){$("#config_box").show(transitionTime);$("#message_box").hide(transitionTime)});if(loadOptions()){$("#config_box").show(transitionTime)}else{$("#message_box").show(transitionTime)}$("#loading_box").hide(transitionTime)}$().ready(onReady);
-        </script>
-        </head>
-        <body>
-            <div data-role="page" id="main">
-                <div data-role="header" class="jqm-header">
-                    <h1>LiveDigits0</h1>
-                </div>
-                <div data-role="content" id="loading_box">Please wait, loading...</div>
-                <div data-role="content" id="message_box" style="display: none;">
-                    <p>Thanks for installing this WatchFace! To open the configuration panel, make sure that the watchface is currently active on your Pebble. Then go to the Pebble App on your phone, select the watchface, and choose "Settings".</p>
-                    <p>If after following this procedure you keep getting this message, <a href="#" id="force_button">touch here</a> to open it anyway. Note that in that case your old settings may not be displayed correctly.</p>
-                </div>
-                <div data-role="content" id="config_box" style="display: none;">
+<!-- saved from url=(0042)http://cleyfaye.net/pebble/livedigits0.htm -->
+<html class="ui-mobile"><script async="" type="text/javascript" src="./livedigits0_files/ga.js"></script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!--<base href="http://cleyfaye.net/pebble/livedigits0.htm">--><base href="."><title>LiveDigits0</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css"><script type="text/javascript" src="./livedigits0_files/jquery-1.9.1.min.js"></script><style type="text/css"></style><script type="text/javascript" src="./livedigits0_files/jquery.mobile-1.4.2.min.js"></script><script type="text/javascript">function d(){var a={};$('textarea,select,[type="hidden"],[type="password"],[type="text"]').each(function(){$(this).is(".ui-slider-switch")?a[$(this).attr("id")]="on"==$(this).val()?"1":"0":a[$(this).attr("id")]=$(this).val()});$('[type="checkbox"]').each(function(){a[$(this).attr("id")]=$(this).is(":checked")?"1":"0"});$('[type="radio"]').each(function(){$(this).is(":checked")&&(a[$(this).attr("name")]=$(this).attr("value"))});return a}
+function e(){"function"===typeof doHandleChange&&doHandleChange()}
+function f(){var a=window.location.search.substring(1),a=0==a.length?loadDefaults():jQuery.parseJSON(decodeURIComponent(a)),c;for(c in a){var b="#"+c;0==$(b).length?($('input[name="'+c+'"][value="'+a[c]+'"]').attr("checked",!0).checkboxradio("refresh"),$("[name="+c+"]").bind("change",e)):($(b).is(".ui-slider-switch")?($(b).val("1"==a[c]?"on":"off"),$(b).slider("refresh")):$(b).is("select")?($(b).val(a[c]),$(b).selectmenu("refresh")):$(b).is('[type="checkbox"]')&&($(b).attr("checked","1"==a[c]),$(b).checkboxradio("refresh")),
+$(b).bind("change",e))}return!0}$().ready(function(){$("#b-cancel").click(function(){document.location="pebblejs://close"});$("#b-submit").click(function(){var a=d(),a=JSON.stringify(a);document.location="pebblejs://close#"+encodeURIComponent(a)});$("#force_button").click(function(){$("#config_box").show(600);$("#message_box").hide(600)});f()?$("#config_box").show(600):$("#message_box").show(600);$("#loading_box").hide(600);$("#tabs").tabs({a:0});e()});
 
-                    <div data-role="fieldcontain">
-                        <label for="anim_on_open">Animate when loaded</label>
-                        <select name="anim_on_open" id="anim_on_open" data-role="slider">
-                            <option value="off">Off</option>
-                            <option value="on">On</option>
-                        </select>
-                    </div>
-                    <div data-role="fieldcontain">
-                        <label for="anim_on_shake">Animate on shake</label>
-                        <select name="anim_on_shake" id="anim_on_shake" data-role="slider">
-                            <option value="off">Off</option>
-                            <option value="on">On</option>
-                        </select>
-                    </div>
-                    <div data-role="fieldcontain">
-                        <label for="invert_colors">Invert colors</label>
-                        <input type="checkbox" name="invert_colors" id="invert_colors" />
-                    </div>
-                    <div data-role="fieldcontain">
-                        <label for="quickwrap">Wrap numbers quickly</label>
-                        <input type="checkbox" name="quickwrap" id="quickwrap" />
-                    </div>
-
-                    <!--
-                    <p>Soon available:</p>
-
-                    <div data-role="fieldcontain">
-                        <label for="display_date">Display date</label>
-                        <select name="display_date" id="display_date" data-role="slider">
-                            <option value="off">Off</option>
-                            <option value="on">On</option>
-                        </select>
-                    </div>
-
-                    <div data-role="fieldcontain">
-                        <label for="display_bluetooth">Display Bluetooth state</label>
-                        <select name="display_bluetooth" id="display_bluetooth" data-role="slider">
-                            <option value="off">Off</option>
-                            <option value="on">On</option>
-                        </select>
-                    </div>
-
-                    <div data-role="fieldcontain">
-                        <label for="display_battery">Display battery state</label>
-                        <select name="display_battery" id="display_battery" data-role="slider">
-                            <option value="off">Off</option>
-                            <option value="on">On</option>
-                        </select>
-                    </div>
-
-                    <div data-role="fieldcontain">
-                        <label for="alternativescheme">Alternative display scheme</label>
-                        <input type="checkbox" name="alternativescheme" id="alternativescheme" />
-                    </div>
-
-                    <div data-role="fieldcontain">
-                        <label for="base_animation_speed">Normal animation speed</label>
-                        <select name="base_animation_speed" id="base_animation_speed">
-                            <option value="slowbasic">Slow, separate each step</option>
-                            <option value="fastbasic">Fast, separate each step</option>
-                            <option value="slowmerge">Slow, merge steps</option>
-                            <option value="fastmerge">Fast, merge steps</option>
-                        </select>
-                    </div>
-
-                    <div data-role="fieldcontain">
-                        <label for="forced_animation_speed">Forced animation speed</label>
-                        <select name="forced_animation_speed" id="forced_animation_speed">
-                            <option value="slowbasic">Slow, separate each step</option>
-                            <option value="fastbasic">Fast, separate each step</option>
-                            <option value="slowmerge">Slow, merge steps</option>
-                            <option value="fastmerge">Fast, merge steps</option>
-                        </select>
-                    </div>
-
-                    <fieldset data-role="controlgroup">
-                        <legend>Display seconds</legend>
-                        <input type="radio" name="second_display" id="second_display_none" value="off" />
-                        <label for="second_display_none">Disabled</label>
-                        <input type="radio" name="second_display" id="second_display_ticker" value="ticker" />
-                        <label for="second_display_ticker">Display a ticking dot</label>
-                        <input type="radio" name="second_display" id="second_display_digits" value="digits" />
-                        <label for="second_display_digits">Fixed digits</label>
-                        <input type="radio" name="second_display" id="second_display_digitsod" value="digitsod" />
-                        <label for="second_display_digitsod">Fixed digits (on shake)</label>
-                        <input type="radio" name="second_display" id="second_display_anim" value="anim" />
-                        <label for="second_display_anim">Animated digits</label>
-                    </fieldset>
-
-                    <fieldset data-role="controlgroup">
-                        <legend>Vibrate</legend>
-                        <input type="radio" name="vibrate" id="vibrate_no" value="off" />
-                        <label for="vibrate_no">Disabled</label>
-                        <input type="radio" name="vibrate" id="vibrate_min" value="min" />
-                        <label for="vibrate_min">Every minute</label>
-                        <input type="radio" name="vibrate" id="vibrate_hour" value="hour" />
-                        <label for="vibrate_hour">Every hour</label>
-                    </fieldset>
-                    -->
-
-                    <div class="ui-body ui-body-b">
-                        <fieldset class="ui-grid-a">
-                            <div class="ui-block-a"><button type="submit" data-theme="d" id="b-cancel">Cancel</button></div>
-                            <div class="ui-block-b"><button type="submit" data-theme="a" id="b-submit">Submit</button></div>
-                        </fieldset>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
-</html>
+function loadDefaults() { return {"bluetooth_style": "3", "vibrate_every": "0", "seconds_position": "4", "battery_style": "2", "skip_digits": "1", "bluetooth_position": "1", "demo_mode": "0", "base_layout": "0", "anim_speed_forced": "3", "minutes_position": "1", "invert_colors": "0", "force_light": "0", "anim_on_time": "1", "battery_position": "0", "seconds_style": "1", "date_style": "1", "anim_on_load": "0", "hour_position": "0", "anim_on_shake": "0", "display_widgets": "0", "anim_speed_normal": "1", "date_position": "2"}; }</script></head><body class="ui-mobile-viewport ui-overlay-a"><div data-role="page" id="main" data-url="main" tabindex="0" class="ui-page ui-page-theme-a ui-page-active" style="min-height: 965px;"><div data-role="header" class="jqm-header ui-header ui-bar-inherit" role="banner"><h1 class="ui-title" role="heading" aria-level="1">LiveDigits0</h1></div><div data-role="content" id="loading_box" class="ui-content" role="main" style="display: none;">Please wait, loading...</div><div data-role="content" id="message_box" style="display: none;" class="ui-content" role="main"><p>Thanks for installing this WatchFace! To open the configuration panel, make sure that the watchface is currently active on your Pebble. Then go to the Pebble App on your phone, select the watchface, and choose "Settings".</p><p>If after following this procedure you keep getting this message, <a href="http://cleyfaye.net/pebble/livedigits0.htm#" id="force_button" class="ui-link">touch here</a> to open it anyway. Note that in that case your old settings may not be displayed correctly.</p></div><div data-role="content" id="config_box" class="ui-content" role="main"><div id="batterybar" style="border: 1px solid black; ">
+    <div>Estimated battery impact: <span id="batteryimpact">Low</span></div>
+    <div id="batterygradient" style="background: linear-gradient(to right, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, orange);">&nbsp;</div>
+</div>
+<script type="text/javascript">
+    $('#batteryimpact').html('Immense');
+    function getRadio(name) {
+        console.log('Getting radio:' + name);
+        console.log($('[name="' + name + '"]:checked').val());
+        return $('[name="' + name + '"]:checked').val();
+    }
+    function getSelect(name) {
+        return $('#' + name).val();
+    }
+    function doHandleChange() {
+        var score = 2;
+        // Battery impact is calculated on an hour (and using totally out of the blue estimates...)
+        // General tab:
+        // Vibration is worth 10 points for each short vibe. 10 for every hour, 600 for every minutes
+        switch ($('#vibrate_every').val()) {
+            case '1': score += 600; break;
+            case '2': score += 10; break;
+        }
+        // Max impact: 600
+        // Animation tab
+        // If digits are animated, speed sets the cost. Each animation step is roughly 2 for fast, 4 for slow.
+        // If fast wrap is activated, multiply the animation cost by 0.7
+        // From 0 to 0 there is 2+2+2+1+1+1+2+2+1+1=15 animations steps, 10 when merged.
+        if ($('#anim_on_time').val() == 'on') {
+            var anim_cost = 0;
+            switch (getRadio('anim_speed_normal')) {
+                case '0': anim_cost = 15 * 2 * 4; break;
+                case '1': anim_cost = 10 * 2 * 4; break;
+                case '2': anim_cost = 15 * 2 * 2; break;
+                case '3': anim_cost = 10 * 2 * 2; break;
+            }
+            if ($('#skip_digits').val() == 'on') {
+                anim_cost *= 0.7;
+            }
+            score += anim_cost;
+        }
+        // Max impact: 120
+        // Extra tab
+        // Almost the same calculation than normal anim, but with different conditions
+        // Half less important because it only move a little
+        var forced_anim_cost = 0;
+        switch (getRadio('anim_speed_forced')) {
+            case '0': forced_anim_cost = 15 * 2 * 4; break;
+            case '1': forced_anim_cost = 10 * 2 * 4; break;
+            case '2': forced_anim_cost = 15 * 2 * 2; break;
+            case '3': forced_anim_cost = 10 * 2 * 2; break;
+        }
+        if ($('#skip_digits').val() == 'on') {
+            forced_anim_cost *= 0.7;
+        }
+        forced_anim_cost /= 2;
+        var real_forced_anim_cost = 0;
+        // If light is forced during these anims, more battery cost
+        var usingLight = $('#force_light').val() == 'on';
+        if ($('#anim_on_shake').val() == 'on') {
+            // Assuming someone not shaking is watch continuously
+            real_forced_anim_cost += forced_anim_cost;
+            if (usingLight) {
+                real_forced_anim_cost += 100;
+            }
+        }
+        if ($('#anim_on_load').val() == 'on') {
+            // Load event is more rare
+            real_forced_anim_cost += forced_anim_cost / 2;
+            if (usingLight) {
+                real_forced_anim_cost += 50;
+            }
+        }
+        score += real_forced_anim_cost;
+        // Max impact: 240
+        // Widgets tab
+        // Displaying always mostly impact the seconds meter. On shake imply a minimal impact because it only refresh the screen twices
+        var widgets_multiplier = 0;
+        var widgets_long_multiplier = 0;
+        switch (getSelect('display_widgets')) {
+            case '0': widgets_multiplier = 0; widgets_long_multiplier = 20; break;
+            case '1': widgets_multiplier = 2; widgets_long_multiplier = 1; break;
+            case '2': widgets_multiplier = 2; widgets_long_multiplier = 2; break;
+            case '3': widgets_multiplier = 1; widgets_long_multiplier = 0; break;
+        }
+        // Date have no noticeable impact (not animated, not polled).
+        // Bluetooth is the same, except if it is set to vibrate on loss
+        var bluetooth_impact = 0;
+        if (getSelect('bluetooth_position') != '0') {
+            switch (getSelect('bluetooth_style')) {
+                case '3':
+                case '5':
+                bluetooth_impact = 5;
+            }
+        }
+        // Battery (ironically) have minimal impact. Display is changed every percent change.
+        var battery_static_impact = 0;
+        var battery_longrun_impact = 0;
+        if (getSelect('battery_position') != '0') {
+            switch (getSelect('battery_style')) {
+                case '0': battery_static_impact = 1; battery_longrun_impact = 0; break;
+                case '1': battery_static_impact = 1; battery_longrun_impact = 5; break;
+                case '2': battery_static_impact = 1; battery_longrun_impact = 0; break;
+            }
+        }
+        // Seconds. Less costly is static, most costly is animated digits.
+        var seconds_static_impact = 0;
+        var seconds_longrun_impact = 0;
+        if (getSelect('seconds_position') != '0') {
+            seconds_static_impact = 1;
+            switch (getSelect('seconds_style')) {
+                case '0': seconds_longrun_impact = 5; break;
+                case '1': seconds_longrun_impact = 0; break;
+                // We use fastest animation, which should last slightly less than one second. One "longrun" unit is three seconds.
+                case '2': seconds_longrun_impact = (40 * 3) / 2; break; // Divide by two because otherwise the value is just silly (although realistic)
+            }
+        }
+        var static_impact = seconds_static_impact + battery_static_impact;
+        static_impact *= widgets_multiplier;
+        var longrun_impact = seconds_longrun_impact + battery_longrun_impact;
+        longrun_impact *= widgets_long_multiplier;
+        score += static_impact + longrun_impact + bluetooth_impact;
+        // Max impact: 1200
+        
+        // Max: 2222
+        var batt_metter = score / 2300 * 31;
+        // Now it's from 0 to 31
+        // Build gradient
+        var gradient = '';
+        var i = 0;
+        var bad_color;
+        var impact;
+        if (score < 40) {
+            bad_color = 'green';
+        } else if (score < 200) {
+            bad_color = 'orange';
+        } else if (score < 2000) {
+            bad_color = 'red';
+        } else {
+            bad_color = 'black';
+        }
+        if (score < 10) {
+            impact = 'Negligible';
+        } else if (score < 40) {
+            impact = 'Very low';
+        } else if (score < 100) {
+            impact = 'Low';
+        } else if (score < 200) {
+            impact = 'Acceptable';
+        } else if (score < 500) {
+            impact = 'Large';
+        } else if (score < 1000) {
+            impact = 'Very large';
+        } else if (score < 2000) {
+            impact = 'Huge';
+        } else {
+            impact = 'Keep the Pebble plugged in!';
+        }
+        $('#batteryimpact').html(impact);
+        for (; i < 30 - batt_metter; ++i) {
+            gradient = gradient + 'white, ';
+        }
+        for (; i < 30; ++i) {
+            gradient = gradient + bad_color + ', ';
+        }
+        gradient = 'linear-gradient(to right, ' + gradient + bad_color + ')';
+        $('#batterygradient').css('background', gradient);
+        console.log('Score:' + score);
+    }
+</script>
+<div data-role="tabs" id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all"><div data-role="navbar" class="ui-navbar" role="navigation"><ul class="ui-grid-c ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" role="tablist"><li class="ui-block-a ui-state-default ui-corner-top ui-tabs-active ui-state-active" role="tab" tabindex="0" aria-controls="sec0" aria-labelledby="ui-id-1" aria-selected="true"><a href="http://cleyfaye.net/pebble/livedigits0.htm#sec0" data-ajax="false" class="ui-link ui-btn ui-tabs-anchor" role="presentation" tabindex="-1" id="ui-id-1">General</a></li><li class="ui-block-b ui-state-default ui-corner-top" role="tab" tabindex="-1" aria-controls="sec1" aria-labelledby="ui-id-2" aria-selected="false"><a href="http://cleyfaye.net/pebble/livedigits0.htm#sec1" data-ajax="false" class="ui-link ui-btn ui-tabs-anchor" role="presentation" tabindex="-1" id="ui-id-2">Anim.</a></li><li class="ui-block-c ui-state-default ui-corner-top" role="tab" tabindex="-1" aria-controls="sec2" aria-labelledby="ui-id-3" aria-selected="false"><a href="http://cleyfaye.net/pebble/livedigits0.htm#sec2" data-ajax="false" class="ui-link ui-btn ui-tabs-anchor" role="presentation" tabindex="-1" id="ui-id-3">Extra</a></li><li class="ui-block-d ui-state-default ui-corner-top" role="tab" tabindex="-1" aria-controls="sec3" aria-labelledby="ui-id-4" aria-selected="false"><a href="http://cleyfaye.net/pebble/livedigits0.htm#sec3" data-ajax="false" class="ui-link ui-btn ui-tabs-anchor" role="presentation" tabindex="-1" id="ui-id-4">Widgets</a></li></ul></div><div id="sec0" aria-labelledby="ui-id-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-expanded="true" aria-hidden="false"><div data-role="fieldcontain" class="ui-field-contain"><label for="hour_position">Hour position</label><div class="ui-select"><div id="hour_position-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Left</span><select name="hour_position" id="hour_position"><option value="0">Left</option><option value="1">Right</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="minutes_position">Minutes position</label><div class="ui-select"><div id="minutes_position-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Right</span><select name="minutes_position" id="minutes_position"><option value="0">Left</option><option value="1">Right</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="base_layout">Basic layour</label><div class="ui-select"><div id="base_layout-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Hour on top, Minute on bottom</span><select name="base_layout" id="base_layout"><option value="0">Hour on top, Minute on bottom</option><option value="1">Minute on top, hour on bottom</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><div class="ui-checkbox"><label for="invert_colors" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Invert colors</label><input type="checkbox" name="invert_colors" id="invert_colors"></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="vibrate_every">Vibrate</label><div class="ui-select"><div id="vibrate_every-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Disabled</span><select name="vibrate_every" id="vibrate_every"><option value="0">Disabled</option><option value="1">Every minutes</option><option value="2">Every hour</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><div class="ui-checkbox"><label for="demo_mode" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Demo mode (cycle through all digits)</label><input type="checkbox" name="demo_mode" id="demo_mode"></div></div></div><div id="sec1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-expanded="false" aria-hidden="true" style="display: none;"><div data-role="fieldcontain" class="ui-field-contain"><label for="skip_digits" id="skip_digits-label">Numbers wrap quickly (avoid displaying things like 49:83)</label><select name="skip_digits" id="skip_digits" data-role="slider" tabindex="-1" class="ui-slider-switch"><option value="off">Off</option><option value="on">On</option></select><div role="application" class="ui-slider ui-slider-switch ui-slider-track ui-shadow-inset ui-bar-inherit ui-corner-all"><span class="ui-slider-label ui-slider-label-a ui-btn-active" role="img" style="width: 100%;">On</span><span class="ui-slider-label ui-slider-label-b" role="img" style="width: 0%;">Off</span><div class="ui-slider-inneroffset"><a href="http://cleyfaye.net/pebble/livedigits0.htm#" class="ui-slider-handle ui-slider-handle-snapping ui-btn ui-shadow" role="slider" aria-valuemin="0" aria-valuemax="1" aria-valuenow="on" aria-valuetext="On" title="On" aria-labelledby="skip_digits-label" style="left: 100%;"></a></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="anim_on_time" id="anim_on_time-label">Animate digits with time</label><select name="anim_on_time" id="anim_on_time" data-role="slider" tabindex="-1" class="ui-slider-switch"><option value="off">Off</option><option value="on">On</option></select><div role="application" class="ui-slider ui-slider-switch ui-slider-track ui-shadow-inset ui-bar-inherit ui-corner-all"><span class="ui-slider-label ui-slider-label-a ui-btn-active" role="img" style="width: 100%;">On</span><span class="ui-slider-label ui-slider-label-b" role="img" style="width: 0%;">Off</span><div class="ui-slider-inneroffset"><a href="http://cleyfaye.net/pebble/livedigits0.htm#" class="ui-slider-handle ui-slider-handle-snapping ui-btn ui-shadow" role="slider" aria-valuemin="0" aria-valuemax="1" aria-valuenow="on" aria-valuetext="On" title="On" aria-labelledby="anim_on_time-label" style="left: 100%;"></a></div></div></div><fieldset data-role="controlgroup" class="ui-controlgroup ui-controlgroup-vertical ui-corner-all"><div role="heading" class="ui-controlgroup-label"><legend>Animation speed</legend></div><div class="ui-controlgroup-controls "><div class="ui-radio"><label for="anim_speed_normal_0" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-off ui-first-child">Slow, separate each steps</label><input type="radio" name="anim_speed_normal" id="anim_speed_normal_0" value="0"></div><div class="ui-radio"><label for="anim_speed_normal_1" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-on">Slow, constant speed</label><input type="radio" name="anim_speed_normal" id="anim_speed_normal_1" value="1" checked="checked"></div><div class="ui-radio"><label for="anim_speed_normal_2" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-off">Fast, separate each steps</label><input type="radio" name="anim_speed_normal" id="anim_speed_normal_2" value="2"></div><div class="ui-radio"><label for="anim_speed_normal_3" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-off ui-last-child">Fast, constant speed</label><input type="radio" name="anim_speed_normal" id="anim_speed_normal_3" value="3"></div></div></fieldset></div><div id="sec2" aria-labelledby="ui-id-3" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-expanded="false" aria-hidden="true" style="display: none;"><div data-role="fieldcontain" class="ui-field-contain"><label for="anim_on_load" id="anim_on_load-label">Animate when the watchface is loaded</label><select name="anim_on_load" id="anim_on_load" data-role="slider" tabindex="-1" class="ui-slider-switch"><option value="off">Off</option><option value="on">On</option></select><div role="application" class="ui-slider ui-slider-switch ui-slider-track ui-shadow-inset ui-bar-inherit ui-corner-all"><span class="ui-slider-label ui-slider-label-a ui-btn-active" role="img" style="width: 0%;">On</span><span class="ui-slider-label ui-slider-label-b" role="img" style="width: 100%;">Off</span><div class="ui-slider-inneroffset"><a href="http://cleyfaye.net/pebble/livedigits0.htm#" class="ui-slider-handle ui-slider-handle-snapping ui-btn ui-shadow" role="slider" aria-valuemin="0" aria-valuemax="1" aria-valuenow="off" aria-valuetext="Off" title="Off" aria-labelledby="anim_on_load-label" style="left: 0%;"></a></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="anim_on_shake" id="anim_on_shake-label">Animate when the Pebble is shaked</label><select name="anim_on_shake" id="anim_on_shake" data-role="slider" tabindex="-1" class="ui-slider-switch"><option value="off">Off</option><option value="on">On</option></select><div role="application" class="ui-slider ui-slider-switch ui-slider-track ui-shadow-inset ui-bar-inherit ui-corner-all"><span class="ui-slider-label ui-slider-label-a ui-btn-active" role="img" style="width: 0%;">On</span><span class="ui-slider-label ui-slider-label-b" role="img" style="width: 100%;">Off</span><div class="ui-slider-inneroffset"><a href="http://cleyfaye.net/pebble/livedigits0.htm#" class="ui-slider-handle ui-slider-handle-snapping ui-btn ui-shadow" role="slider" aria-valuemin="0" aria-valuemax="1" aria-valuenow="off" aria-valuetext="Off" title="Off" aria-labelledby="anim_on_shake-label" style="left: 0%;"></a></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><div class="ui-checkbox"><label for="force_light" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Keep light on during extra animation</label><input type="checkbox" name="force_light" id="force_light"></div></div><fieldset data-role="controlgroup" class="ui-controlgroup ui-controlgroup-vertical ui-corner-all"><div role="heading" class="ui-controlgroup-label"><legend>Extra animation speed</legend></div><div class="ui-controlgroup-controls "><div class="ui-radio"><label for="anim_speed_forced_0" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-off ui-first-child">Slow, separate each steps</label><input type="radio" name="anim_speed_forced" id="anim_speed_forced_0" value="0"></div><div class="ui-radio"><label for="anim_speed_forced_1" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-off">Slow, constant speed</label><input type="radio" name="anim_speed_forced" id="anim_speed_forced_1" value="1"></div><div class="ui-radio"><label for="anim_speed_forced_2" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-radio-off">Fast, separate each steps</label><input type="radio" name="anim_speed_forced" id="anim_speed_forced_2" value="2"></div><div class="ui-radio"><label for="anim_speed_forced_3" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-last-child ui-radio-on">Fast, constant speed</label><input type="radio" name="anim_speed_forced" id="anim_speed_forced_3" value="3" checked="checked"></div></div></fieldset></div><div id="sec3" aria-labelledby="ui-id-4" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-expanded="false" aria-hidden="true" style="display: none;"><div data-role="fieldcontain" class="ui-field-contain"><label for="display_widgets">Display widgets</label><div class="ui-select"><div id="display_widgets-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Always</span><select name="display_widgets" id="display_widgets"><option value="0">Always</option><option value="1">On shake (3s)</option><option value="2">On shake (6s)</option><option value="3">Never</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="date_position">Display date</label><div class="ui-select"><div id="date_position-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Second line</span><select name="date_position" id="date_position"><option value="0">Disabled</option><option value="1">First line</option><option value="2">Second line</option><option value="3">Third line</option><option value="4">Fourth line</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="date_style">Date style</label><div class="ui-select"><div id="date_style-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Day/Month</span><select name="date_style" id="date_style"><option value="0">Day only</option><option value="1">Day/Month</option><option value="2">Month only</option><option value="3">Month/Day</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="seconds_position">Display seconds</label><div class="ui-select"><div id="seconds_position-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Fourth line</span><select name="seconds_position" id="seconds_position"><option value="0">Disabled</option><option value="1">First line</option><option value="2">Second line</option><option value="3">Third line</option><option value="4">Fourth line</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="seconds_style">Seconds style</label><div class="ui-select"><div id="seconds_style-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Fixed digits</span><select name="seconds_style" id="seconds_style"><option value="0">Blinking dot</option><option value="1">Fixed digits</option><option value="2">Animate</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="bluetooth_position">Display Bluetooth status</label><div class="ui-select"><div id="bluetooth_position-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>First line</span><select name="bluetooth_position" id="bluetooth_position"><option value="0">Disabled</option><option value="1">First line</option><option value="2">Second line</option><option value="3">Third line</option><option value="4">Fourth line</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="bluetooth_style">Bluetooth style</label><div class="ui-select"><div id="bluetooth_style-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Only when disconnected (with vibration)</span><select name="bluetooth_style" id="bluetooth_style"><option value="0">Always visible</option><option value="1">Only when connected</option><option value="2">Only when disconnected</option><option value="3">Only when disconnected (with vibration)</option><option value="4">Only when disconnected (force display)</option><option value="5">Only when disconnected (with vibration, force display)</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="battery_position">Display Pebble battery status</label><div class="ui-select"><div id="battery_position-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Disabled</span><select name="battery_position" id="battery_position"><option value="0">Disabled</option><option value="1">First line</option><option value="2">Second line</option><option value="3">Third line</option><option value="4">Fourth line</option></select></div></div></div><div data-role="fieldcontain" class="ui-field-contain"><label for="battery_style">Battery style</label><div class="ui-select"><div id="battery_style-button" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow"><span>Four-level states (&gt;75%, &gt;50%, &gt;25%, &lt;25%)</span><select name="battery_style" id="battery_style"><option value="0">Percentage left (static)</option><option value="1">Percentage left (animated)</option><option value="2">Four-level states (&gt;75%, &gt;50%, &gt;25%, &lt;25%)</option></select></div></div></div></div></div><div class="ui-body ui-body-b"><fieldset class="ui-grid-a"><div class="ui-block-a"><button type="submit" data-theme="d" id="b-cancel" class=" ui-btn ui-btn-d ui-shadow ui-corner-all">Cancel</button></div><div class="ui-block-b"><button type="submit" data-theme="a" id="b-submit" class=" ui-btn ui-btn-a ui-shadow ui-corner-all">Submit</button></div></fieldset></div></div></div><div class="ui-loader ui-corner-all ui-body-a ui-loader-default"><span class="ui-icon-loading"></span><h1>loading</h1></div></body></html>
