@@ -1,0 +1,170 @@
+<div id="batterybar" style="border: 1px solid black; ">
+    <div>Estimated battery impact: <span id="batteryimpact">-</span></div>
+    <div id="batterygradient" style="background: linear-gradient(to right, white, white, white, white, red, red);">&nbsp;</div>
+</div>
+<script type="text/javascript">
+    $('#batteryimpact').html('Immense');
+    function getRadio(name) {
+        console.log('Getting radio:' + name);
+        console.log($('[name="' + name + '"]:checked').val());
+        return $('[name="' + name + '"]:checked').val();
+    }
+    function getSelect(name) {
+        return $('#' + name).val();
+    }
+    function doHandleChange() {
+        var score = 2;
+        // Battery impact is calculated on an hour (and using totally out of the blue estimates...)
+        // General tab:
+        // Vibration is worth 10 points for each short vibe. 10 for every hour, 600 for every minutes
+        switch ($('#vibrate_every').val()) {
+            case '1': score += 600; break;
+            case '2': score += 10; break;
+        }
+        // Max impact: 600
+        // Animation tab
+        // If digits are animated, speed sets the cost. Each animation step is roughly 2 for fast, 4 for slow.
+        // If fast wrap is activated, multiply the animation cost by 0.7
+        // From 0 to 0 there is 2+2+2+1+1+1+2+2+1+1=15 animations steps, 10 when merged.
+        if ($('#anim_on_time').val() == 'on') {
+            var anim_cost = 0;
+            switch (getRadio('anim_speed_normal')) {
+                case '0': anim_cost = 15 * 2 * 4; break;
+                case '1': anim_cost = 10 * 2 * 4; break;
+                case '2': anim_cost = 15 * 2 * 2; break;
+                case '3': anim_cost = 10 * 2 * 2; break;
+            }
+            if ($('#skip_digits').val() == 'on') {
+                anim_cost *= 0.7;
+            }
+            score += anim_cost;
+        }
+        // Max impact: 120
+        // Extra tab
+        // Almost the same calculation than normal anim, but with different conditions
+        // Half less important because it only move a little
+        var forced_anim_cost = 0;
+        switch (getRadio('anim_speed_forced')) {
+            case '0': forced_anim_cost = 15 * 2 * 4; break;
+            case '1': forced_anim_cost = 10 * 2 * 4; break;
+            case '2': forced_anim_cost = 15 * 2 * 2; break;
+            case '3': forced_anim_cost = 10 * 2 * 2; break;
+        }
+        if ($('#skip_digits').val() == 'on') {
+            forced_anim_cost *= 0.7;
+        }
+        forced_anim_cost /= 2;
+        var real_forced_anim_cost = 0;
+        // If light is forced during these anims, more battery cost
+        var usingLight = $('#force_light').val() == 'on';
+        if ($('#anim_on_shake').val() == 'on') {
+            // Assuming someone not shaking is watch continuously
+            real_forced_anim_cost += forced_anim_cost;
+            if (usingLight) {
+                real_forced_anim_cost += 100;
+            }
+        }
+        if ($('#anim_on_load').val() == 'on') {
+            // Load event is more rare
+            real_forced_anim_cost += forced_anim_cost / 2;
+            if (usingLight) {
+                real_forced_anim_cost += 50;
+            }
+        }
+        score += real_forced_anim_cost;
+        // Max impact: 240
+        // Widgets tab
+        // Displaying always mostly impact the seconds meter. On shake imply a minimal impact because it only refresh the screen twices
+        var widgets_multiplier = 0;
+        var widgets_long_multiplier = 0;
+        switch (getSelect('display_widgets')) {
+            case '0': widgets_multiplier = 0; widgets_long_multiplier = 20; break;
+            case '1': widgets_multiplier = 2; widgets_long_multiplier = 1; break;
+            case '2': widgets_multiplier = 2; widgets_long_multiplier = 2; break;
+            case '3': widgets_multiplier = 1; widgets_long_multiplier = 0; break;
+        }
+        // Date have no noticeable impact (not animated, not polled).
+        // Bluetooth is the same, except if it is set to vibrate on loss
+        var bluetooth_impact = 0;
+        if (getSelect('bluetooth_position') != '0') {
+            switch (getSelect('bluetooth_style')) {
+                case '3':
+                case '5':
+                bluetooth_impact = 5;
+            }
+        }
+        // Battery (ironically) have minimal impact. Display is changed every percent change.
+        var battery_static_impact = 0;
+        var battery_longrun_impact = 0;
+        if (getSelect('battery_position') != '0') {
+            switch (getSelect('battery_style')) {
+                case '0': battery_static_impact = 1; battery_longrun_impact = 0; break;
+                case '1': battery_static_impact = 1; battery_longrun_impact = 5; break;
+                case '2': battery_static_impact = 1; battery_longrun_impact = 0; break;
+            }
+        }
+        // Seconds. Less costly is static, most costly is animated digits.
+        var seconds_static_impact = 0;
+        var seconds_longrun_impact = 0;
+        if (getSelect('seconds_position') != '0') {
+            seconds_static_impact = 1;
+            switch (getSelect('seconds_style')) {
+                case '0': seconds_longrun_impact = 5; break;
+                case '1': seconds_longrun_impact = 0; break;
+                // We use fastest animation, which should last slightly less than one second. One "longrun" unit is three seconds.
+                case '2': seconds_longrun_impact = (40 * 3) / 2; break; // Divide by two because otherwise the value is just silly (although realistic)
+            }
+        }
+        var static_impact = seconds_static_impact + battery_static_impact;
+        static_impact *= widgets_multiplier;
+        var longrun_impact = seconds_longrun_impact + battery_longrun_impact;
+        longrun_impact *= widgets_long_multiplier;
+        score += static_impact + longrun_impact + bluetooth_impact;
+        // Max impact: 1200
+        
+        // Max: 2222
+        var batt_metter = score / 2300 * 31;
+        // Now it's from 0 to 31
+        // Build gradient
+        var gradient = '';
+        var i = 0;
+        var bad_color;
+        var impact;
+        if (score < 40) {
+            bad_color = 'green';
+        } else if (score < 200) {
+            bad_color = 'orange';
+        } else if (score < 2000) {
+            bad_color = 'red';
+        } else {
+            bad_color = 'black';
+        }
+        if (score < 10) {
+            impact = 'Negligible';
+        } else if (score < 40) {
+            impact = 'Very low';
+        } else if (score < 100) {
+            impact = 'Low';
+        } else if (score < 200) {
+            impact = 'Acceptable';
+        } else if (score < 500) {
+            impact = 'Large';
+        } else if (score < 1000) {
+            impact = 'Very large';
+        } else if (score < 2000) {
+            impact = 'Huge';
+        } else {
+            impact = 'Keep the Pebble plugged in!';
+        }
+        $('#batteryimpact').html(impact);
+        for (; i < 30 - batt_metter; ++i) {
+            gradient = gradient + 'white, ';
+        }
+        for (; i < 30; ++i) {
+            gradient = gradient + bad_color + ', ';
+        }
+        gradient = 'linear-gradient(to right, ' + gradient + bad_color + ')';
+        $('#batterygradient').css('background', gradient);
+        console.log('Score:' + score);
+    }
+</script>

@@ -132,7 +132,7 @@ app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maxim
 }
 void cfg_clear(void)
 {
-    app_message_deregister_callbacks();
+app_message_deregister_callbacks();
 }
 static bool cfg_handle_app_message(Tuple* tuple)
 {
@@ -228,3 +228,4 @@ return true;
 }
 return false;
 }
+

@@ -3,7 +3,7 @@
 #define __INCL_CONFIG_H
 
 #include <pebble.h>
-    
+
 #define ANIM_SPEED_FORCED_FAST_MERGE 3
 #define ANIM_SPEED_FORCED_FAST_SEP 2
 #define ANIM_SPEED_FORCED_SLOW_MERGE 1
