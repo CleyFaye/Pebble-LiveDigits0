@@ -18,11 +18,13 @@ def options(ctx):
 
 def configure(ctx):
     ctx.load('pebble_sdk')
-    makecfg.main([
+    with open('appinfo.json.in', 'r') as inFile:
+        with open('appinfo.json', 'w') as outFile:
+            outFile.write(inFile.read() % { 'appKeys': makecfg.main([
             '--ifile', 'config/livedigits0.cfg', 
             '--cfile', os.path.join('src', 'config.c'),
             '--hfile', os.path.join('src', 'config.h'),
-            '--ofile', os.path.join('html', 'livedigits0.htm') ])
+            '--ofile', os.path.join('html', 'livedigits0.htm') ]) })
 
 def build(ctx):
     ctx.load('pebble_sdk')

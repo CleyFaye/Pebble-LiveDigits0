@@ -168,9 +168,16 @@ def main(argv):
     cfgh.generateCHeader(appConfig, defines)
     cfgc.generateCSource(appConfig, defines)
     # JS Ids
+    firstKey = True
+    result = ''
     for key in defines['CONFIG']:
-        print '"%(key)s": %(value)s,' % { 'key': key, 'value': defines['CONFIG'][key] }
+        if firstKey:
+            firstKey = False
+            result = '"%(key)s": %(value)s' % { 'key': key, 'value': defines['CONFIG'][key] }
+        else:
+            result += ',\n"%(key)s": %(value)s' % { 'key': key, 'value': defines['CONFIG'][key] }
+    return result
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    print main(sys.argv[1:])
 
