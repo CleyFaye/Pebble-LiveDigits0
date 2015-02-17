@@ -1,6 +1,4 @@
-#!/usr/bin/python
-
-#import pdb; pdb.set_trace()
+#!/usr/bin/env python
 
 import sys
 import getopt
@@ -144,9 +142,9 @@ def sanitizeConfig(config):
     else:
         config['APPMESSAGE'] = config['APPMESSAGE'] == 'true'
 
-def main():
+def main(argv):
     "Application entry point"
-    cliConfig = parseParams(sys.argv[1:])
+    cliConfig = parseParams(argv)
     configFileConfig = readConfig(cliConfig['INFILE'])
     # Merge config file and cli config
     appConfig = configFileConfig.copy()
@@ -162,5 +160,5 @@ def main():
         print '"%(key)s": %(value)s,' % { 'key': key, 'value': defines['CONFIG'][key] }
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 
