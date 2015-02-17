@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os.path
 import sys
 import getopt
 import cgi
@@ -17,6 +18,13 @@ def addConfigEntry(entries, entrySection, entryDefine, entryLabel, entryType, en
             return
     entries.append([entrySection])
     addConfigEntry(entries, entrySection, entryDefine, entryLabel, entryType, entryValue)
+
+def makePathRelativeTo(baseFile, filePath):
+    "Rebase filePath relative to the path of baseFile"
+    if os.path.isabs(filePath):
+        return filePath
+    basePath = os.path.dirname(os.path.abspath(baseFile))
+    return os.path.normpath(os.path.join(basePath, filePath))
 
 def readConfig(inFile):
     "Read the configuration file"
@@ -38,6 +46,10 @@ def readConfig(inFile):
         addConfigEntry(entries, entrySection, entryDefine, entryLabel, entryType, entryValue)
     configFile.close()
     customConfig['ENTRIES'] = entries
+    # File path are relative to config script
+    for testEntry in ['OUTCFILE', 'OUTHFILE', 'OUTHTMLFILE', 'HEADER', 'FOOTER']:
+        if testEntry in customConfig:
+            customConfig[testEntry] = makePathRelativeTo(inFile, customConfig[testEntry])
     return customConfig
 
 def printUsage():

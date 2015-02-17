@@ -6,6 +6,9 @@
 #
 
 import os.path
+import sys
+sys.path.insert(0, os.path.join('extra', 'config'))
+import makecfg
 
 top = '.'
 out = 'build'
@@ -15,6 +18,11 @@ def options(ctx):
 
 def configure(ctx):
     ctx.load('pebble_sdk')
+    makecfg.main([
+            '--ifile', 'config/livedigits0.cfg', 
+            '--cfile', os.path.join('src', 'config.c'),
+            '--hfile', os.path.join('src', 'config.h'),
+            '--ofile', os.path.join('html', 'livedigits0.htm') ])
 
 def build(ctx):
     ctx.load('pebble_sdk')

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os.path
 import cfglocal
 import cgi
 import cfgdef
@@ -180,7 +181,7 @@ def generateDefaults(entries, defines):
 
 def javascriptCode(entries, defines):
     "Return the javascript stub"
-    return readFile('cfg.js') + '\n' + generateDefaults(entries, defines)
+    return readFile(os.path.join(os.path.realpath(os.path.dirname(__file__)), 'cfg.js')) + '\n' + generateDefaults(entries, defines)
 
 if __name__ == '__main__':
     print 'This file is a library and must not be run separately'
