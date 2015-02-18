@@ -27,6 +27,9 @@ def generateCSource(config, defines):
                     '}\n'
                     'return res;\n'
                     '}\n')
+    else:
+        atoiImplHead = ''
+        atoiImpl = ''
     output.write('/* GENERATED SOURCE FILE DO NOT MODIFY */\n'
                  '#include <pebble.h>\n'
                  '#include "config.h"\n'
