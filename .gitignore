@@ -2,3 +2,5 @@
 build
 *.pyc
 appinfo.json
+/src/config.c
+/src/config.h
