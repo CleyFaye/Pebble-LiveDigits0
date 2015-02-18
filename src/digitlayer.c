@@ -1,13 +1,14 @@
 #include <pebble.h>
-#include "anim.h"
+#include "digit_anim.h"
 #include "digit_info.h"
+#include "digit_images.h"
 #include "digitlayer.h"
 
 typedef struct {
     digit_size_t size;
     int current_number;
     int target_number;
-    int current_anim;
+    digit_anim_t current_anim;
     int current_anim_position;
     AppTimer* anim_timer;
     int max_number;
@@ -136,7 +137,7 @@ DigitLayer* digit_layer_create(digit_size_t size, GPoint offset, int max_number)
     info->size = size;
     info->current_number = 0;
     info->target_number = 0;
-    info->current_anim = -1;
+    info->current_anim = DA_0;
     info->current_anim_position = 0;
     info->anim_timer = NULL;
     info->max_number = max_number;
@@ -170,7 +171,7 @@ void digit_layer_set_number(DigitLayer* layer, int target_number, bool animate)
 
     if (!animate) {
         info->current_number = info->target_number;
-        info->current_anim = -info->current_number - 1;
+        info->current_anim = anim_get_anim_for_number(info->current_number);
         info->current_anim_position = 0;
     }
 
@@ -192,19 +193,25 @@ void digit_layer_animate(DigitLayer* layer)
     }
 
     // Negative animation have only one frame (the static digit)
-    if (++info->current_anim_position == 9 || info->current_anim < 0) {
-        // Animation complete, go to the next one
+    if (++info->current_anim_position == 9 ||
+        anim_is_static_digit(info->current_anim)) {
+        // Animation complete
         info->current_anim_position = 0;
 
-        if (info->quick_wrap && ((-info->current_anim) - 1) == info->max_number) {
-            // Don't switch to the next animation but use the quick back to 0 one
-            int next_anim = anim_get_next_quick_anim(info->current_anim);
-            info->current_anim = next_anim;
+        if (info->quick_wrap && info->target_number < info->current_number) {
+            // If we're quickwrapping and we want a lower digit, start back from
+            // 0
+            // Here we forcefully set the currently displayed digit to 0 so we
+            // don't loop endlessly trying to reach it. Animation step are still
+            // dictated by the current_anim property.
+            info->current_number = 0;
+            info->current_anim = anim_get_next_quick_anim(info->current_anim);
         } else {
+            // Just continue until we reach the right number
             info->current_anim = anim_get_next_anim(info->current_anim);
 
-            if (info->current_anim < 0) {
-                info->current_number = -info->current_anim - 1;
+            if (anim_is_static_digit(info->current_anim)) {
+                info->current_number = anim_get_displayed_number(info->current_anim);
             }
         }
     }

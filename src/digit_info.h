@@ -3,6 +3,22 @@
  *
  * Shared properties for digits.
  *
+ * Segments are identified by a numeric identifier ranging from 0 to 6 in this
+ * fashion:
+ *   000000
+ * 1  0000  2
+ * 11      22
+ * 11      22
+ * 11      22
+ * 1  3333  2
+ *   333333
+ * 4  3333  5
+ * 44      55
+ * 44      55
+ * 44      55
+ * 4  6666  4
+ *   666666
+ *
  * @author Cley Faye
  * Licensing informations in LICENSE.md file.
  */
