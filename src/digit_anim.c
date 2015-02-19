@@ -1,3 +1,10 @@
+/** @file
+ * Implementation of digit animation code.
+ *
+ * @author Cley Faye
+ * Licensing informations in LICENSE.md file.
+ */
+
 // true, false
 #include <pebble.h>
 // segment_orientation_t
