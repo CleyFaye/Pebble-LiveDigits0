@@ -1,16 +1,14 @@
 #include <pebble.h>
 #include "config.h"
 #include "digit_info.h"
-#include "digitlayer.h"
+#include "numberlayer.h"
 #include "window.h"
 
 static const int FAST_SPEED = 60;
 
 typedef struct {
-    DigitLayer* hour_tens;
-    DigitLayer* hour_units;
-    DigitLayer* minute_tens;
-    DigitLayer* minute_units;
+    NumberLayer* hours;
+    NumberLayer* minutes;
     InverterLayer* inverter;
     bool tap_registered;
     AppTimer* animation_timer;
@@ -37,14 +35,16 @@ static void main_window_load(Window* window)
 {
     window_set_background_color(window, GColorBlack);
     window_info_t* info = window_get_user_data(window);
-    info->hour_tens = digit_layer_create(DS_BIG, GPoint(8, 3));
-    info->hour_units = digit_layer_create(DS_BIG, GPoint(61, 3));
-    info->minute_tens = digit_layer_create(DS_MEDIUM, GPoint(50, 89));
-    info->minute_units = digit_layer_create(DS_MEDIUM, GPoint(95, 89));
-    layer_add_child(window_get_root_layer(window), info->hour_tens);
-    layer_add_child(window_get_root_layer(window), info->hour_units);
-    layer_add_child(window_get_root_layer(window), info->minute_tens);
-    layer_add_child(window_get_root_layer(window), info->minute_units);
+    info->hours = number_layer_create(DS_BIG,
+                                      2,
+                                      GPoint(8,
+                                              3));
+    info->minutes = number_layer_create(DS_MEDIUM,
+                                        2,
+                                        GPoint(50,
+                                                89));
+    layer_add_child(window_get_root_layer(window), info->hours);
+    layer_add_child(window_get_root_layer(window), info->minutes);
 }
 
 static void main_window_appear(Window* window)
@@ -96,20 +96,22 @@ static void main_window_update_time(struct tm* tick_time, window_info_t* info, b
     }
 
     minutes = tick_time->tm_min;
-    digit_layer_set_number(info->hour_tens, hours / 10, animate);
-    digit_layer_set_number(info->hour_units, hours % 10, animate);
-    digit_layer_set_number(info->minute_tens, minutes / 10, animate);
-    digit_layer_set_number(info->minute_units, minutes % 10, animate);
+    number_layer_set_number(info->hours,
+                            hours,
+                            animate);
+    number_layer_set_number(info->minutes,
+                            minutes,
+                            animate);
     main_window_schedule_animation(info);
 }
 
 static void main_window_set_anim_speed(window_info_t* info, int anim_speed)
 {
-    if (info->hour_tens) {
-        digit_layer_set_animate_speed(info->hour_tens, anim_speed);
-        digit_layer_set_animate_speed(info->hour_units, anim_speed);
-        digit_layer_set_animate_speed(info->minute_tens, anim_speed);
-        digit_layer_set_animate_speed(info->minute_units, anim_speed);
+    if (info->hours) {
+        number_layer_set_animate_speed(info->hours,
+                                       anim_speed);
+        number_layer_set_animate_speed(info->minutes,
+                                       anim_speed);
     }
 }
 
@@ -124,10 +126,12 @@ static void main_window_random_shake(window_info_t* info, struct tm* tick_time)
 {
     int hours = rand() % (clock_is_24h_style() ? 24 : 13);
     int minutes = rand() % 60;
-    digit_layer_set_number(info->hour_tens, hours / 10, false);
-    digit_layer_set_number(info->hour_units, hours % 10, false);
-    digit_layer_set_number(info->minute_tens, minutes / 10, false);
-    digit_layer_set_number(info->minute_units, minutes % 10, false);
+    number_layer_set_number(info->hours,
+                            hours,
+                            false);
+    number_layer_set_number(info->minutes,
+                            minutes,
+                            false);
     main_window_update_time(tick_time, info, true);
     main_window_set_anim_speed(info, FAST_MERGED);
 }
@@ -135,10 +139,8 @@ static void main_window_random_shake(window_info_t* info, struct tm* tick_time)
 static void main_window_timer_callback(window_info_t* info)
 {
     bool need_animation = false;
-    need_animation |= digit_layer_animate(info->hour_tens);
-    need_animation |= digit_layer_animate(info->hour_units);
-    need_animation |= digit_layer_animate(info->minute_tens);
-    need_animation |= digit_layer_animate(info->minute_units);
+    need_animation |= number_layer_animate(info->hours);
+    need_animation |= number_layer_animate(info->minutes);
 
     info->animation_timer = NULL;
 
@@ -167,10 +169,8 @@ MainWindow* main_window_create(void)
            .unload = main_window_unload
     });
     window_info_t* info = malloc(sizeof(window_info_t));
-    info->hour_tens = NULL;
-    info->hour_units = NULL;
-    info->minute_tens = NULL;
-    info->minute_units = NULL;
+    info->hours = NULL;
+    info->minutes = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
     window_set_user_data(result, info);
@@ -184,11 +184,9 @@ void main_window_destroy(MainWindow* window)
 {
     window_info_t* info = window_get_user_data(window);
 
-    if (info->hour_tens != NULL) {
-        digit_layer_destroy(info->hour_tens);
-        digit_layer_destroy(info->hour_units);
-        digit_layer_destroy(info->minute_tens);
-        digit_layer_destroy(info->minute_units);
+    if (info->hours != NULL) {
+        number_layer_destroy(info->hours);
+        number_layer_destroy(info->minutes);
     }
 
     if (info->inverter != NULL) {
@@ -209,10 +207,10 @@ void main_window_update_config(void* data)
     MainWindow* window = (MainWindow*) data;
     window_info_t* info = window_get_user_data(window);
     bool quick_wrap = cfg_get_skip_digits();
-    digit_layer_set_quick_wrap(info->hour_tens, quick_wrap);
-    digit_layer_set_quick_wrap(info->hour_units, quick_wrap);
-    digit_layer_set_quick_wrap(info->minute_tens, quick_wrap);
-    digit_layer_set_quick_wrap(info->minute_units, quick_wrap);
+    number_layer_set_quick_wrap(info->hours,
+                                quick_wrap);
+    number_layer_set_quick_wrap(info->minutes,
+                                quick_wrap);
 
     if (cfg_get_invert_colors()) {
         if (!info->inverter) {

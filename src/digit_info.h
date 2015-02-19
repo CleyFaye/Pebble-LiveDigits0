@@ -68,6 +68,24 @@ typedef enum {
     DIGITS_SIZE_COUNT
 } digit_size_t;
 
+/** The digit animation speed. */
+typedef enum {
+    /** Slow, show every steps */
+    SLOW_SEPARATE,
+    /** Slow, show every other steps when two digit animation steps are required
+     */
+    SLOW_MERGED,
+    /** Fast, show every steps */
+    FAST_SEPARATE,
+    /** Fast, show every other steps when two digit animation steps are
+     * required.
+     *
+     * By design, the FAST_MERGED animations will always fit in slightly less
+     * than a second to transition between two consecutive numbers.
+     */
+    FAST_MERGED
+} animation_speed_t;
+
 // =========
 // EXTERNS =
 // =========

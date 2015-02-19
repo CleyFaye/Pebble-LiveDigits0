@@ -17,29 +17,12 @@
 // bool
 #include <pebble.h>
 // digit_size_t
+// animation_speed_t
 #include "digit_info.h"
 
 // =======
 // TYPES =
 // =======
-
-/** The digit animation speed. */
-typedef enum {
-    /** Slow, show every steps */
-    SLOW_SEPARATE,
-    /** Slow, show every other steps when two digit animation steps are required
-     */
-    SLOW_MERGED,
-    /** Fast, show every steps */
-    FAST_SEPARATE,
-    /** Fast, show every other steps when two digit animation steps are
-     * required.
-     *
-     * By design, the FAST_MERGED animations will always fit in slightly less
-     * than a second to transition between two consecutive numbers.
-     */
-    FAST_MERGED
-} animation_speed_t;
 
 /** An animated digit layer. */
 typedef Layer DigitLayer;
@@ -62,11 +45,11 @@ digit_layer_create(digit_size_t size,
 /** Set the number currently displayed by the layer.
  *
  * @param animate Set to true to animate from the currently displayed digit to
- * @a target_number, false to immediately change it.
+ * the requested number, false to immediately change it.
  */
 void
 digit_layer_set_number(DigitLayer* layer,
-                       int number,
+                       unsigned number,
                        bool animate);
 
 /** Set the quick-wrap flag.

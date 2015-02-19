@@ -35,6 +35,7 @@
 // digit_size_t
 // segment_orientation_t
 // digit_dimensions
+// animation_speed_t
 #include "digit_info.h"
 // Associated header
 #include "digitlayer.h"
@@ -244,7 +245,7 @@ digit_layer_set_animate_speed(DigitLayer* layer,
 
 void
 digit_layer_set_number(DigitLayer* layer,
-                       int target_number,
+                       unsigned target_number,
                        bool animate)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
