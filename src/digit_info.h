@@ -26,6 +26,13 @@
 #ifndef INCL_DIGIT_INFO_H
 #define INCL_DIGIT_INFO_H
 
+// GSize
+#include <pebble.h>
+
+// =======
+// TYPES =
+// =======
+
 /** The orientation of a digit segment. */
 typedef enum {
     SO_VERTICAL = 0,
@@ -59,6 +66,16 @@ typedef enum {
     DS_MEDIUM,
     DIGITS_SIZE_COUNT
 } digit_size_t;
+
+// =========
+// EXTERNS =
+// =========
+
+/** The size (in pixel) of digits.
+ *
+ * Each value correspond to an enum value of digit_size_t
+ */
+extern const GSize digit_dimensions[];
 
 #endif
 

@@ -13,10 +13,13 @@ typedef struct {
     DigitLayer* minute_units;
     InverterLayer* inverter;
     bool tap_registered;
+    AppTimer* animation_timer;
+    bool need_animation;
 } window_info_t;
 
 static window_info_t* window_info_in_global_variable_just_because = NULL;
 MainWindow* main_window_in_global = NULL;
+
 
 static void main_window_load(Window* window);
 static void main_window_appear(Window* window);
@@ -27,15 +30,17 @@ static void main_window_update_time(struct tm* tick_time, window_info_t* info, b
 static void main_window_set_anim_speed(window_info_t* info, int anim_speed);
 static void main_window_tap_handler(AccelAxisType axis, int32_t direction);
 static void main_window_random_shake(window_info_t* info, struct tm* tick_time);
+static void main_window_timer_callback(window_info_t* info);
+static void main_window_schedule_animation(window_info_t* info);
 
 static void main_window_load(Window* window)
 {
     window_set_background_color(window, GColorBlack);
     window_info_t* info = window_get_user_data(window);
-    info->hour_tens = digit_layer_create(DS_BIG, GPoint(8, 3), 2);
-    info->hour_units = digit_layer_create(DS_BIG, GPoint(61, 3), 9);
-    info->minute_tens = digit_layer_create(DS_MEDIUM, GPoint(50, 89), 5);
-    info->minute_units = digit_layer_create(DS_MEDIUM, GPoint(95, 89), 9);
+    info->hour_tens = digit_layer_create(DS_BIG, GPoint(8, 3));
+    info->hour_units = digit_layer_create(DS_BIG, GPoint(61, 3));
+    info->minute_tens = digit_layer_create(DS_MEDIUM, GPoint(50, 89));
+    info->minute_units = digit_layer_create(DS_MEDIUM, GPoint(95, 89));
     layer_add_child(window_get_root_layer(window), info->hour_tens);
     layer_add_child(window_get_root_layer(window), info->hour_units);
     layer_add_child(window_get_root_layer(window), info->minute_tens);
@@ -95,7 +100,7 @@ static void main_window_update_time(struct tm* tick_time, window_info_t* info, b
     digit_layer_set_number(info->hour_units, hours % 10, animate);
     digit_layer_set_number(info->minute_tens, minutes / 10, animate);
     digit_layer_set_number(info->minute_units, minutes % 10, animate);
-    main_window_set_anim_speed(info, 0);
+    main_window_schedule_animation(info);
 }
 
 static void main_window_set_anim_speed(window_info_t* info, int anim_speed)
@@ -127,6 +132,31 @@ static void main_window_random_shake(window_info_t* info, struct tm* tick_time)
     main_window_set_anim_speed(info, FAST_SPEED);
 }
 
+static void main_window_timer_callback(window_info_t* info)
+{
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "TICKING");
+    bool need_animation = false;
+    need_animation |= digit_layer_animate(info->hour_tens);
+    need_animation |= digit_layer_animate(info->hour_units);
+    need_animation |= digit_layer_animate(info->minute_tens);
+    need_animation |= digit_layer_animate(info->minute_units);
+
+    info->animation_timer = NULL;
+    if (need_animation) {
+        main_window_schedule_animation(info);
+    }
+}
+
+static void main_window_schedule_animation(window_info_t* info)
+{
+    if (!info->animation_timer) {
+        info->animation_timer =
+            app_timer_register(100,
+                               (AppTimerCallback) main_window_timer_callback,
+                               info);
+    }
+}
+
 MainWindow* main_window_create(void)
 {
     Window* result = window_create();
@@ -142,9 +172,11 @@ MainWindow* main_window_create(void)
     info->minute_tens = NULL;
     info->minute_units = NULL;
     info->inverter = NULL;
+    info->animation_timer = NULL;
     window_set_user_data(result, info);
     window_info_in_global_variable_just_because = info;
     main_window_in_global = result;
+    main_window_schedule_animation(info);
     return result;
 }
 
@@ -161,6 +193,11 @@ void main_window_destroy(MainWindow* window)
 
     if (info->inverter != NULL) {
         inverter_layer_destroy(info->inverter);
+    }
+
+    if (info->animation_timer) {
+        app_timer_cancel(info->animation_timer);
+        info->animation_timer = NULL;
     }
 
     free(info);
