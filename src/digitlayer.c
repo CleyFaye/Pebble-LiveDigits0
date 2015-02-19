@@ -59,6 +59,8 @@ typedef struct {
     animation_speed_t animate_speed;
     /** Quick wrap flag */
     bool quick_wrap;
+    /** Skip every other tick in slow animation mode */
+    bool animate_skipbeat;
 } digit_info_t;
 
 /** Placement of the segments to display a big digit. */
@@ -124,8 +126,8 @@ handle_layer_update(struct Layer* layer,
                       &layer_bounds.origin,
                       ctx);
     draw_animated_segments(info,
-            &layer_bounds.origin,
-            ctx);
+                           &layer_bounds.origin,
+                           ctx);
 }
 
 static
@@ -216,8 +218,9 @@ digit_layer_create(digit_size_t size,
     info->target_number = 0;
     info->current_anim = DA_0;
     info->current_anim_position = 0;
-    info->animate_speed = SLOW_SEPARATE;
+    info->animate_speed = FAST_MERGED;
     info->quick_wrap = false;
+    info->animate_skipbeat = false;
     layer_set_update_proc(result,
                           handle_layer_update);
     return result;
@@ -264,12 +267,57 @@ digit_layer_animate(DigitLayer* layer)
         return false;
     }
 
-    // Negative animation have only one frame (the static digit). Other have 9
-    // frames (0->8)
-    if (++info->current_anim_position == 9 ||
-        anim_is_static_digit(info->current_anim)) {
-        // Animation complete
-        info->current_anim_position = 0;
+    switch (info->animate_speed) {
+    case SLOW_SEPARATE:
+
+        // Skip every other tick in every cases
+        if (!info->animate_skipbeat) {
+            info->animate_skipbeat = true;
+            return true;
+        } else {
+            info->animate_skipbeat = false;
+        }
+
+        ++info->current_anim_position;
+
+        break;
+
+    case SLOW_MERGED:
+        if (!anim_is_multipart(info->current_anim)) {
+            // Multi-step transition just run normally,
+            // for single-step transition, skip every other tick
+            if (!info->animate_skipbeat) {
+                info->animate_skipbeat = true;
+                return true;
+            } else {
+                info->animate_skipbeat = false;
+            }
+        }
+
+        ++info->current_anim_position;
+
+        break;
+
+    case FAST_SEPARATE:
+        // Tick every time.
+        ++info->current_anim_position;
+        break;
+
+    case FAST_MERGED:
+
+        // Tick every time, twice faster for two-step transitions
+        if (anim_is_multipart(info->current_anim)) {
+            info->current_anim_position += 2;
+        } else {
+            ++info->current_anim_position;
+        }
+
+        break;
+    }
+
+    if (anim_is_complete(info->current_anim,
+                         info->current_anim_position)) {
+        info->current_anim_position -= anim_get_step_count(info->current_anim);
 
         if (info->quick_wrap && info->target_number < info->current_number) {
             // If we're quickwrapping and we want a lower digit, start back from
@@ -286,6 +334,7 @@ digit_layer_animate(DigitLayer* layer)
             if (anim_is_static_digit(info->current_anim)) {
                 info->current_number =
                     anim_get_displayed_number(info->current_anim);
+                info->current_anim_position = 0;
             }
         }
     }

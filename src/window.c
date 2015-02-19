@@ -129,7 +129,7 @@ static void main_window_random_shake(window_info_t* info, struct tm* tick_time)
     digit_layer_set_number(info->minute_tens, minutes / 10, false);
     digit_layer_set_number(info->minute_units, minutes % 10, false);
     main_window_update_time(tick_time, info, true);
-    main_window_set_anim_speed(info, FAST_SPEED);
+    main_window_set_anim_speed(info, FAST_MERGED);
 }
 
 static void main_window_timer_callback(window_info_t* info)
@@ -141,6 +141,7 @@ static void main_window_timer_callback(window_info_t* info)
     need_animation |= digit_layer_animate(info->minute_units);
 
     info->animation_timer = NULL;
+
     if (need_animation) {
         main_window_schedule_animation(info);
     }

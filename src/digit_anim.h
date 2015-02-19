@@ -197,6 +197,18 @@ anim_get_next_quick_anim(digit_anim_t digit_anim);
 bool
 anim_is_static_digit(digit_anim_t digit_anim);
 
+/** Return true if the given animation step is in two parts. */
+bool
+anim_is_multipart(digit_anim_t digit_anim);
+
+/** Determine if an animation step is complete.
+ *
+ * @param step The step to test.
+ * @return true if the given step is over the end of the animation step.
+ */
+bool
+anim_is_complete(digit_anim_t digit_anim, int step);
+
 /** Return the number actually displayed by a given animation step.
  *
  * Transition steps will return -1, while static digits will return the
@@ -207,6 +219,13 @@ anim_is_static_digit(digit_anim_t digit_anim);
  */
 int
 anim_get_displayed_number(digit_anim_t digit_anim);
+
+/** Return the number of steps of an animation step.
+ *
+ * @return 9 for animation step, 0, for static digit.
+ */
+int
+anim_get_step_count(digit_anim_t digit_anim);
 
 /** Return the static digit animation step for a given number.
  *

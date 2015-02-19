@@ -27,6 +27,8 @@ typedef struct {
     digit_anim_t next_animation;
     /** The shortcut animation to 0 */
     digit_anim_t quick_next;
+    /** If the animation is part of a two-step transition. */
+    bool multipart;
 } digit_anim_info_t;
 
 // ==============
@@ -34,12 +36,12 @@ typedef struct {
 // ==============
 
 /** Segment position when animated.
- * First 9 are for 1->0, next 9 for 4->6, etc. and represent all segments
- * positions for each segment_anim_t positive values.
- * Negative values are simply the positive one taken in reverse.
- * To accomodate negative animation values, they start at 1/-1 and not at 0.
- * These are for the big digits.
- */
+* First 9 are for 1->0, next 9 for 4->6, etc. and represent all segments
+* positions for each segment_anim_t positive values.
+* Negative values are simply the positive one taken in reverse.
+* To accomodate negative animation values, they start at 1/-1 and not at 0.
+* These are for the big digits.
+*/
 static const animated_segment_info_t big_segment_info[7 * 9] = {
     // SA_1_TO_0
     { SO_171, {1, 6}},
@@ -199,107 +201,107 @@ static const animated_segment_info_t medium_segment_info[7 * 9] = {
 static const digit_anim_info_t moving_anim[] = {
     // 1 - 0>1
     {   {{true, false, true, false, false, true, true}},
-        {{SA_1_TO_0, SA_4_TO_6}}, DA_0_TO_1_b, DA_0_TO_1_b
+        {{SA_1_TO_0, SA_4_TO_6}}, DA_0_TO_1_b, DA_0_TO_1_b, true
     },
     // 2 - 0>1
     {   {{false, false, true, false, false, true, false}},
-        {{SA_0_TO_2, SA_6_TO_5}}, DA_1, DA_1
+        {{SA_0_TO_2, SA_6_TO_5}}, DA_1, DA_1, true
     },
     // 3 - 1>2
     {   {{false, false, true, false, false, false, false}},
-        {{SA_2_TO_0, SA_5_TO_6}}, DA_1_TO_2_b, DA_1_TO_2_b
+        {{SA_2_TO_0, SA_5_TO_6}}, DA_1_TO_2_b, DA_1_TO_2_b, true
     },
     // 4 - 1>2
     {   {{true, false, true, false, false, false, true}},
-        {{SA_2_TO_3, SA_6_TO_4}}, DA_2, DA_2
+        {{SA_2_TO_3, SA_6_TO_4}}, DA_2, DA_2, true
     },
     // 5 - 2>3
     {   {{true, false, true, true, false, false, true}},
-        {{SA_4_TO_6, SA_NOANIM}}, DA_2_TO_3_b, DA_2_TO_3_b
+        {{SA_4_TO_6, SA_NOANIM}}, DA_2_TO_3_b, DA_2_TO_3_b, true
     },
     // 6 - 2>3
     {   {{true, false, true, true, false, false, true}},
-        {{SA_6_TO_5, SA_NOANIM}}, DA_3, DA_3
+        {{SA_6_TO_5, SA_NOANIM}}, DA_3, DA_3, true
     },
     // 7 - 3>4
     {   {{false, false, true, true, false, true, false}},
-        {{SA_0_TO_1, SA_6_TO_5}}, DA_4, DA_4
+        {{SA_0_TO_1, SA_6_TO_5}}, DA_4, DA_4, false
     },
     // 8 - 4>5
     {   {{false, true, false, true, false, true, false}},
-        {{SA_2_TO_0, SA_5_TO_6}}, DA_5, DA_5
+        {{SA_2_TO_0, SA_5_TO_6}}, DA_5, DA_5, false
     },
     // 9 - 5>6
     {   {{true, true, false, true, false, true, true}},
-        {{SA_3_TO_4, SA_NOANIM}}, DA_6, DA_6
+        {{SA_3_TO_4, SA_NOANIM}}, DA_6, DA_6, false
     },
     // 10 - 6>7
     {   {{true, true, false, false, false, true, true}},
-        {{SA_3_TO_2, SA_4_TO_6}}, DA_6_TO_7_b, DA_6_TO_7_b
+        {{SA_3_TO_2, SA_4_TO_6}}, DA_6_TO_7_b, DA_6_TO_7_b, true
     },
     // 11 - 6>7
     {   {{true, false, true, false, false, true, false}},
-        {{SA_1_TO_0, SA_6_TO_5}}, DA_7, DA_7
+        {{SA_1_TO_0, SA_6_TO_5}}, DA_7, DA_7, true
     },
     // 12 - 7>8
     {   {{true, false, true, false, false, true, false}},
-        {{SA_0_TO_1, SA_5_TO_6}}, DA_7_TO_8_b, DA_7_TO_8_b
+        {{SA_0_TO_1, SA_5_TO_6}}, DA_7_TO_8_b, DA_7_TO_8_b, true
     },
     // 13 - 7>8
     {   {{true, true, true, false, false, true, true}},
-        {{SA_1_TO_3, SA_6_TO_4}}, DA_8, DA_8
+        {{SA_1_TO_3, SA_6_TO_4}}, DA_8, DA_8, true
     },
     // 14 - 8>9
     {   {{true, true, true, true, false, true, true}},
-        {{SA_4_TO_3, SA_NOANIM}}, DA_9, DA_9
+        {{SA_4_TO_3, SA_NOANIM}}, DA_9, DA_9, false
     },
     // 15 - 9>0
     {   {{true, true, true, false, false, true, true}},
-        {{SA_3_TO_1, SA_6_TO_4}}, DA_0, DA_0
+        {{SA_3_TO_1, SA_6_TO_4}}, DA_0, DA_0, false
     },
     // 16 - 1>0
     {   {{false, false, true, false, false, true, false}},
-        {{SA_2_TO_0, SA_5_TO_6}}, DA_1_TO_0_b, DA_1_TO_0_b
+        {{SA_2_TO_0, SA_5_TO_6}}, DA_1_TO_0_b, DA_1_TO_0_b, true
     },
     // 17 - 1>0
     {   {{true, false, true, false, false, true, true}},
-        {{SA_0_TO_1, SA_6_TO_4}}, DA_0, DA_0
+        {{SA_0_TO_1, SA_6_TO_4}}, DA_0, DA_0, true
     },
     // 18 - 2>0
     {   {{true, false, true, false, true, false, true}},
-        {{SA_3_TO_1, SA_6_TO_5}}, DA_0, DA_0
+        {{SA_3_TO_1, SA_6_TO_5}}, DA_0, DA_0, false
     },
     // 19 - 3>0
     {   {{true, false, true, false, false, true, true}},
-        {{SA_3_TO_4, SA_0_TO_1}}, DA_0, DA_0
+        {{SA_3_TO_4, SA_0_TO_1}}, DA_0, DA_0, false
     },
     // 20 - 4>0
     {   {{false, true, true, false, false, true, false}},
-        {{SA_3_TO_4, SA_NOANIM}}, DA_4_TO_0_b, DA_4_TO_0_b
+        {{SA_3_TO_4, SA_NOANIM}}, DA_4_TO_0_b, DA_4_TO_0_b, true
     },
     // 21 - 4>0
     {   {{false, true, true, false, true, true, false}},
-        {{SA_5_TO_6, SA_1_TO_0}}, DA_0, DA_0
+        {{SA_5_TO_6, SA_1_TO_0}}, DA_0, DA_0, true
     },
     // 22 - 5>0
     {   {{true, true, false, false, false, true, true}},
-        {{SA_0_TO_2, SA_6_TO_4}}, DA_0, DA_0
+        {{SA_0_TO_2, SA_6_TO_4}}, DA_0, DA_0, false
     },
     // 23 - 6>0
     {   {{true, true, false, false, true, true, true}},
-        {{SA_3_TO_2, SA_NOANIM}}, DA_0, DA_0
+        {{SA_3_TO_2, SA_NOANIM}}, DA_0, DA_0, false
     },
     // 24 - 7>0
     {   {{true, false, true, false, false, true, false}},
-        {{SA_5_TO_6, SA_0_TO_1}}, DA_7_TO_0_b, DA_7_TO_0_b
+        {{SA_5_TO_6, SA_0_TO_1}}, DA_7_TO_0_b, DA_7_TO_0_b, true
     },
     // 25 - 7>0
     {   {{true, true, true, false, false, true, true}},
-        {{SA_6_TO_4, SA_NOANIM}}, DA_0, DA_0
+        {{SA_6_TO_4, SA_NOANIM}}, DA_0, DA_0, true
     },
     // 26 - 8>0
     {   {{true, true, true, false, true, true, true}},
-        {{SA_3_TO_4, SA_NOANIM}}, DA_0, DA_0
+        {{SA_3_TO_4, SA_NOANIM}}, DA_0, DA_0, false
     }
 };
 
@@ -311,43 +313,43 @@ static const digit_anim_info_t moving_anim[] = {
 static const digit_anim_info_t fixed_digits_anim[10] = {
     // -1 - 0
     {   {{true, true, true, false, true, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_0_TO_1_a, DA_0_TO_1_a
+        {{SA_NOANIM, SA_NOANIM}}, DA_0_TO_1_a, DA_0_TO_1_a, false
     },
     // -2 - 1
     {   {{false, false, true, false, false, true, false}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_1_TO_2_a, DA_1_TO_0_a
+        {{SA_NOANIM, SA_NOANIM}}, DA_1_TO_2_a, DA_1_TO_0_a, false
     },
     // -3 - 2
     {   {{true, false, true, true, true, false, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_2_TO_3_a, DA_2_TO_0
+        {{SA_NOANIM, SA_NOANIM}}, DA_2_TO_3_a, DA_2_TO_0, false
     },
     // -4 - 3
     {   {{true, false, true, true, false, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_3_TO_4, DA_3_TO_0
+        {{SA_NOANIM, SA_NOANIM}}, DA_3_TO_4, DA_3_TO_0, false
     },
     // -5 - 4
     {   {{false, true, true, true, false, true, false}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_4_TO_5, DA_4_TO_0_a
+        {{SA_NOANIM, SA_NOANIM}}, DA_4_TO_5, DA_4_TO_0_a, false
     },
     // -6 - 5
     {   {{true, true, false, true, false, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_5_TO_6, DA_5_TO_0
+        {{SA_NOANIM, SA_NOANIM}}, DA_5_TO_6, DA_5_TO_0, false
     },
     // -7 - 6
     {   {{true, true, false, true, true, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_6_TO_7_a, DA_6_TO_0
+        {{SA_NOANIM, SA_NOANIM}}, DA_6_TO_7_a, DA_6_TO_0, false
     },
     // -8 - 7
     {   {{true, false, true, false, false, true, false}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_7_TO_8_a, DA_7_TO_0_a
+        {{SA_NOANIM, SA_NOANIM}}, DA_7_TO_8_a, DA_7_TO_0_a, false
     },
     // -9 - 8
     {   {{true, true, true, true, true, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_8_TO_9, DA_8_TO_0
+        {{SA_NOANIM, SA_NOANIM}}, DA_8_TO_9, DA_8_TO_0, false
     },
     // -10 - 9
     {   {{true, true, true, true, false, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_9_TO_0, DA_9_TO_0
+        {{SA_NOANIM, SA_NOANIM}}, DA_9_TO_0, DA_9_TO_0, false
     }
 };
 
@@ -441,13 +443,37 @@ anim_is_static_digit(digit_anim_t digit_anim)
     return digit_anim < 0;
 }
 
+bool
+anim_is_multipart(digit_anim_t digit_anim)
+{
+    return retrieve_anim(digit_anim)->multipart;
+}
+
+bool
+anim_is_complete(digit_anim_t digit_anim, int step)
+{
+    return (digit_anim < 0)
+           ? true
+           : (step >= 9);
+}
+
 int
 anim_get_displayed_number(digit_anim_t digit_anim)
 {
-    if (!anim_is_static_digit(digit_anim)) {
-        return -1;
-    } else {
+    if (anim_is_static_digit(digit_anim)) {
         return -digit_anim - 1;
+    } else {
+        return -1;
+    }
+}
+
+int
+anim_get_step_count(digit_anim_t digit_anim)
+{
+    if (anim_is_static_digit(digit_anim)) {
+        return 0;
+    } else {
+        return 9;
     }
 }
 
