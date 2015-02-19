@@ -27,6 +27,7 @@
 #define INCL_DIGIT_INFO_H
 
 // GSize
+// ResourceId
 #include <pebble.h>
 
 // =======
@@ -76,6 +77,12 @@ typedef enum {
  * Each value correspond to an enum value of digit_size_t
  */
 extern const GSize digit_dimensions[];
+
+/** Image resource identifiers for segments.
+ * Each value correspond to an enum value of digit_size_t, and point to an array
+ * where each value correspond to an enum value of segment_orientation_t
+ */
+extern const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT];
 
 #endif
 

@@ -146,9 +146,10 @@ typedef struct {
  * @return The animated segment position and orientation, or NULL if a parameter
  * is invalid.
  */
-const animated_segment_info_t* anim_segment_get(segment_anim_t segment_anim,
-        int anim_pos,
-        digit_size_t digit_size);
+const animated_segment_info_t*
+anim_segment_get(segment_anim_t segment_anim,
+                 int anim_pos,
+                 digit_size_t digit_size);
 
 /** Return the segments that must be drawn at a fixed position for a given
  * animation step.
@@ -156,14 +157,16 @@ const animated_segment_info_t* anim_segment_get(segment_anim_t segment_anim,
  * @param digit_anim The digit anim id.
  * @return The fixed segments.
  */
-const animation_fixed_digits_t* anim_get_fixed_digits(digit_anim_t digit_anim);
+const animation_fixed_digits_t*
+anim_get_fixed_digits(digit_anim_t digit_anim);
 
 /** Return the animated segments from a given animation step.
  *
  * @param digit_anim The digit anim id.
  * @return The animated segments.
  */
-const animation_digit_segment_t* anim_get_segment_anim(digit_anim_t digit_anim);
+const animation_digit_segment_t*
+anim_get_segment_anim(digit_anim_t digit_anim);
 
 /** Return the next animation in a sequence.
  * The next animation is the animation step that must follow the given step.
@@ -171,7 +174,8 @@ const animation_digit_segment_t* anim_get_segment_anim(digit_anim_t digit_anim);
  * @param digit_anim The digit anim id.
  * @return The next animation.
  */
-digit_anim_t anim_get_next_anim(digit_anim_t digit_anim);
+digit_anim_t
+anim_get_next_anim(digit_anim_t digit_anim);
 
 /** Return the next animation to 0.
  * The next animation to 0 is the shortest animation path that return from the
@@ -180,7 +184,8 @@ digit_anim_t anim_get_next_anim(digit_anim_t digit_anim);
  * @param digit_anim The digit anim id.
  * @return The next animation to use as a shortcut to 0.
  */
-digit_anim_t anim_get_next_quick_anim(digit_anim_t digit_anim);
+digit_anim_t
+anim_get_next_quick_anim(digit_anim_t digit_anim);
 
 /** Return true if the given animation step is a static digit.
  *
@@ -189,7 +194,8 @@ digit_anim_t anim_get_next_quick_anim(digit_anim_t digit_anim);
  * @param digit_anim The digit animation id to check.
  * @return true if it is a static digit.
  */
-bool anim_is_static_digit(digit_anim_t digit_anim);
+bool
+anim_is_static_digit(digit_anim_t digit_anim);
 
 /** Return the number actually displayed by a given animation step.
  *
@@ -199,14 +205,16 @@ bool anim_is_static_digit(digit_anim_t digit_anim);
  * @param digit_anim The digit animation id
  * @return The number displayed, or -1 if it is a transition step.
  */
-int anim_get_displayed_number(digit_anim_t digit_anim);
+int
+anim_get_displayed_number(digit_anim_t digit_anim);
 
 /** Return the static digit animation step for a given number.
  *
  * @param number The requested number
  * @return The digit animation step
  */
-digit_anim_t anim_get_anim_for_number(int number);
+digit_anim_t
+anim_get_anim_for_number(int number);
 
 #endif
 

@@ -7,9 +7,14 @@
 
 // GBitmap
 // GSize
+// gbitmap_destroy()
 #include <pebble.h>
 // load_bitmap_into_array_from_id()
 #include "utils.h"
+// segment_orientation_t
+// digit_size_t
+// segment_res_ids
+#include "digit_info.h"
 // Associated header
 #include "digit_images.h"
 
@@ -153,16 +158,20 @@ typedef void(*func_t)(void);
 
 /** Effectively load big segments bitmaps. */
 static
-void do_load_big_segments(void);
+void
+do_load_big_segments(void);
 /** Effectively unload big segments bitmaps. */
 static
-void do_unload_big_segments(void);
+void
+do_unload_big_segments(void);
 /** Effectively load big segments bitmaps. */
 static
-void do_load_medium_segments(void);
+void
+do_load_medium_segments(void);
 /** Effectively unload big segments bitmaps. */
 static
-void do_unload_medium_segments(void);
+void
+do_unload_medium_segments(void);
 
 /** Loading functions */
 func_t digit_load_funcs[DIGITS_SIZE_COUNT] = {
@@ -181,78 +190,42 @@ func_t digit_unload_funcs[DIGITS_SIZE_COUNT] = {
 // ===============================
 
 static
-void do_load_big_segments(void)
+void
+do_load_big_segments(void)
 {
-    static const ResourceId big_segments_ids[SEGMENTS_ORIENTATION_COUNT] = {
-        RESOURCE_ID_BIGDIGIT_VERTICAL_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_0_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_1_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_2_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_3_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_4_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_5_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_6_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_7_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_8_WHITE,
-        RESOURCE_ID_BIGDIGIT_HORIZONTAL_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_9_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_10_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_11_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_12_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_13_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_14_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_15_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_16_WHITE,
-        RESOURCE_ID_SEGMENT_BIG_17_WHITE
-    };
-    load_bitmap_into_array_from_id(big_segments_ids,
+    load_bitmap_into_array_from_id(segment_res_ids[DS_BIG],
                                    big_segments,
                                    SEGMENTS_ORIENTATION_COUNT);
 }
 
 static
-void do_unload_big_segments(void)
+void
+do_unload_big_segments(void)
 {
-    for (unsigned index = 0; index < SEGMENTS_ORIENTATION_COUNT; ++index) {
+    for (unsigned index = 0;
+         index < SEGMENTS_ORIENTATION_COUNT;
+         ++index) {
         gbitmap_destroy(big_segments[index]);
         big_segments[index] = NULL;
     }
 }
 
 static
-void do_load_medium_segments(void)
+void
+do_load_medium_segments(void)
 {
-    static const ResourceId medium_segments_ids[SEGMENTS_ORIENTATION_COUNT] = {
-        RESOURCE_ID_MEDIUMDIGIT_VERTICAL_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_0_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_1_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_2_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_3_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_4_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_5_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_6_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_7_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_8_WHITE,
-        RESOURCE_ID_MEDIUMDIGIT_HORIZONTAL_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_9_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_10_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_11_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_12_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_13_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_14_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_15_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_16_WHITE,
-        RESOURCE_ID_SEGMENT_MEDIUM_17_WHITE
-    };
-    load_bitmap_into_array_from_id(medium_segments_ids,
+    load_bitmap_into_array_from_id(segment_res_ids[DS_MEDIUM],
                                    medium_segments,
                                    SEGMENTS_ORIENTATION_COUNT);
 }
 
 static
-void do_unload_medium_segments(void)
+void
+do_unload_medium_segments(void)
 {
-    for (unsigned index = 0; index < SEGMENTS_ORIENTATION_COUNT; ++index) {
+    for (unsigned index = 0;
+         index < SEGMENTS_ORIENTATION_COUNT;
+         ++index) {
         gbitmap_destroy(medium_segments[index]);
         medium_segments[index] = NULL;
     }
@@ -262,23 +235,26 @@ void do_unload_medium_segments(void)
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
 
-void segment_load_images(digit_size_t size)
+void
+segment_load_images(digit_size_t size)
 {
     if (segments_images_load_counter[size]++ == 0) {
         digit_load_funcs[size]();
     }
 }
 
-void segment_unload_images(digit_size_t size)
+void
+segment_unload_images(digit_size_t size)
 {
     if (--segments_images_load_counter[size] == 0) {
         digit_unload_funcs[size]();
     }
 }
 
-GBitmap* segment_get_image(digit_size_t size,
-                           segment_orientation_t orientation,
-                           GSize* bitmap_size)
+GBitmap*
+segment_get_image(digit_size_t size,
+                  segment_orientation_t orientation,
+                  GSize* bitmap_size)
 {
     GBitmap* result = (*segments_images[size])[orientation];
 

@@ -18,11 +18,14 @@
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
 
-void load_bitmap_into_array_from_id(const ResourceId* resource_ids,
-                                    GBitmap* target_array[],
-                                    unsigned resources_count)
+void
+load_bitmap_into_array_from_id(const ResourceId* resource_ids,
+                               GBitmap* target_array[],
+                               unsigned resources_count)
 {
-    for (unsigned index = 0; index < resources_count; ++index) {
+    for (unsigned index = 0;
+         index < resources_count;
+         ++index) {
         target_array[index] = gbitmap_create_with_resource(resource_ids[index]);
     }
 }

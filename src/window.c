@@ -134,7 +134,6 @@ static void main_window_random_shake(window_info_t* info, struct tm* tick_time)
 
 static void main_window_timer_callback(window_info_t* info)
 {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "TICKING");
     bool need_animation = false;
     need_animation |= digit_layer_animate(info->hour_tens);
     need_animation |= digit_layer_animate(info->hour_units);

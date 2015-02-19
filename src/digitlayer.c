@@ -7,6 +7,7 @@
 
 // struct Layer
 // GContext
+// GPoint
 // GRect
 // GCompOpOr
 // GBitmap
@@ -87,21 +88,52 @@ static const animated_segment_info_t medium_digit_draw_info[7] = {
 // ================================
 
 /** Draw the current digit animation step on the layer. */
-static void handle_layer_update(struct Layer* layer,
-                                GContext* ctx);
+static
+void
+handle_layer_update(struct Layer* layer,
+                    GContext* ctx);
+
+/** Draw static part of a digit. */
+static
+void
+draw_static_digit(digit_info_t* info,
+                  GPoint* layer_offset,
+                  GContext* ctx);
+
+static
+void
+draw_animated_segments(digit_info_t* info,
+                       GPoint* layer_offset,
+                       GContext* ctx);
 
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
 // ===============================
 
-static void handle_layer_update(struct Layer* layer,
-                                GContext* ctx)
+static
+void
+handle_layer_update(struct Layer* layer,
+                    GContext* ctx)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     GRect layer_bounds = layer_get_bounds(layer);
     graphics_context_set_compositing_mode(ctx,
                                           GCompOpOr);
-    // Draw static segments
+
+    draw_static_digit(info,
+                      &layer_bounds.origin,
+                      ctx);
+    draw_animated_segments(info,
+            &layer_bounds.origin,
+            ctx);
+}
+
+static
+void
+draw_static_digit(digit_info_t* info,
+                  GPoint* layer_offset,
+                  GContext* ctx)
+{
     const animated_segment_info_t* digit_draw_info =
         (info->size == DS_BIG)
         ? big_digit_draw_info
@@ -109,15 +141,17 @@ static void handle_layer_update(struct Layer* layer,
     const animation_fixed_digits_t* fixed_digits =
         anim_get_fixed_digits(info->current_anim);
 
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0;
+         i < 7;
+         ++i) {
         if (!fixed_digits->enabled[i]) {
             continue;
         }
 
         GRect draw_rect;
         draw_rect.origin = digit_draw_info[i].offset;
-        draw_rect.origin.x += layer_bounds.origin.x;
-        draw_rect.origin.y += layer_bounds.origin.y;
+        draw_rect.origin.x += layer_offset->x;
+        draw_rect.origin.y += layer_offset->y;
         GBitmap* digit_bitmap =
             segment_get_image(info->size,
                               digit_draw_info[i].segment_angle,
@@ -126,21 +160,29 @@ static void handle_layer_update(struct Layer* layer,
                                      digit_bitmap,
                                      draw_rect);
     }
+}
 
-    // Draw animated segments
+static
+void
+draw_animated_segments(digit_info_t* info,
+                       GPoint* layer_offset,
+                       GContext* ctx)
+{
     const animation_digit_segment_t* segment_anim =
         anim_get_segment_anim(info->current_anim);
 
-    for (int i = 0; i < 2; ++i) {
-        if (segment_anim->segment_anim[i] != 0) {
+    for (int i = 0;
+         i < 2;
+         ++i) {
+        if (segment_anim->segment_anim[i] != SA_NOANIM) {
             const animated_segment_info_t* segment_info =
                 anim_segment_get(segment_anim->segment_anim[i],
                                  info->current_anim_position,
                                  info->size);
             GRect draw_rect;
             draw_rect.origin = segment_info->offset;
-            draw_rect.origin.x += layer_bounds.origin.x;
-            draw_rect.origin.y += layer_bounds.origin.y;
+            draw_rect.origin.x += layer_offset->x;
+            draw_rect.origin.y += layer_offset->y;
             GBitmap* digit_bitmap =
                 segment_get_image(info->size,
                                   segment_info->segment_angle,
@@ -152,8 +194,13 @@ static void handle_layer_update(struct Layer* layer,
     }
 }
 
-DigitLayer* digit_layer_create(digit_size_t size,
-                               GPoint offset)
+// ==============================
+// PUBLIC FUNCTIONS DEFINITIONS =
+// ==============================
+
+DigitLayer*
+digit_layer_create(digit_size_t size,
+                   GPoint offset)
 {
     GRect layer_rect;
     layer_rect.origin = offset;
@@ -176,23 +223,26 @@ DigitLayer* digit_layer_create(digit_size_t size,
     return result;
 }
 
-void digit_layer_set_quick_wrap(DigitLayer* layer,
-                                bool quick_wrap)
+void
+digit_layer_set_quick_wrap(DigitLayer* layer,
+                           bool quick_wrap)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     info->quick_wrap = quick_wrap;
 }
 
-void digit_layer_set_animate_speed(DigitLayer* layer,
-                                   animation_speed_t speed)
+void
+digit_layer_set_animate_speed(DigitLayer* layer,
+                              animation_speed_t speed)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     info->animate_speed = speed;
 }
 
-void digit_layer_set_number(DigitLayer* layer,
-                            int target_number,
-                            bool animate)
+void
+digit_layer_set_number(DigitLayer* layer,
+                       int target_number,
+                       bool animate)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     info->target_number = target_number % 10;
@@ -204,7 +254,8 @@ void digit_layer_set_number(DigitLayer* layer,
     }
 }
 
-bool digit_layer_animate(DigitLayer* layer)
+bool
+digit_layer_animate(DigitLayer* layer)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
 
@@ -213,7 +264,8 @@ bool digit_layer_animate(DigitLayer* layer)
         return false;
     }
 
-    // Negative animation have only one frame (the static digit)
+    // Negative animation have only one frame (the static digit). Other have 9
+    // frames (0->8)
     if (++info->current_anim_position == 9 ||
         anim_is_static_digit(info->current_anim)) {
         // Animation complete
@@ -242,7 +294,8 @@ bool digit_layer_animate(DigitLayer* layer)
     return info->current_number != info->target_number;
 }
 
-void digit_layer_destroy(DigitLayer* layer)
+void
+digit_layer_destroy(DigitLayer* layer)
 {
     digit_info_t* info = (digit_info_t*) layer_get_data(layer);
     segment_unload_images(info->size);

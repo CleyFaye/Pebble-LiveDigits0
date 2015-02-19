@@ -19,6 +19,10 @@
 // digit_size_t
 #include "digit_info.h"
 
+// =======
+// TYPES =
+// =======
+
 /** The digit animation speed. */
 typedef enum {
     /** Slow, show every steps */
@@ -40,6 +44,10 @@ typedef enum {
 /** An animated digit layer. */
 typedef Layer DigitLayer;
 
+// ==============================
+// PUBLIC FUNCTIONS DEFINITIONS =
+// ==============================
+
 /** Create the digit layer.
  *
  * @param size The size of the digit.
@@ -47,17 +55,19 @@ typedef Layer DigitLayer;
  * that the digit will be visible at the top-left corner of the window.
  * @return The layer instance
  */
-DigitLayer* digit_layer_create(digit_size_t size,
-                               GPoint offset);
+DigitLayer*
+digit_layer_create(digit_size_t size,
+                   GPoint offset);
 
 /** Set the number currently displayed by the layer.
  *
  * @param animate Set to true to animate from the currently displayed digit to
  * @a target_number, false to immediately change it.
  */
-void digit_layer_set_number(DigitLayer* layer,
-                            int number,
-                            bool animate);
+void
+digit_layer_set_number(DigitLayer* layer,
+                       int number,
+                       bool animate);
 
 /** Set the quick-wrap flag.
  *
@@ -70,16 +80,18 @@ void digit_layer_set_number(DigitLayer* layer,
  *
  * @param quick_wrap Set to true to use quick wrap (default to false)
  */
-void digit_layer_set_quick_wrap(DigitLayer* layer,
-                                bool quick_wrap);
+void
+digit_layer_set_quick_wrap(DigitLayer* layer,
+                           bool quick_wrap);
 
 /** Set the animation speed.
  *
  * The animation speed indicate how fast the digit_layer_animate() will advance
  * through each animation step.
  */
-void digit_layer_set_animate_speed(DigitLayer* layer,
-                                   animation_speed_t speed);
+void
+digit_layer_set_animate_speed(DigitLayer* layer,
+                              animation_speed_t speed);
 
 /** Animate a layer.
  *
@@ -91,13 +103,15 @@ void digit_layer_set_animate_speed(DigitLayer* layer,
  *
  * @return true if the layer still need to be animated, false otherwise.
  */
-bool digit_layer_animate(DigitLayer* layer);
+bool
+digit_layer_animate(DigitLayer* layer);
 
 /** Destroy a layer.
  *
  * Destroy a layer previously created with digit_layer_create().
  */
-void digit_layer_destroy(DigitLayer* layer);
+void
+digit_layer_destroy(DigitLayer* layer);
 
 #endif
 

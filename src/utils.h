@@ -26,9 +26,10 @@
  * @param target_array The bitmap array to fill
  * @param resources_count The number of resources to load
  */
-void load_bitmap_into_array_from_id(const ResourceId* resource_ids,
-                                    GBitmap* target_array[],
-                                    unsigned resources_count);
+void
+load_bitmap_into_array_from_id(const ResourceId* resource_ids,
+                               GBitmap* target_array[],
+                               unsigned resources_count);
 
 #endif
 

@@ -29,7 +29,8 @@
  *
  * @param size The size of the segments to load.
  */
-void segment_load_images(digit_size_t size);
+void
+segment_load_images(digit_size_t size);
 
 /** Unload a set of segment images.
  *
@@ -37,7 +38,8 @@ void segment_load_images(digit_size_t size);
  *
  * @param size The size of the segments to unload.
  */
-void segment_unload_images(digit_size_t size);
+void
+segment_unload_images(digit_size_t size);
 
 /** Retrieve a segment image.
  *
@@ -49,7 +51,8 @@ void segment_unload_images(digit_size_t size);
  * @param bitmap_size A pointer to get the size of the bitmap. Can be NULL if
  * not required.
  */
-GBitmap* segment_get_image(digit_size_t size,
+GBitmap*
+segment_get_image(digit_size_t size,
                            segment_orientation_t orientation,
                            GSize* bitmap_size);
 

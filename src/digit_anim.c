@@ -363,15 +363,22 @@ static const digit_anim_info_t fixed_digits_anim[10] = {
  * @param digit_anim The digit animation id
  * @return The digit_anim_info_t to use.
  */
-static const digit_anim_info_t* retrieve_anim(digit_anim_t digit_anim);
+static
+const digit_anim_info_t*
+retrieve_anim(digit_anim_t digit_anim);
 
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
 // ===============================
 
-static const digit_anim_info_t* retrieve_anim(digit_anim_t digit_anim)
+static
+const digit_anim_info_t*
+retrieve_anim(digit_anim_t digit_anim)
 {
-    const digit_anim_info_t* source = (digit_anim > 0) ? moving_anim : fixed_digits_anim;
+    const digit_anim_info_t* source =
+        (digit_anim > 0)
+        ? moving_anim
+        : fixed_digits_anim;
 
     if (digit_anim < 0) {
         digit_anim = -digit_anim;
@@ -385,11 +392,15 @@ static const digit_anim_info_t* retrieve_anim(digit_anim_t digit_anim)
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
 //
-const animated_segment_info_t* anim_segment_get(segment_anim_t segment_anim,
-        int anim_pos,
-        digit_size_t digit_size)
+const animated_segment_info_t*
+anim_segment_get(segment_anim_t segment_anim,
+                 int anim_pos,
+                 digit_size_t digit_size)
 {
-    const animated_segment_info_t* info_source = (digit_size == DS_BIG) ? big_segment_info : medium_segment_info;
+    const animated_segment_info_t* info_source =
+        (digit_size == DS_BIG)
+        ? big_segment_info
+        : medium_segment_info;
 
     if (segment_anim < 0) {
         segment_anim = -segment_anim;
@@ -400,32 +411,38 @@ const animated_segment_info_t* anim_segment_get(segment_anim_t segment_anim,
     return &info_source[segment_anim * 9 + anim_pos];
 }
 
-const animation_fixed_digits_t* anim_get_fixed_digits(digit_anim_t digit_anim)
+const animation_fixed_digits_t*
+anim_get_fixed_digits(digit_anim_t digit_anim)
 {
     return &retrieve_anim(digit_anim)->fixed_digits;
 }
 
-const animation_digit_segment_t* anim_get_segment_anim(digit_anim_t digit_anim)
+const animation_digit_segment_t*
+anim_get_segment_anim(digit_anim_t digit_anim)
 {
     return &retrieve_anim(digit_anim)->moving_segments;
 }
 
-digit_anim_t anim_get_next_anim(digit_anim_t digit_anim)
+digit_anim_t
+anim_get_next_anim(digit_anim_t digit_anim)
 {
     return retrieve_anim(digit_anim)->next_animation;
 }
 
-digit_anim_t anim_get_next_quick_anim(digit_anim_t digit_anim)
+digit_anim_t
+anim_get_next_quick_anim(digit_anim_t digit_anim)
 {
     return retrieve_anim(digit_anim)->quick_next;
 }
 
-bool anim_is_static_digit(digit_anim_t digit_anim)
+bool
+anim_is_static_digit(digit_anim_t digit_anim)
 {
     return digit_anim < 0;
 }
 
-int anim_get_displayed_number(digit_anim_t digit_anim)
+int
+anim_get_displayed_number(digit_anim_t digit_anim)
 {
     if (!anim_is_static_digit(digit_anim)) {
         return -1;
@@ -434,7 +451,8 @@ int anim_get_displayed_number(digit_anim_t digit_anim)
     }
 }
 
-digit_anim_t anim_get_anim_for_number(int number)
+digit_anim_t
+anim_get_anim_for_number(int number)
 {
     return -number - 1;
 }
