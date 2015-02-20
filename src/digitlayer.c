@@ -51,7 +51,7 @@ typedef struct {
     /** Currently displayed number */
     int current_number;
     /** Target number to display */
-    int target_number;
+    unsigned target_number;
     /** Current animation step */
     digit_anim_t current_anim;
     /** Current animation position (always <9) */
@@ -262,6 +262,11 @@ digit_layer_set_number(DigitLayer* layer,
                        bool animate)
 {
     digit_info_t* info = get_info(layer);
+
+    if (info->target_number == target_number) {
+        return;
+    }
+
     info->target_number = target_number % 10;
 
     // If we are already in an animation, keep going
@@ -280,7 +285,7 @@ digit_layer_animate(DigitLayer* layer)
     digit_info_t* info = get_info(layer);
 
     // Only animate if needed
-    if (info->current_number == info->target_number) {
+    if (info->current_number == ((int) info->target_number)) {
         return false;
     }
 
@@ -336,7 +341,8 @@ digit_layer_animate(DigitLayer* layer)
                          info->current_anim_position)) {
         info->current_anim_position -= anim_get_step_count(info->current_anim);
 
-        if (info->quick_wrap && info->target_number < info->current_number) {
+        if (info->quick_wrap &&
+            ((int) info->target_number) < info->current_number) {
             // If we're quickwrapping and we want a lower digit, start back from
             // 0
             // Forcefully set to -1 so we don't endlessly loop
@@ -355,7 +361,7 @@ digit_layer_animate(DigitLayer* layer)
     }
 
     layer_mark_dirty(layer);
-    return info->current_number != info->target_number;
+    return info->current_number != ((int) info->target_number);
 }
 
 void

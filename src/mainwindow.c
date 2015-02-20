@@ -51,6 +51,8 @@
 // layout_get_hour_offset()
 // layout_get_minute_offset()
 #include "layout.h"
+// widget_is_active()
+#include "widgetfilter.h"
 // NumberLayer
 // number_layer_create()
 // number_layer_set_number()
@@ -82,6 +84,9 @@ typedef struct {
 
     /** Animation timer */
     AppTimer* animation_timer;
+
+    /** Tick timer service registered */
+    bool timer_service_registered;
 
     /** Flag indicating that the current animations are forced (on shake, on
      * load)
@@ -115,6 +120,19 @@ main_window_lay_widgets(MainWindow* window);
 static
 void
 main_window_remove_widgets(window_info_t* info);
+
+/** Register all pertinent services.
+ *
+ * This register different event handlers according to user configuration.
+ */
+static
+void
+main_window_register_services(window_info_t* info);
+
+/** Unregister all services. */
+static
+void
+main_window_unregister_services(window_info_t* info);
 
 /** Callback for when the window is displayed */
 static
@@ -280,12 +298,35 @@ main_window_remove_widgets(window_info_t* info)
 
 static
 void
+main_window_register_services(window_info_t* info)
+{
+    main_window_unregister_services(info);
+
+    if (!info->timer_service_registered) {
+        tick_timer_service_subscribe(widget_is_active(WT_SECONDS) 
+                ? SECOND_UNIT
+                : MINUTE_UNIT,
+                                     handle_time_tick);
+        info->timer_service_registered = true;
+    }
+}
+
+static
+void
+main_window_unregister_services(window_info_t* info)
+{
+    if (info->timer_service_registered) {
+        tick_timer_service_unsubscribe();
+        info->timer_service_registered = false;
+    }
+}
+
+static
+void
 main_window_appear(Window* window)
 {
-    tick_timer_service_subscribe(MINUTE_UNIT,
-                                 handle_time_tick);
-
     window_info_t* info = get_info(window);
+    main_window_register_services(info);
 
     if (cfg_get_anim_on_load()) {
         main_window_randomize_anim(info);
@@ -299,7 +340,7 @@ static
 void
 main_window_disappear(Window* window)
 {
-    tick_timer_service_unsubscribe();
+    main_window_unregister_services(get_info(window));
 }
 
 static
@@ -487,6 +528,7 @@ main_window_create(void)
     info->dummies[3] = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
+    info->timer_service_registered = false;
     info->extra_animation = false;
     window_set_user_data(result, info);
     global_main_window = result;

@@ -30,6 +30,8 @@
 typedef struct {
     /** Number of digits */
     unsigned digits_count;
+    /** Target number to display */
+    unsigned displayed_number;
     /** The digits */
     DigitLayer* digits[];
 } number_info_t;
@@ -69,6 +71,7 @@ number_layer_create(digit_size_t size,
         layer_create_with_data(layer_rect,
                                number_info_size);
     number_info_t* info = (number_info_t*) layer_get_data(result);
+    info->displayed_number = 0;
     info->digits_count = digit_count;
 
     unsigned digit_placement_offset = digit_dimensions[size].w +
@@ -94,6 +97,12 @@ number_layer_set_number(NumberLayer* layer,
                         bool animate)
 {
     number_info_t* info = (number_info_t*) layer_get_data(layer);
+
+    if (info->displayed_number == number) {
+        return;
+    }
+    info->displayed_number = number;
+
     unsigned digit_index = info->digits_count;
 
     for (unsigned i = 0;
