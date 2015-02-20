@@ -38,6 +38,9 @@
 #include <pebble.h>
 // cfg_get_anim_on_load()
 // cfg_get_invert_colors()
+// cfg_get_anim_speed_normal()
+// cfg_get_anim_speed_forced()
+// cfg_get_anim_on_time()
 #include "config.h"
 // animation_speed_t
 #include "digit_info.h"
@@ -79,6 +82,11 @@ typedef struct {
 
     /** Animation timer */
     AppTimer* animation_timer;
+
+    /** Flag indicating that the current animations are forced (on shake, on
+     * load)
+     */
+    bool extra_animation;
 } window_info_t;
 
 // ===================
@@ -152,10 +160,26 @@ static
 void
 main_window_schedule_animation(window_info_t* info);
 
+/** Switch animation speed to forced anim. speed.
+ *
+ * Forced anim speed last until there is no more animation to process.
+ */
+static
+void
+main_window_force_anim(window_info_t* info);
+
 /** Return the window_info_t associated with a window */
 static
 window_info_t*
 get_info(MainWindow* window);
+
+/** Return the animation speed.
+ *
+ * @param forced Flag to retrieve the "forced" animation speed.
+ */
+static
+animation_speed_t
+cfgspeed_get(bool forced);
 
 // EVENT HANDLERS =
 
@@ -202,7 +226,7 @@ main_window_lay_widgets(MainWindow* window)
     bool quick_wrap = cfg_get_skip_digits();
     number_layer_set_quick_wrap(info->hours,
                                 quick_wrap);
-    number_layer_set_quick_wrap(info->hours,
+    number_layer_set_quick_wrap(info->minutes,
                                 quick_wrap);
     // Add them to the window
     layer_add_child(window_layer,
@@ -354,6 +378,7 @@ main_window_randomize_anim(window_info_t* info)
                             false);
     main_window_set_to_time(info,
                             true);
+    main_window_force_anim(info);
 }
 
 static
@@ -369,10 +394,42 @@ main_window_schedule_animation(window_info_t* info)
 }
 
 static
+void
+main_window_force_anim(window_info_t* info)
+{
+    info->extra_animation = true;
+    main_window_set_anim_speed(info,
+                               cfgspeed_get(true));
+    main_window_schedule_animation(info);
+}
+
+static
 window_info_t*
 get_info(MainWindow* window)
 {
     return (window_info_t*) window_get_user_data(window);
+}
+
+static
+animation_speed_t
+cfgspeed_get(bool forced)
+{
+    switch (forced
+            ? cfg_get_anim_speed_forced()
+            : cfg_get_anim_speed_normal()) {
+    case ANIM_SPEED_NORMAL_SLOW_SEP:
+        return SLOW_SEPARATE;
+
+    case ANIM_SPEED_NORMAL_SLOW_MERGE:
+        return SLOW_MERGED;
+
+    case ANIM_SPEED_NORMAL_FAST_SEP:
+        return FAST_SEPARATE;
+
+    default:
+    case ANIM_SPEED_NORMAL_FAST_MERGE:
+        return FAST_MERGED;
+    }
 }
 
 static
@@ -383,7 +440,7 @@ handle_time_tick(struct tm* tick_time,
     window_info_t* info = get_info(global_main_window);
     main_window_update_time(tick_time,
                             info,
-                            true);
+                            cfg_get_anim_on_time());
 }
 
 static
@@ -398,6 +455,12 @@ handle_anim_timer(window_info_t* info)
 
     if (need_animation) {
         main_window_schedule_animation(info);
+    } else {
+        if (info->extra_animation) {
+            info->extra_animation = false;
+            main_window_set_anim_speed(info,
+                                       cfgspeed_get(false));
+        }
     }
 }
 
@@ -418,8 +481,13 @@ main_window_create(void)
     window_info_t* info = malloc(sizeof(window_info_t));
     info->hours = NULL;
     info->minutes = NULL;
+    info->dummies[0] = NULL;
+    info->dummies[1] = NULL;
+    info->dummies[2] = NULL;
+    info->dummies[3] = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
+    info->extra_animation = false;
     window_set_user_data(result, info);
     global_main_window = result;
     main_window_schedule_animation(info);
@@ -429,7 +497,6 @@ main_window_create(void)
 void
 main_window_destroy(MainWindow* window)
 {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "DESTROY");
     window_info_t* info = get_info(window);
     free(info);
     window_destroy(window);
@@ -439,7 +506,11 @@ void
 main_window_update_settings(MainWindow* window)
 {
     main_window_lay_widgets(window);
-    main_window_set_to_time(get_info(window),
+    window_info_t* info = get_info(window);
+    main_window_set_to_time(info,
                             false);
+    main_window_set_anim_speed(info,
+                               cfgspeed_get(false));
+    get_info(window)->extra_animation = false;
 }
 

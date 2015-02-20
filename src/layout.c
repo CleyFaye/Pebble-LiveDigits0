@@ -65,7 +65,6 @@ layout_get_minute_offset(void)
         (cfg_get_base_layout() == BASE_LAYOUT_HOUR)
         ? minute_number_bottom_align
         : minute_number_top_align;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Minute offset:%i,%i", result.x, result.y);
     return result;
 }
 
@@ -126,6 +125,7 @@ layout_is_white_background(void)
     case WATCH_INFO_COLOR_MATTE_BLACK:
         need_white_background = false;
         break;
+
     case WATCH_INFO_COLOR_WHITE:
     case WATCH_INFO_COLOR_RED:
     case WATCH_INFO_COLOR_ORANGE:
@@ -134,8 +134,9 @@ layout_is_white_background(void)
     case WATCH_INFO_COLOR_PINK:
         need_white_background = true;
     }
+
     return cfg_get_invert_colors()
-        ? !need_white_background
-        : need_white_background;
+           ? !need_white_background
+           : need_white_background;
 }
 

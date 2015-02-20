@@ -264,11 +264,14 @@ digit_layer_set_number(DigitLayer* layer,
     digit_info_t* info = get_info(layer);
     info->target_number = target_number % 10;
 
-    if (!animate) {
+    // If we are already in an animation, keep going
+    if (!animate && anim_is_static_digit(info->current_anim)) {
         info->current_number = info->target_number;
         info->current_anim = anim_get_anim_for_number(info->current_number);
         info->current_anim_position = 0;
     }
+
+    layer_mark_dirty(layer);
 }
 
 bool
@@ -336,9 +339,7 @@ digit_layer_animate(DigitLayer* layer)
         if (info->quick_wrap && info->target_number < info->current_number) {
             // If we're quickwrapping and we want a lower digit, start back from
             // 0
-            // Here we forcefully set the currently displayed digit to -1 so we
-            // don't loop endlessly trying to reach it. Animation step are still
-            // dictated by the current_anim property.
+            // Forcefully set to -1 so we don't endlessly loop
             info->current_number = -1;
             info->current_anim = anim_get_next_quick_anim(info->current_anim);
         } else {
