@@ -11,202 +11,202 @@
     "resources": {
         "media": [
             {
-                "file": "images/2.png",
+                "file": "images/med2.png",
                 "name": "SEGMENT_MEDIUM_2",
                 "type": "png"
             },
             {
-                "file": "images/17.png",
+                "file": "images/med17.png",
                 "name": "SEGMENT_MEDIUM_17",
                 "type": "png"
             },
             {
-                "file": "images/16.png",
+                "file": "images/med16.png",
                 "name": "SEGMENT_MEDIUM_16",
                 "type": "png"
             },
             {
-                "file": "images/15.png",
+                "file": "images/med15.png",
                 "name": "SEGMENT_MEDIUM_15",
                 "type": "png"
             },
             {
-                "file": "images/14.png",
+                "file": "images/med14.png",
                 "name": "SEGMENT_MEDIUM_14",
                 "type": "png"
             },
             {
-                "file": "images/13.png",
+                "file": "images/med13.png",
                 "name": "SEGMENT_MEDIUM_13",
                 "type": "png"
             },
             {
-                "file": "images/12.png",
+                "file": "images/med12.png",
                 "name": "SEGMENT_MEDIUM_12",
                 "type": "png"
             },
             {
-                "file": "images/11.png",
+                "file": "images/med11.png",
                 "name": "SEGMENT_MEDIUM_11",
                 "type": "png"
             },
             {
-                "file": "images/10.png",
+                "file": "images/med10.png",
                 "name": "SEGMENT_MEDIUM_10",
                 "type": "png"
             },
             {
-                "file": "images/9.png",
+                "file": "images/med9.png",
                 "name": "SEGMENT_MEDIUM_9",
                 "type": "png"
             },
             {
-                "file": "images/8.png",
+                "file": "images/med8.png",
                 "name": "SEGMENT_MEDIUM_8",
                 "type": "png"
             },
             {
-                "file": "images/7.png",
+                "file": "images/med7.png",
                 "name": "SEGMENT_MEDIUM_7",
                 "type": "png"
             },
             {
-                "file": "images/6.png",
+                "file": "images/med6.png",
                 "name": "SEGMENT_MEDIUM_6",
                 "type": "png"
             },
             {
-                "file": "images/5.png",
+                "file": "images/med5.png",
                 "name": "SEGMENT_MEDIUM_5",
                 "type": "png"
             },
             {
-                "file": "images/4.png",
+                "file": "images/med4.png",
                 "name": "SEGMENT_MEDIUM_4",
                 "type": "png"
             },
             {
-                "file": "images/3.png",
+                "file": "images/med3.png",
                 "name": "SEGMENT_MEDIUM_3",
                 "type": "png"
             },
             {
-                "file": "images/1.png",
+                "file": "images/med1.png",
                 "name": "SEGMENT_MEDIUM_1",
                 "type": "png"
             },
             {
-                "file": "images/0.png",
+                "file": "images/med0.png",
                 "name": "SEGMENT_MEDIUM_0",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim17.png",
+                "file": "images/big17.png",
                 "name": "SEGMENT_BIG_17",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim16.png",
+                "file": "images/big16.png",
                 "name": "SEGMENT_BIG_16",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim15.png",
+                "file": "images/big15.png",
                 "name": "SEGMENT_BIG_15",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim14.png",
+                "file": "images/big14.png",
                 "name": "SEGMENT_BIG_14",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim13.png",
+                "file": "images/big13.png",
                 "name": "SEGMENT_BIG_13",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim12.png",
+                "file": "images/big12.png",
                 "name": "SEGMENT_BIG_12",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim11.png",
+                "file": "images/big11.png",
                 "name": "SEGMENT_BIG_11",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim10.png",
+                "file": "images/big10.png",
                 "name": "SEGMENT_BIG_10",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim9.png",
+                "file": "images/big9.png",
                 "name": "SEGMENT_BIG_9",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim8.png",
+                "file": "images/big8.png",
                 "name": "SEGMENT_BIG_8",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim7.png",
+                "file": "images/big7.png",
                 "name": "SEGMENT_BIG_7",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim6.png",
+                "file": "images/big6.png",
                 "name": "SEGMENT_BIG_6",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim5.png",
+                "file": "images/big5.png",
                 "name": "SEGMENT_BIG_5",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim4.png",
+                "file": "images/big4.png",
                 "name": "SEGMENT_BIG_4",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim3.png",
+                "file": "images/big3.png",
                 "name": "SEGMENT_BIG_3",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim2.png",
+                "file": "images/big2.png",
                 "name": "SEGMENT_BIG_2",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim1.png",
+                "file": "images/big1.png",
                 "name": "SEGMENT_BIG_1",
                 "type": "png"
             },
             {
-                "file": "images/BigAnim0.png",
+                "file": "images/big0.png",
                 "name": "SEGMENT_BIG_0",
                 "type": "png"
             },
             {
-                "file": "images/Small_Vertical.png",
+                "file": "images/med_vert.png",
                 "name": "MEDIUMDIGIT_VERTICAL",
                 "type": "png"
             },
             {
-                "file": "images/Small_Horizontal.png",
+                "file": "images/med_horiz.png",
                 "name": "MEDIUMDIGIT_HORIZONTAL",
                 "type": "png"
             },
             {
-                "file": "images/Big_Vertical.png",
+                "file": "images/big_vert.png",
                 "name": "BIGDIGIT_VERTICAL",
                 "type": "png"
             },
             {
-                "file": "images/Big_Horizontal.png",
+                "file": "images/big_horiz.png",
                 "name": "BIGDIGIT_HORIZONTAL",
                 "type": "png"
             }
