@@ -103,11 +103,17 @@ draw_static_digit(digit_info_t* info,
                   GPoint* layer_offset,
                   GContext* ctx);
 
+/** Draw animated part of a digit */
 static
 void
 draw_animated_segments(digit_info_t* info,
                        GPoint* layer_offset,
                        GContext* ctx);
+
+/** Return the digit_info_t associated with a layer */
+static
+digit_info_t*
+get_info(DigitLayer* layer);
 
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
@@ -197,6 +203,13 @@ draw_animated_segments(digit_info_t* info,
     }
 }
 
+static
+digit_info_t*
+get_info(DigitLayer* layer)
+{
+    return (digit_info_t*) layer_get_data(layer);
+}
+
 // ==============================
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
@@ -213,7 +226,7 @@ digit_layer_create(digit_size_t size,
     DigitLayer* result =
         layer_create_with_data(layer_rect,
                                sizeof(digit_info_t));
-    digit_info_t* info = (digit_info_t*) layer_get_data(result);
+    digit_info_t* info = get_info(result);
     info->size = size;
     info->current_number = 0;
     info->target_number = 0;
@@ -231,7 +244,7 @@ void
 digit_layer_set_quick_wrap(DigitLayer* layer,
                            bool quick_wrap)
 {
-    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    digit_info_t* info = get_info(layer);
     info->quick_wrap = quick_wrap;
 }
 
@@ -239,7 +252,7 @@ void
 digit_layer_set_animate_speed(DigitLayer* layer,
                               animation_speed_t speed)
 {
-    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    digit_info_t* info = get_info(layer);
     info->animate_speed = speed;
 }
 
@@ -248,7 +261,7 @@ digit_layer_set_number(DigitLayer* layer,
                        unsigned target_number,
                        bool animate)
 {
-    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    digit_info_t* info = get_info(layer);
     info->target_number = target_number % 10;
 
     if (!animate) {
@@ -261,7 +274,7 @@ digit_layer_set_number(DigitLayer* layer,
 bool
 digit_layer_animate(DigitLayer* layer)
 {
-    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    digit_info_t* info = get_info(layer);
 
     // Only animate if needed
     if (info->current_number == info->target_number) {
@@ -347,7 +360,7 @@ digit_layer_animate(DigitLayer* layer)
 void
 digit_layer_destroy(DigitLayer* layer)
 {
-    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    digit_info_t* info = get_info(layer);
     segment_unload_images(info->size);
     layer_destroy(layer);
 }
