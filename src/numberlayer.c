@@ -41,7 +41,7 @@ typedef struct {
 /** Spacing between digits for each digit size. */
 static
 const unsigned digit_spacing[DIGITS_SIZE_COUNT] = {
-    7,
+    5,
     3
 };
 

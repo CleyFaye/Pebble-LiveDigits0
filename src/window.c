@@ -37,7 +37,7 @@ static void main_window_load(Window* window)
     window_info_t* info = window_get_user_data(window);
     info->hours = number_layer_create(DS_BIG,
                                       2,
-                                      GPoint(8,
+                                      GPoint(5,
                                               3));
     info->minutes = number_layer_create(DS_MEDIUM,
                                         2,
