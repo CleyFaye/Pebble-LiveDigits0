@@ -14,7 +14,7 @@
                 "file": "images/logo.png",
                 "name": "IMAGE_MENU_ICON",
                 "type": "png",
-                "menuIcon": true,
+                "menuIcon" : true
             },
             {
                 "file": "images/med2.png",
