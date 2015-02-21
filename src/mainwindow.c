@@ -76,9 +76,6 @@ typedef struct {
     /** Minutes number */
     NumberLayer* minutes;
 
-    // TEMP DUMMIES
-    DummyLayer* dummies[4];
-
     /** Color invertion layer */
     InverterLayer* inverter;
 
@@ -252,14 +249,6 @@ main_window_lay_widgets(MainWindow* window)
     layer_add_child(window_layer,
                     info->minutes);
 
-    for (unsigned i = 0;
-         i < 4;
-         ++i) {
-        info->dummies[i] = dummy_layer_create(i);
-        layer_add_child(window_layer,
-                        info->dummies[i]);
-    }
-
     // Must be last: the inverter, if required
     if (layout_is_white_background()) {
         info->inverter = inverter_layer_create(GRect(0,
@@ -282,14 +271,6 @@ main_window_remove_widgets(window_info_t* info)
         info->minutes = NULL;
     }
 
-    if (info->dummies[0]) {
-        for (unsigned i = 0;
-             i < 4;
-             ++i) {
-            dummy_layer_destroy(info->dummies[i]);
-        }
-    }
-
     if (info->inverter) {
         inverter_layer_destroy(info->inverter);
         info->inverter = NULL;
@@ -303,9 +284,9 @@ main_window_register_services(window_info_t* info)
     main_window_unregister_services(info);
 
     if (!info->timer_service_registered) {
-        tick_timer_service_subscribe(widget_is_active(WT_SECONDS) 
-                ? SECOND_UNIT
-                : MINUTE_UNIT,
+        tick_timer_service_subscribe(widget_is_active(WT_SECONDS)
+                                     ? SECOND_UNIT
+                                     : MINUTE_UNIT,
                                      handle_time_tick);
         info->timer_service_registered = true;
     }
@@ -522,10 +503,6 @@ main_window_create(void)
     window_info_t* info = malloc(sizeof(window_info_t));
     info->hours = NULL;
     info->minutes = NULL;
-    info->dummies[0] = NULL;
-    info->dummies[1] = NULL;
-    info->dummies[2] = NULL;
-    info->dummies[3] = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
     info->timer_service_registered = false;
