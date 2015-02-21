@@ -35,9 +35,13 @@
 // clock_is_24h_style()
 // app_timer_register()
 // app_timer_cancel()
+// vibes_double_pulse()
+// vibes_short_pulse()
 #include <pebble.h>
 // SECONDS_STYLE_FIXED
 // SECONDS_STYLE_DOT
+// VIBRATE_EVERY_MINUTE
+// VIBRATE_EVERY_HOUR
 // cfg_get_anim_on_load()
 // cfg_get_invert_colors()
 // cfg_get_anim_speed_normal()
@@ -45,6 +49,7 @@
 // cfg_get_anim_on_time()
 // cfg_get_seconds_style()
 // cfg_get_anim_on_shake()
+// cfg_get_vibrate_every()
 #include "config.h"
 // animation_speed_t
 #include "digit_info.h"
@@ -488,6 +493,20 @@ main_window_update_time(struct tm* tick_time,
     }
 
     main_window_schedule_animation(info);
+
+    if (seconds == 0) {
+        switch (cfg_get_vibrate_every()) {
+        case VIBRATE_EVERY_HOUR:
+            if (minutes == 0) {
+                vibes_double_pulse();
+            }
+
+            break;
+
+        case VIBRATE_EVERY_MINUTE:
+            vibes_short_pulse();
+        }
+    }
 }
 
 static
