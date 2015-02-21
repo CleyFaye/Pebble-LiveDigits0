@@ -11,6 +11,12 @@
     "resources": {
         "media": [
             {
+                "file": "images/logo.png",
+                "name": "IMAGE_MENU_ICON",
+                "type": "png",
+                "menuIcon": true,
+            },
+            {
                 "file": "images/med2.png",
                 "name": "SEGMENT_MEDIUM_2",
                 "type": "png"
