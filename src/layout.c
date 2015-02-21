@@ -12,6 +12,7 @@
 // MINUTES_POSITION_LEFT
 // BASE_LAYOUT_HOUR
 // DISPLAY_WIDGETS_ALWAYS
+// SECONDS_STYLE_DOT
 // cfg_get_hour_position()
 // cfg_get_minutes_position()
 // cfg_get_base_layout()
@@ -20,6 +21,7 @@
 // cfg_get_battery_position()
 // cfg_get_bluetooth_position()
 // cfg_get_display_widgets()
+// cfg_get_seconds_style()
 #include "config.h"
 // widget_type_t
 #include "widgetfilter.h"
@@ -32,9 +34,13 @@
 
 static
 GPoint widget_offset[WIDGET_TYPE_COUNT] = {
+    // WT_DATE
     { .x = 0, .y = 0},
+    // WT_SECONDS
     { .x = 1, .y = 2},
+    // WT_BATTERY
     { .x = 0, .y = 0},
+    // WT_BLUETOOTH
     { .x = 0, .y = 0}
 };
 
@@ -43,6 +49,7 @@ GPoint widget_offset[WIDGET_TYPE_COUNT] = {
 // =========
 
 const unsigned widget_size = 36;
+const unsigned seconds_dot_size = 4;
 
 // ==============================
 // PUBLIC FUNCTIONS DEFINITIONS =
@@ -155,8 +162,18 @@ layout_get_widget_offset(widget_type_t widget)
                : ((cfg_get_minutes_position() == MINUTES_POSITION_LEFT)
                   ? widget_x_offset_minutes_left
                   : widget_x_offset_minutes_right);
-    result.x += widget_offset[widget].x;
-    result.y += widget_offset[widget].y;
+
+    // Exception
+    if (widget == WT_SECONDS &&
+        cfg_get_seconds_style() == SECONDS_STYLE_DOT) {
+        // Second dot is centered on widget size
+        result.x += widget_size / 2 - seconds_dot_size / 2;
+        result.y += widget_size / 2 - seconds_dot_size / 2;
+    } else {
+        result.x += widget_offset[widget].x;
+        result.y += widget_offset[widget].y;
+    }
+
     return result;
 }
 

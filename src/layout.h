@@ -9,6 +9,7 @@
 #define INCL_LAYOUT_H
 
 // GPoint
+// GSize
 #include <pebble.h>
 // widget_type_t
 #include "widgetfilter.h"
@@ -19,6 +20,9 @@
 
 /** Size of a widget (they are all square) */
 extern const unsigned widget_size;
+
+/** Size of the seconds dot (it's a square) */
+extern const unsigned seconds_dot_size;
 
 // ===============================
 // PUBLIC FUNCTIONS DECLARATIONS =

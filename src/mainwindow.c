@@ -79,6 +79,8 @@ typedef struct {
 
     /** Seconds widget */
     NumberLayer* seconds;
+    /** Seconds dot-ticker */
+    InverterLayer* seconds_dot;
 
     /** Color invertion layer */
     InverterLayer* inverter;
@@ -206,6 +208,16 @@ static
 void
 main_window_update_timer_service(window_info_t* info);
 
+/** Determine if widgets are currently visible.
+ *
+ * Widgets are visible if:
+ * - They are always enabled
+ * - They are enabled on shake, and the watch was shook recently
+ */
+static
+bool
+main_window_are_widgets_visible(window_info_t* info);
+
 /** Return the window_info_t associated with a window */
 static
 window_info_t*
@@ -287,12 +299,18 @@ main_window_lay_widgets(MainWindow* window)
     // Seconds
     if (widget_is_active(WT_SECONDS)) {
         if (cfg_get_seconds_style() == SECONDS_STYLE_DOT) {
-            // TODO dot layer
+            GRect layer_rect;
+            layer_rect.origin = layout_get_widget_offset(WT_SECONDS);
+            layer_rect.size = GSize(seconds_dot_size,
+                                    seconds_dot_size);
+            info->seconds_dot = inverter_layer_create(layer_rect);
+            layer_add_child(window_layer,
+                            inverter_layer_get_layer(info->seconds_dot));
         } else {
-            info->seconds = number_layer_create(DS_SMALL,
-                                                2,
-                                                layout_get_widget_offset(
-                                                    WT_SECONDS));
+            info->seconds =
+                number_layer_create(DS_SMALL,
+                                    2,
+                                    layout_get_widget_offset(WT_SECONDS));
             number_layer_set_animate_speed(info->seconds,
                                            FAST_MERGED);
             number_layer_set_quick_wrap(info->seconds,
@@ -311,7 +329,7 @@ main_window_lay_widgets(MainWindow* window)
                                                0,
                                                144,
                                                168));
-        layer_add_child(window_get_root_layer(window),
+        layer_add_child(window_layer,
                         inverter_layer_get_layer(info->inverter));
     }
 }
@@ -330,6 +348,11 @@ main_window_remove_widgets(window_info_t* info)
     if (info->seconds) {
         number_layer_destroy(info->seconds);
         info->seconds = NULL;
+    }
+
+    if (info->seconds_dot) {
+        inverter_layer_destroy(info->seconds_dot);
+        info->seconds_dot = NULL;
     }
 
     if (info->inverter) {
@@ -435,24 +458,33 @@ main_window_update_time(struct tm* tick_time,
                             minutes,
                             animate);
 
-    if (info->seconds) {
-        bool animate_seconds = cfg_get_seconds_style() != SECONDS_STYLE_FIXED;
+    if (main_window_are_widgets_visible(info)) {
+        if (info->seconds) {
+            bool animate_seconds =
+                cfg_get_seconds_style() != SECONDS_STYLE_FIXED;
 
-        if (animate_seconds) {
-            int prev_second = seconds - 1;
+            if (animate_seconds) {
+                int prev_second = seconds - 1;
 
-            if (prev_second == -1) {
-                prev_second = 59;
+                if (prev_second == -1) {
+                    prev_second = 59;
+                }
+
+                number_layer_set_number(info->seconds,
+                                        prev_second,
+                                        false);
             }
 
             number_layer_set_number(info->seconds,
-                                    prev_second,
-                                    false);
+                                    seconds,
+                                    animate_seconds);
         }
 
-        number_layer_set_number(info->seconds,
-                                seconds,
-                                animate_seconds);
+        if (info->seconds_dot) {
+            layer_set_hidden(inverter_layer_get_layer(info->seconds_dot),
+                             !layer_get_hidden(
+                                 inverter_layer_get_layer(info->seconds_dot)));
+        }
     }
 
     main_window_schedule_animation(info);
@@ -523,6 +555,11 @@ main_window_set_widget_visibility(window_info_t* info,
                          !visible);
     }
 
+    if (info->seconds_dot) {
+        layer_set_hidden(inverter_layer_get_layer(info->seconds_dot),
+                         !visible);
+    }
+
     if (visible) {
         main_window_set_to_time(info,
                                 false);
@@ -535,23 +572,30 @@ static
 void
 main_window_update_timer_service(window_info_t* info)
 {
-    bool seconds_visible;
-
-    if (widget_is_active(WT_SECONDS)) {
-        if (layout_widgets_hidden()) {
-            seconds_visible = info->widget_timer != NULL;
-        } else {
-            seconds_visible = true;
-        }
-    } else {
-        seconds_visible = false;
-    }
+    bool seconds_visible = widget_is_active(WT_SECONDS) &&
+                           main_window_are_widgets_visible(info);
 
     tick_timer_service_subscribe(seconds_visible
                                  ? SECOND_UNIT
                                  : MINUTE_UNIT,
                                  handle_time_tick);
     info->timer_service_registered = true;
+}
+
+static
+bool
+main_window_are_widgets_visible(window_info_t* info)
+{
+    switch (cfg_get_display_widgets()) {
+    case DISPLAY_WIDGETS_NEVER:
+        return false;
+
+    case DISPLAY_WIDGETS_ALWAYS:
+        return true;
+
+    default:
+        return info->widget_timer != NULL;
+    }
 }
 
 static
