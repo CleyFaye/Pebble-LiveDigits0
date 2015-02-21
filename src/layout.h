@@ -54,5 +54,13 @@ layout_is_white_background(void);
 bool
 layout_widgets_hidden(void);
 
+/** Return the display delay for widgets on shake.
+ *
+ * @return The number of seconds the widgets must be displayed on shake, 0 if
+ * they are always visible/hidden.
+ */
+int
+layout_widgets_shaketimer(void);
+
 #endif
 

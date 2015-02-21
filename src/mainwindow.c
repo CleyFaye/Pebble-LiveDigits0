@@ -44,11 +44,13 @@
 // cfg_get_anim_speed_forced()
 // cfg_get_anim_on_time()
 // cfg_get_seconds_style()
+// cfg_get_anim_on_shake()
 #include "config.h"
 // animation_speed_t
 #include "digit_info.h"
 // layout_get_hour_offset()
 // layout_get_minute_offset()
+// layout_widgets_shaketimer()
 #include "layout.h"
 // widget_is_active()
 #include "widgetfilter.h"
@@ -83,9 +85,13 @@ typedef struct {
 
     /** Animation timer */
     AppTimer* animation_timer;
+    /** Timer to hide the widgets */
+    AppTimer* widget_timer;
 
     /** Tick timer service registered */
     bool timer_service_registered;
+    /** Tap service registered */
+    bool tap_service_registered;
 
     /** Flag indicating that the current animations are forced (on shake, on
      * load)
@@ -191,6 +197,15 @@ void
 main_window_set_widget_visibility(window_info_t* info,
                                   bool visible);
 
+/** Update the periodicity of the timer handler.
+ *
+ * This is used to switch from MINUTE_UNIT to SECOND_UNIT when the seconds are
+ * displayed/hidden.
+ */
+static
+void
+main_window_update_timer_service(window_info_t* info);
+
 /** Return the window_info_t associated with a window */
 static
 window_info_t*
@@ -211,6 +226,17 @@ static
 void
 handle_time_tick(struct tm* tick_time,
                  TimeUnits units_changed);
+
+/** Handle a tap event */
+static
+void
+handle_accel_tap(AccelAxisType axis,
+                 int32_t direction);
+
+/** Re-hide the widgets */
+static
+void
+handle_widget_hidding(window_info_t* info);
 
 /** Handle the animation timer event */
 static
@@ -270,7 +296,7 @@ main_window_lay_widgets(MainWindow* window)
             number_layer_set_animate_speed(info->seconds,
                                            FAST_MERGED);
             number_layer_set_quick_wrap(info->seconds,
-                    true);
+                                        true);
             layer_add_child(window_layer,
                             info->seconds);
         }
@@ -318,12 +344,12 @@ main_window_register_services(window_info_t* info)
 {
     main_window_unregister_services(info);
 
-    if (!info->timer_service_registered) {
-        tick_timer_service_subscribe(widget_is_active(WT_SECONDS)
-                                     ? SECOND_UNIT
-                                     : MINUTE_UNIT,
-                                     handle_time_tick);
-        info->timer_service_registered = true;
+    main_window_update_timer_service(info);
+
+    if (cfg_get_anim_on_shake() ||
+        layout_widgets_shaketimer() > 0) {
+        accel_tap_service_subscribe(handle_accel_tap);
+        info->tap_service_registered = true;
     }
 }
 
@@ -334,6 +360,10 @@ main_window_unregister_services(window_info_t* info)
     if (info->timer_service_registered) {
         tick_timer_service_unsubscribe();
         info->timer_service_registered = false;
+    }
+
+    if (info->tap_service_registered) {
+        accel_tap_service_unsubscribe();
     }
 }
 
@@ -407,6 +437,7 @@ main_window_update_time(struct tm* tick_time,
 
     if (info->seconds) {
         bool animate_seconds = cfg_get_seconds_style() != SECONDS_STYLE_FIXED;
+
         if (animate_seconds) {
             int prev_second = seconds - 1;
 
@@ -491,12 +522,46 @@ main_window_set_widget_visibility(window_info_t* info,
         layer_set_hidden(info->seconds,
                          !visible);
     }
+
+    if (visible) {
+        main_window_set_to_time(info,
+                                false);
+    }
+
+    main_window_update_timer_service(info);
+}
+
+static
+void
+main_window_update_timer_service(window_info_t* info)
+{
+    bool seconds_visible;
+
+    if (widget_is_active(WT_SECONDS)) {
+        if (layout_widgets_hidden()) {
+            seconds_visible = info->widget_timer != NULL;
+        } else {
+            seconds_visible = true;
+        }
+    } else {
+        seconds_visible = false;
+    }
+
+    tick_timer_service_subscribe(seconds_visible
+                                 ? SECOND_UNIT
+                                 : MINUTE_UNIT,
+                                 handle_time_tick);
+    info->timer_service_registered = true;
 }
 
 static
 window_info_t*
 get_info(MainWindow* window)
 {
+    if (window == NULL) {
+        window = global_main_window;
+    }
+
     return (window_info_t*) window_get_user_data(window);
 }
 
@@ -527,10 +592,48 @@ void
 handle_time_tick(struct tm* tick_time,
                  TimeUnits units_changed)
 {
-    window_info_t* info = get_info(global_main_window);
+    window_info_t* info = get_info(NULL);
     main_window_update_time(tick_time,
                             info,
                             cfg_get_anim_on_time());
+}
+
+static
+void
+handle_accel_tap(AccelAxisType axis,
+                 int32_t direction)
+{
+    window_info_t* info = get_info(NULL);
+
+    if (cfg_get_anim_on_shake()) {
+        main_window_randomize_anim(info);
+    }
+
+    unsigned widget_timer = layout_widgets_shaketimer();
+
+    if (widget_timer > 0) {
+        if (info->widget_timer) {
+            app_timer_reschedule(info->widget_timer,
+                                 widget_timer * 1000);
+        } else {
+            info->widget_timer =
+                app_timer_register(widget_timer * 1000,
+                                   (AppTimerCallback) handle_widget_hidding,
+                                   info);
+        }
+
+        main_window_set_widget_visibility(info,
+                                          true);
+    }
+}
+
+static
+void
+handle_widget_hidding(window_info_t* info)
+{
+    info->widget_timer = NULL;
+    main_window_set_widget_visibility(info,
+                                      false);
 }
 
 static
@@ -582,7 +685,9 @@ main_window_create(void)
     info->minutes = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
+    info->widget_timer = NULL;
     info->timer_service_registered = false;
+    info->tap_service_registered = false;
     info->extra_animation = false;
     window_set_user_data(result, info);
     global_main_window = result;

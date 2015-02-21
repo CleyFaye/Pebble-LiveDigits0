@@ -302,6 +302,10 @@ digit_layer_animate(DigitLayer* layer)
         return false;
     }
 
+    if (layer_get_hidden(layer)) {
+        return false;
+    }
+
     switch (info->animate_speed) {
     case SLOW_SEPARATE:
 

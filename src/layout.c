@@ -196,3 +196,20 @@ layout_widgets_hidden(void)
     return cfg_value != DISPLAY_WIDGETS_ALWAYS;
 }
 
+int
+layout_widgets_shaketimer(void)
+{
+    switch (cfg_get_display_widgets()) {
+    default:
+    case DISPLAY_WIDGETS_NEVER:
+    case DISPLAY_WIDGETS_ALWAYS:
+        return 0;
+
+    case DISPLAY_WIDGETS_SHAKE3:
+        return 3;
+
+    case DISPLAY_WIDGETS_SHAKE6:
+        return 6;
+    }
+}
+
