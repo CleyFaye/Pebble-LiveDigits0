@@ -64,26 +64,40 @@ typedef struct {
     bool animate_skipbeat;
 } digit_info_t;
 
-/** Placement of the segments to display a big digit. */
-static const animated_segment_info_t big_digit_draw_info[7] = {
-    {SO_HORIZONTAL, { .x = 6, .y = 0}},
-    {SO_VERTICAL, { .x = 0, .y = 6}},
-    {SO_VERTICAL, { .x = 37, .y = 6}},
-    {SO_HORIZONTAL, { .x = 6, .y = 37}},
-    {SO_VERTICAL, { .x = 0, .y = 43}},
-    {SO_VERTICAL, { .x = 37, .y = 43}},
-    {SO_HORIZONTAL, { .x = 6, .y = 74}}
-};
+/** Information on how to draw the 7 static segments of a digit */
+typedef const animated_segment_info_t static_segment_info_t[7];
 
-/** Placement of the segments to display a medium digit. */
-static const animated_segment_info_t medium_digit_draw_info[7] = {
-    {SO_HORIZONTAL, { .x = 5, .y = 0}},
-    {SO_VERTICAL, { .x = 0, .y = 5}},
-    {SO_VERTICAL, { .x = 35, .y = 5}},
-    {SO_HORIZONTAL, { .x = 5, .y = 35}},
-    {SO_VERTICAL, { .x = 0, .y = 40}},
-    {SO_VERTICAL, { .x = 35, .y = 40}},
-    {SO_HORIZONTAL, { .x = 5, .y = 70}}
+// ===============
+// PRIVATE CONST =
+// ===============
+
+/** Placement of the segments to display each digit size. */
+static static_segment_info_t digit_static_draw_info[DIGITS_SIZE_COUNT] = {
+    {
+        {SO_HORIZONTAL, { .x = 6, .y = 0}},
+        {SO_VERTICAL, { .x = 0, .y = 6}},
+        {SO_VERTICAL, { .x = 37, .y = 6}},
+        {SO_HORIZONTAL, { .x = 6, .y = 37}},
+        {SO_VERTICAL, { .x = 0, .y = 43}},
+        {SO_VERTICAL, { .x = 37, .y = 43}},
+        {SO_HORIZONTAL, { .x = 6, .y = 74}}
+    }, {
+        {SO_HORIZONTAL, { .x = 5, .y = 0}},
+        {SO_VERTICAL, { .x = 0, .y = 5}},
+        {SO_VERTICAL, { .x = 35, .y = 5}},
+        {SO_HORIZONTAL, { .x = 5, .y = 35}},
+        {SO_VERTICAL, { .x = 0, .y = 40}},
+        {SO_VERTICAL, { .x = 35, .y = 40}},
+        {SO_HORIZONTAL, { .x = 5, .y = 70}}
+    }, {
+        {SO_HORIZONTAL, { .x = 2, .y = 0}},
+        {SO_VERTICAL, { .x = 0, .y = 3}},
+        {SO_VERTICAL, { .x = 13, .y = 3}},
+        {SO_HORIZONTAL, { .x = 2, .y = 15}},
+        {SO_VERTICAL, { .x = 0, .y = 18}},
+        {SO_VERTICAL, { .x = 13, .y = 18}},
+        {SO_HORIZONTAL, { .x = 2, .y = 30}}
+    }
 };
 
 // ================================
@@ -144,9 +158,8 @@ draw_static_digit(digit_info_t* info,
                   GContext* ctx)
 {
     const animated_segment_info_t* digit_draw_info =
-        (info->size == DS_BIG)
-        ? big_digit_draw_info
-        : medium_digit_draw_info;
+        digit_static_draw_info[info->size];
+
     const animation_fixed_digits_t* fixed_digits =
         anim_get_fixed_digits(info->current_anim);
 

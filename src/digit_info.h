@@ -65,6 +65,7 @@ typedef enum {
 typedef enum {
     DS_BIG = 0,
     DS_MEDIUM,
+    DS_SMALL,
     DIGITS_SIZE_COUNT
 } digit_size_t;
 

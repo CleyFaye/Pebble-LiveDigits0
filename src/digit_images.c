@@ -126,18 +126,69 @@ size_array_t medium_segments_size = {
     { .w = 11, .h = 31}
 };
 
+/** All small segment's images. */
+static
+bitmap_array_t small_segments;
+
+/** All small segment's images size. */
+static
+size_array_t small_segments_size = {
+    // VERT
+    { .w = 3, .h = 12},
+    // 9
+    { .w = 5, .h = 11},
+    // 18
+    { .w = 5, .h = 12},
+    // 27
+    { .w = 7, .h = 10},
+    // 36
+    { .w = 7, .h = 10},
+    // 45
+    { .w = 9, .h = 8},
+    // 54
+    { .w = 9, .h = 8},
+    // 63
+    { .w = 11, .h = 6},
+    // 72
+    { .w = 11, .h = 6},
+    // 81
+    { .w = 11, .h = 4},
+    // HORIZ
+    { .w = 12, .h = 3},
+    // 99
+    { .w = 11, .h = 4},
+    // 108
+    { .w = 11, .h = 6},
+    // 117
+    { .w = 11, .h = 6},
+    // 126
+    { .w = 9, .h = 8},
+    // 135
+    { .w = 9, .h = 8},
+    // 144
+    { .w = 7, .h = 10},
+    // 153
+    { .w = 7, .h = 10},
+    // 162
+    { .w = 5, .h = 12},
+    // 171
+    { .w = 5, .h = 12}
+};
+
 /** List of segments images lists for convenience. */
 static
 bitmap_array_t* segments_images[DIGITS_SIZE_COUNT] = {
     &big_segments,
-    &medium_segments
+    &medium_segments,
+    &small_segments
 };
 
 /** List of segments size lists for convenience. */
 static
 size_array_t* segments_sizes[DIGITS_SIZE_COUNT] = {
     &big_segments_size,
-    &medium_segments_size
+    &medium_segments_size,
+    &small_segments_size
 };
 
 /** Keep track of how many times a set of images was acquired.
@@ -153,64 +204,9 @@ unsigned segments_images_load_counter[DIGITS_SIZE_COUNT] = { 0, 0};
 typedef void(*func_t)(void);
 
 // ===============================
-// PRIVATE FUNCTION DECLARATIONS =
-// ===============================
-
-/** Effectively load big segments bitmaps. */
-static
-void
-do_load_big_segments(void);
-/** Effectively unload big segments bitmaps. */
-static
-void
-do_unload_big_segments(void);
-/** Effectively load big segments bitmaps. */
-static
-void
-do_load_medium_segments(void);
-/** Effectively unload big segments bitmaps. */
-static
-void
-do_unload_medium_segments(void);
-
-/** Loading functions */
-func_t digit_load_funcs[DIGITS_SIZE_COUNT] = {
-    do_load_big_segments,
-    do_load_medium_segments
-};
-
-/** Unloading functions */
-func_t digit_unload_funcs[DIGITS_SIZE_COUNT] = {
-    do_unload_big_segments,
-    do_unload_medium_segments
-};
-
-// ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
 // ===============================
 
-static
-void
-do_load_big_segments(void)
-{
-    load_bitmap_into_array_from_id(segment_res_ids[DS_BIG],
-                                   big_segments,
-                                   SEGMENTS_ORIENTATION_COUNT);
-}
-
-static
-void
-do_unload_big_segments(void)
-{
-    for (unsigned index = 0;
-         index < SEGMENTS_ORIENTATION_COUNT;
-         ++index) {
-        gbitmap_destroy(big_segments[index]);
-        big_segments[index] = NULL;
-    }
-}
-
-static
 void
 do_load_medium_segments(void)
 {
@@ -226,7 +222,7 @@ do_unload_medium_segments(void)
     for (unsigned index = 0;
          index < SEGMENTS_ORIENTATION_COUNT;
          ++index) {
-        gbitmap_destroy(medium_segments[index]);
+        gbitmap_destroy(small_segments[index]);
         medium_segments[index] = NULL;
     }
 }
@@ -239,7 +235,9 @@ void
 segment_load_images(digit_size_t size)
 {
     if (segments_images_load_counter[size]++ == 0) {
-        digit_load_funcs[size]();
+        load_bitmap_into_array_from_id(segment_res_ids[size],
+                *segments_images[size],
+                SEGMENTS_ORIENTATION_COUNT);
     }
 }
 
@@ -247,7 +245,12 @@ void
 segment_unload_images(digit_size_t size)
 {
     if (--segments_images_load_counter[size] == 0) {
-        digit_unload_funcs[size]();
+        for (unsigned index = 0;
+                index < SEGMENTS_ORIENTATION_COUNT;
+                ++index) {
+            gbitmap_destroy((*segments_images[size])[index]);
+            (*segments_images[size])[index] = NULL;
+        }
     }
 }
 

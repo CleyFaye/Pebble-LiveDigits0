@@ -44,7 +44,8 @@ typedef struct {
 static
 const unsigned digit_spacing[DIGITS_SIZE_COUNT] = {
     5,
-    3
+    3,
+    2
 };
 
 // =============================
@@ -101,6 +102,7 @@ number_layer_set_number(NumberLayer* layer,
     if (info->displayed_number == number) {
         return;
     }
+
     info->displayed_number = number;
 
     unsigned digit_index = info->digits_count;

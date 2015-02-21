@@ -63,17 +63,43 @@ const ResourceId medium_segment_res_ids[SEGMENTS_ORIENTATION_COUNT] = {
     RESOURCE_ID_SEGMENT_MEDIUM_17
 };
 
+/** Segment resource identifiers for small digits */
+const ResourceId small_segment_res_ids[SEGMENTS_ORIENTATION_COUNT] = {
+    RESOURCE_ID_SMALLDIGIT_VERTICAL,
+    RESOURCE_ID_SEGMENT_SMALL_0,
+    RESOURCE_ID_SEGMENT_SMALL_1,
+    RESOURCE_ID_SEGMENT_SMALL_2,
+    RESOURCE_ID_SEGMENT_SMALL_3,
+    RESOURCE_ID_SEGMENT_SMALL_4,
+    RESOURCE_ID_SEGMENT_SMALL_5,
+    RESOURCE_ID_SEGMENT_SMALL_6,
+    RESOURCE_ID_SEGMENT_SMALL_7,
+    RESOURCE_ID_SEGMENT_SMALL_8,
+    RESOURCE_ID_SMALLDIGIT_HORIZONTAL,
+    RESOURCE_ID_SEGMENT_SMALL_9,
+    RESOURCE_ID_SEGMENT_SMALL_10,
+    RESOURCE_ID_SEGMENT_SMALL_11,
+    RESOURCE_ID_SEGMENT_SMALL_12,
+    RESOURCE_ID_SEGMENT_SMALL_13,
+    RESOURCE_ID_SEGMENT_SMALL_14,
+    RESOURCE_ID_SEGMENT_SMALL_15,
+    RESOURCE_ID_SEGMENT_SMALL_16,
+    RESOURCE_ID_SEGMENT_SMALL_17
+};
+
 // ==================
 // PUBLIC VARIABLES =
 // ==================
 
 const GSize digit_dimensions[DIGITS_SIZE_COUNT] = {
     { .w = 46, .h = 83 },
-    { .w = 42, .h = 77 }
+    { .w = 42, .h = 77 },
+    { .w = 16, .h = 33 }
 };
 
 const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT] = {
     big_segment_res_ids,
-    medium_segment_res_ids
+    medium_segment_res_ids,
+    small_segment_res_ids
 };
 

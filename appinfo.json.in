@@ -191,6 +191,96 @@
                 "type": "png"
             },
             {
+                "file": "images/small17.png",
+                "name": "SEGMENT_SMALL_17",
+                "type": "png"
+            },
+            {
+                "file": "images/small16.png",
+                "name": "SEGMENT_SMALL_16",
+                "type": "png"
+            },
+            {
+                "file": "images/small15.png",
+                "name": "SEGMENT_SMALL_15",
+                "type": "png"
+            },
+            {
+                "file": "images/small14.png",
+                "name": "SEGMENT_SMALL_14",
+                "type": "png"
+            },
+            {
+                "file": "images/small13.png",
+                "name": "SEGMENT_SMALL_13",
+                "type": "png"
+            },
+            {
+                "file": "images/small12.png",
+                "name": "SEGMENT_SMALL_12",
+                "type": "png"
+            },
+            {
+                "file": "images/small11.png",
+                "name": "SEGMENT_SMALL_11",
+                "type": "png"
+            },
+            {
+                "file": "images/small10.png",
+                "name": "SEGMENT_SMALL_10",
+                "type": "png"
+            },
+            {
+                "file": "images/small9.png",
+                "name": "SEGMENT_SMALL_9",
+                "type": "png"
+            },
+            {
+                "file": "images/small8.png",
+                "name": "SEGMENT_SMALL_8",
+                "type": "png"
+            },
+            {
+                "file": "images/small7.png",
+                "name": "SEGMENT_SMALL_7",
+                "type": "png"
+            },
+            {
+                "file": "images/small6.png",
+                "name": "SEGMENT_SMALL_6",
+                "type": "png"
+            },
+            {
+                "file": "images/small5.png",
+                "name": "SEGMENT_SMALL_5",
+                "type": "png"
+            },
+            {
+                "file": "images/small4.png",
+                "name": "SEGMENT_SMALL_4",
+                "type": "png"
+            },
+            {
+                "file": "images/small3.png",
+                "name": "SEGMENT_SMALL_3",
+                "type": "png"
+            },
+            {
+                "file": "images/small2.png",
+                "name": "SEGMENT_SMALL_2",
+                "type": "png"
+            },
+            {
+                "file": "images/small1.png",
+                "name": "SEGMENT_SMALL_1",
+                "type": "png"
+            },
+            {
+                "file": "images/small0.png",
+                "name": "SEGMENT_SMALL_0",
+                "type": "png"
+            },
+            {
                 "file": "images/med_vert.png",
                 "name": "MEDIUMDIGIT_VERTICAL",
                 "type": "png"
@@ -208,6 +298,16 @@
             {
                 "file": "images/big_horiz.png",
                 "name": "BIGDIGIT_HORIZONTAL",
+                "type": "png"
+            },
+            {
+                "file": "images/small_vert.png",
+                "name": "SMALLDIGIT_VERTICAL",
+                "type": "png"
+            },
+            {
+                "file": "images/small_horiz.png",
+                "name": "SMALLDIGIT_HORIZONTAL",
                 "type": "png"
             }
         ]
