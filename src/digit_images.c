@@ -203,30 +203,6 @@ unsigned segments_images_load_counter[DIGITS_SIZE_COUNT] = { 0, 0};
 /** Simple function profile, used to load/unload stuff. */
 typedef void(*func_t)(void);
 
-// ===============================
-// PRIVATE FUNCTIONS DEFINITIONS =
-// ===============================
-
-void
-do_load_medium_segments(void)
-{
-    load_bitmap_into_array_from_id(segment_res_ids[DS_MEDIUM],
-                                   medium_segments,
-                                   SEGMENTS_ORIENTATION_COUNT);
-}
-
-static
-void
-do_unload_medium_segments(void)
-{
-    for (unsigned index = 0;
-         index < SEGMENTS_ORIENTATION_COUNT;
-         ++index) {
-        gbitmap_destroy(small_segments[index]);
-        medium_segments[index] = NULL;
-    }
-}
-
 // ==============================
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
