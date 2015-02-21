@@ -22,7 +22,8 @@ typedef enum {
     WT_DATE,
     WT_SECONDS,
     WT_BATTERY,
-    WT_BLUETOOTH
+    WT_BLUETOOTH,
+    WIDGET_TYPE_COUNT
 } widget_type_t;
 
 // ===============================

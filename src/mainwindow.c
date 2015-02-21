@@ -36,18 +36,17 @@
 // app_timer_register()
 // app_timer_cancel()
 #include <pebble.h>
+// SECONDS_STYLE_FIXED
+// SECONDS_STYLE_DOT
 // cfg_get_anim_on_load()
 // cfg_get_invert_colors()
 // cfg_get_anim_speed_normal()
 // cfg_get_anim_speed_forced()
 // cfg_get_anim_on_time()
+// cfg_get_seconds_style()
 #include "config.h"
 // animation_speed_t
 #include "digit_info.h"
-// DummyLayer
-// dummy_layer_create()
-// dummy_layer_destroy()
-#include "dummylayer.h"
 // layout_get_hour_offset()
 // layout_get_minute_offset()
 #include "layout.h"
@@ -75,6 +74,9 @@ typedef struct {
     NumberLayer* hours;
     /** Minutes number */
     NumberLayer* minutes;
+
+    /** Seconds widget */
+    NumberLayer* seconds;
 
     /** Color invertion layer */
     InverterLayer* inverter;
@@ -183,6 +185,12 @@ static
 void
 main_window_force_anim(window_info_t* info);
 
+/** Set the visibility of widgets */
+static
+void
+main_window_set_widget_visibility(window_info_t* info,
+                                  bool visible);
+
 /** Return the window_info_t associated with a window */
 static
 window_info_t*
@@ -249,6 +257,28 @@ main_window_lay_widgets(MainWindow* window)
     layer_add_child(window_layer,
                     info->minutes);
 
+    // Widgets
+    // Seconds
+    if (widget_is_active(WT_SECONDS)) {
+        if (cfg_get_seconds_style() == SECONDS_STYLE_DOT) {
+            // TODO dot layer
+        } else {
+            info->seconds = number_layer_create(DS_SMALL,
+                                                2,
+                                                layout_get_widget_offset(
+                                                    WT_SECONDS));
+            number_layer_set_animate_speed(info->seconds,
+                                           FAST_MERGED);
+            number_layer_set_quick_wrap(info->seconds,
+                    true);
+            layer_add_child(window_layer,
+                            info->seconds);
+        }
+    }
+
+    main_window_set_widget_visibility(info,
+                                      !layout_widgets_hidden());
+
     // Must be last: the inverter, if required
     if (layout_is_white_background()) {
         info->inverter = inverter_layer_create(GRect(0,
@@ -269,6 +299,11 @@ main_window_remove_widgets(window_info_t* info)
         info->hours = NULL;
         number_layer_destroy(info->minutes);
         info->minutes = NULL;
+    }
+
+    if (info->seconds) {
+        number_layer_destroy(info->seconds);
+        info->seconds = NULL;
     }
 
     if (info->inverter) {
@@ -351,6 +386,7 @@ main_window_update_time(struct tm* tick_time,
 {
     int hours;
     int minutes;
+    int seconds;
 
     if (clock_is_24h_style()) {
         hours = tick_time->tm_hour;
@@ -361,12 +397,33 @@ main_window_update_time(struct tm* tick_time,
     }
 
     minutes = tick_time->tm_min;
+    seconds = tick_time->tm_sec;
     number_layer_set_number(info->hours,
                             hours,
                             animate);
     number_layer_set_number(info->minutes,
                             minutes,
                             animate);
+
+    if (info->seconds) {
+        bool animate_seconds = cfg_get_seconds_style() != SECONDS_STYLE_FIXED;
+        if (animate_seconds) {
+            int prev_second = seconds - 1;
+
+            if (prev_second == -1) {
+                prev_second = 59;
+            }
+
+            number_layer_set_number(info->seconds,
+                                    prev_second,
+                                    false);
+        }
+
+        number_layer_set_number(info->seconds,
+                                seconds,
+                                animate_seconds);
+    }
+
     main_window_schedule_animation(info);
 }
 
@@ -426,6 +483,17 @@ main_window_force_anim(window_info_t* info)
 }
 
 static
+void
+main_window_set_widget_visibility(window_info_t* info,
+                                  bool visible)
+{
+    if (info->seconds) {
+        layer_set_hidden(info->seconds,
+                         !visible);
+    }
+}
+
+static
 window_info_t*
 get_info(MainWindow* window)
 {
@@ -470,14 +538,23 @@ void
 handle_anim_timer(window_info_t* info)
 {
     bool need_animation = false;
+    bool widget_need_animation = false;
+
     need_animation |= number_layer_animate(info->hours);
     need_animation |= number_layer_animate(info->minutes);
 
+    if (info->seconds) {
+        widget_need_animation |= number_layer_animate(info->seconds);
+    }
+
     info->animation_timer = NULL;
 
-    if (need_animation) {
+    if (need_animation || widget_need_animation) {
         main_window_schedule_animation(info);
-    } else {
+    }
+
+    // Widget animation does not prevent extra_animation from being removed
+    if (!need_animation) {
         if (info->extra_animation) {
             info->extra_animation = false;
             main_window_set_anim_speed(info,

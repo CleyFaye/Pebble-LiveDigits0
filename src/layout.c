@@ -11,12 +11,32 @@
 // HOUR_POSITION_LEFT
 // MINUTES_POSITION_LEFT
 // BASE_LAYOUT_HOUR
+// DISPLAY_WIDGETS_ALWAYS
 // cfg_get_hour_position()
 // cfg_get_minutes_position()
 // cfg_get_base_layout()
+// cfg_get_date_position()
+// cfg_get_seconds_position()
+// cfg_get_battery_position()
+// cfg_get_bluetooth_position()
+// cfg_get_display_widgets()
 #include "config.h"
+// widget_type_t
+#include "widgetfilter.h"
 // Associated header
 #include "layout.h"
+
+// ================
+// PRIVATE CONSTS =
+// ================
+
+static
+GPoint widget_offset[WIDGET_TYPE_COUNT] = {
+    { .x = 0, .y = 0},
+    { .x = 1, .y = 2},
+    { .x = 0, .y = 0},
+    { .x = 0, .y = 0}
+};
 
 // =========
 // EXTERNS =
@@ -69,9 +89,36 @@ layout_get_minute_offset(void)
 }
 
 GPoint
-layout_get_widget_offset(unsigned line,
-                         GPoint widget_offset)
+layout_get_widget_offset(widget_type_t widget)
 {
+    unsigned line;
+
+    switch (widget) {
+    default:
+    case WT_DATE:
+        line = cfg_get_date_position();
+        break;
+
+    case WT_SECONDS:
+        line = cfg_get_seconds_position();
+        break;
+
+    case WT_BATTERY:
+        line = cfg_get_battery_position();
+        break;
+
+    case WT_BLUETOOTH:
+        line = cfg_get_bluetooth_position();
+        break;
+    }
+
+    if (line == 0) {
+        // Woops, this widget is not enabled
+        return GPointZero;
+    }
+
+    // Line indices start at 0, config values start at 1
+    --line;
     // X offset for widgets aligned with hour/minutes
     static const unsigned widget_x_offset_hour_left = 105;
     static const unsigned widget_x_offset_hour_right = 3;
@@ -108,6 +155,8 @@ layout_get_widget_offset(unsigned line,
                : ((cfg_get_minutes_position() == MINUTES_POSITION_LEFT)
                   ? widget_x_offset_minutes_left
                   : widget_x_offset_minutes_right);
+    result.x += widget_offset[widget].x;
+    result.y += widget_offset[widget].y;
     return result;
 }
 
@@ -138,5 +187,12 @@ layout_is_white_background(void)
     return cfg_get_invert_colors()
            ? !need_white_background
            : need_white_background;
+}
+
+bool
+layout_widgets_hidden(void)
+{
+    int cfg_value = cfg_get_display_widgets();
+    return cfg_value != DISPLAY_WIDGETS_ALWAYS;
 }
 

@@ -10,6 +10,8 @@
 
 // GPoint
 #include <pebble.h>
+// widget_type_t
+#include "widgetfilter.h"
 
 // =========
 // EXTERNS =
@@ -32,13 +34,11 @@ layout_get_minute_offset(void);
 
 /** Return the offset for a widget.
  *
- * @param line The widget's line, from 0 to 3.
- * @param widget_offset The offset of the widget itself
+ * @param widget The widget type
  * @return The complete offset (position of the widget + widget offset)
  */
 GPoint
-layout_get_widget_offset(unsigned line,
-                         GPoint widget_offset);
+layout_get_widget_offset(widget_type_t widget);
 
 /** Determine if the colors must be inverted.
  *
@@ -49,6 +49,10 @@ layout_get_widget_offset(unsigned line,
  */
 bool
 layout_is_white_background(void);
+
+/** Return true if the widgets are hidden unless the watch is shook */
+bool
+layout_widgets_hidden(void);
 
 #endif
 
