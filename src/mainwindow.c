@@ -22,12 +22,10 @@
 
 /** MainWindow state */
 typedef struct {
-    // LAYERS =
     /** Hours number */
     NumberLayer* hours;
     /** Minutes number */
     NumberLayer* minutes;
-
     /** Seconds widget */
     SecondsLayer* widget_seconds;
     /** Date widget */
@@ -41,9 +39,7 @@ typedef struct {
     /** Timer to hide the widgets */
     AppTimer* widget_timer;
 
-    /** Tick timer service registered */
     bool timer_service_registered;
-    /** Tap service registered */
     bool tap_service_registered;
 
     /** Flag indicating that the current animations are forced (on shake, on
@@ -56,7 +52,7 @@ typedef struct {
 // PRIVATE VARIABLES =
 // ===================
 
-/** Global variable for window instance */
+/** Global variable for window instance, used in some services callback */
 static
 MainWindow* global_main_window = NULL;
 
@@ -64,20 +60,28 @@ MainWindow* global_main_window = NULL;
 // PRIVATE FUNCTIONS DECLARATIONS =
 // ================================
 
-/** Window loading function. Create the layers. */
-static
-void
-main_window_load(Window* window);
+// COMPONENTS HANDLING =
 
-/** Place components on the window */
+/** Place components on the window.
+ *
+ * Create all the components layer according to config.
+ */
 static
 void
-main_window_lay_widgets(MainWindow* window);
+lay_components(MainWindow* window);
 
-/** Remove all components */
+/** Destroy all components. */
 static
 void
-main_window_remove_widgets(window_info_t* info);
+clear_components(window_info_t* info);
+
+/** Set the animation speed of animated layers for hour/minutes */
+static
+void
+set_anim_speed(window_info_t* info,
+               bool forced_speed);
+
+// SERVICES HANDLING =
 
 /** Register all pertinent services.
  *
@@ -85,80 +89,7 @@ main_window_remove_widgets(window_info_t* info);
  */
 static
 void
-main_window_register_services(window_info_t* info);
-
-/** Unregister all services. */
-static
-void
-main_window_unregister_services(window_info_t* info);
-
-/** Callback for when the window is displayed */
-static
-void
-main_window_appear(Window* window);
-
-/** Callback for when the window is hidden */
-static
-void
-main_window_disappear(Window* window);
-
-/** Window unloading function. Clear the layers. */
-static
-void
-main_window_unload(Window* window);
-
-/** Set the time displayed correctly. */
-static
-void
-main_window_set_to_time(window_info_t* info,
-                        bool animate);
-
-/** Update the time on widgets.
- *
- * This is called by main_window_update_time(), and when the widgets are
- * displayed.
- */
-static
-void
-main_window_update_widget_time(window_info_t* info,
-                               struct tm* tick_time);
-
-/** Update time displayed by the window */
-static
-void
-main_window_update_time(struct tm* tick_time,
-                        window_info_t* info,
-                        bool animate);
-
-/** Set the animation speed of animated layers */
-static
-void
-main_window_set_anim_speed(window_info_t* info,
-                           animation_speed_t speed);
-
-/** Change all digits to random values to display animation. */
-static
-void
-main_window_randomize_anim(window_info_t* info);
-
-/** Schedule (if needed) the animation timer */
-static
-void
-main_window_schedule_animation(window_info_t* info);
-
-/** Switch animation speed to forced anim. speed.
- *
- * Forced anim speed last until there is no more animation to process.
- */
-static
-void
-main_window_force_anim(window_info_t* info);
-
-/** Set the visibility of widgets */
-static
-void
-main_window_set_widget_visibility(window_info_t* info,
-                                  bool visible);
+register_services(window_info_t* info);
 
 /** Update the periodicity of the timer handler.
  *
@@ -167,7 +98,68 @@ main_window_set_widget_visibility(window_info_t* info,
  */
 static
 void
-main_window_update_timer_service(window_info_t* info);
+register_timer_service(window_info_t* info);
+
+/** Unregister all services. */
+static
+void
+unregister_services(window_info_t* info);
+
+// TIME UPDATES =
+
+/** Set the time displayed to the current time */
+static
+void
+set_to_current_time(window_info_t* info,
+                    bool animate);
+
+/** Update time displayed by the watchface.
+ *
+ * This also update widgets time.
+ */
+static
+void
+set_to_time(window_info_t* info,
+            struct tm* tick_time,
+            bool animate);
+
+/** Update the time on widgets.
+ *
+ * This is called by main_window_update_time(), and when the widgets are
+ * displayed.
+ */
+static
+void
+set_widget_to_time(window_info_t* info,
+                   struct tm* tick_time);
+
+// ANIMATION HANDLING =
+
+/** Change all digits to random values to display animation. */
+static
+void
+animate_random(window_info_t* info);
+
+/** Schedule (if needed) the animation timer */
+static
+void
+schedule_animation(window_info_t* info);
+
+/** Switch animation speed to forced anim. speed.
+ *
+ * Forced anim speed last until there is no more animation to process.
+ */
+static
+void
+force_anim(window_info_t* info);
+
+// WIDGETS MANAGEMENT =
+
+/** Set the visibility of widgets */
+static
+void
+set_widget_visibility(window_info_t* info,
+                      bool visible);
 
 /** Determine if widgets are currently visible.
  *
@@ -177,22 +169,29 @@ main_window_update_timer_service(window_info_t* info);
  */
 static
 bool
-main_window_are_widgets_visible(window_info_t* info);
-
-/** Return the window_info_t associated with a window */
-static
-window_info_t*
-get_info(MainWindow* window);
-
-/** Return the animation speed.
- *
- * @param forced Flag to retrieve the "forced" animation speed.
- */
-static
-animation_speed_t
-cfgspeed_get(bool forced);
+are_widgets_visible(window_info_t* info);
 
 // EVENT HANDLERS =
+
+/** Window loading function. Create the layers. */
+static
+void
+handle_load(Window* window);
+
+/** Callback for when the window is displayed */
+static
+void
+handle_appear(Window* window);
+
+/** Callback for when the window is hidden */
+static
+void
+handle_disappear(Window* window);
+
+/** Window unloading function. Clear the layers. */
+static
+void
+handle_unload(Window* window);
 
 /** Handle a time update callback */
 static
@@ -216,63 +215,70 @@ static
 void
 handle_anim_timer(window_info_t* info);
 
+// HELPER =
+
+/** Return the window_info_t associated with a window */
+static inline
+window_info_t*
+get_info(MainWindow* window)
+{
+    return (window_info_t*) window_get_user_data(window
+            ? window
+            : global_main_window);
+}
+
+/** Initialize the window state */
+static
+void
+info_init(window_info_t* info);
+
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
 // ===============================
 
-static
-void
-main_window_load(Window* window)
-{
-    window_set_background_color(window,
-                                GColorBlack);
-    main_window_lay_widgets(window);
-}
+// COMPONENTS HANDLING =
 
 static
 void
-main_window_lay_widgets(MainWindow* window)
+lay_components(MainWindow* window)
 {
     window_info_t* info = get_info(window);
-    main_window_remove_widgets(info);
+    clear_components(info);
+
     Layer* window_layer = window_get_root_layer(window);
     // Base watchface (hours/minutes)
-    // Create them
     info->hours = number_layer_create(DS_BIG,
                                       2,
                                       layout_get_hour_offset());
     info->minutes = number_layer_create(DS_MEDIUM,
                                         2,
                                         layout_get_minute_offset());
-    // Set them
     bool quick_wrap = cfg_get_skip_digits();
     number_layer_set_quick_wrap(info->hours,
                                 quick_wrap);
     number_layer_set_quick_wrap(info->minutes,
                                 quick_wrap);
-    // Add them to the window
+    set_anim_speed(info,
+                   false);
     layer_add_child(window_layer,
                     info->hours);
     layer_add_child(window_layer,
                     info->minutes);
 
     // Widgets
-    info->widget_seconds = seconds_layer_create();
-
-    if (info->widget_seconds) {
-        layer_add_child(window_layer,
-                        info->widget_seconds);
-    }
-
-    info->widget_date = date_layer_create();
-
-    if (info->widget_date) {
-        layer_add_child(window_layer,
-                        info->widget_date);
-    }
-
-    main_window_set_widget_visibility(info,
-                                      !layout_widgets_hidden());
+#define WIDGETCREATE(type) \
+    do { \
+        info->widget_##type = type##_layer_create(); \
+        if (info->widget_##type) { \
+            layer_add_child(window_layer, \
+                            info->widget_##type); \
+        } \
+    } while (false)
+    WIDGETCREATE(seconds);
+    WIDGETCREATE(date);
+#undef WIDGETCREATE
+    set_widget_visibility(info,
+                          !layout_widgets_hidden());
 
     // Must be last: the inverter, if required
     if (layout_is_white_background()) {
@@ -287,7 +293,7 @@ main_window_lay_widgets(MainWindow* window)
 
 static
 void
-main_window_remove_widgets(window_info_t* info)
+clear_components(window_info_t* info)
 {
     if (info->hours) {
         number_layer_destroy(info->hours);
@@ -296,15 +302,16 @@ main_window_remove_widgets(window_info_t* info)
         info->minutes = NULL;
     }
 
-    if (info->widget_seconds) {
-        seconds_layer_destroy(info->widget_seconds);
-        info->widget_seconds = NULL;
-    }
-
-    if (info->widget_date) {
-        date_layer_destroy(info->widget_date);
-        info->widget_date = NULL;
-    }
+#define WIDGETDESTROY(type) \
+    do { \
+        if (info->widget_##type) { \
+            type##_layer_destroy(info->widget_##type); \
+            info->widget_##type = NULL; \
+        } \
+    } while (false)
+    WIDGETDESTROY(seconds);
+    WIDGETDESTROY(date);
+#undef WIDGETDESTROY
 
     if (info->inverter) {
         inverter_layer_destroy(info->inverter);
@@ -314,11 +321,48 @@ main_window_remove_widgets(window_info_t* info)
 
 static
 void
-main_window_register_services(window_info_t* info)
+set_anim_speed(window_info_t* info,
+               bool forced_speed)
 {
-    main_window_unregister_services(info);
+    animation_speed_t speed;
 
-    main_window_update_timer_service(info);
+    switch (forced_speed
+            ? cfg_get_anim_speed_forced()
+            : cfg_get_anim_speed_normal()) {
+    case ANIM_SPEED_NORMAL_SLOW_SEP:
+        speed = SLOW_SEPARATE;
+        break;
+
+    case ANIM_SPEED_NORMAL_SLOW_MERGE:
+        speed = SLOW_MERGED;
+        break;
+
+    case ANIM_SPEED_NORMAL_FAST_SEP:
+        speed = FAST_SEPARATE;
+        break;
+
+    default:
+    case ANIM_SPEED_NORMAL_FAST_MERGE:
+        speed = FAST_MERGED;
+    }
+
+    if (info->hours) {
+        number_layer_set_animate_speed(info->hours,
+                                       speed);
+        number_layer_set_animate_speed(info->minutes,
+                                       speed);
+    }
+}
+
+// SERVICES HANDLING =
+
+static
+void
+register_services(window_info_t* info)
+{
+    unregister_services(info);
+
+    register_timer_service(info);
 
     if (cfg_get_anim_on_shake() ||
         layout_widgets_shaketimer() > 0) {
@@ -329,7 +373,7 @@ main_window_register_services(window_info_t* info)
 
 static
 void
-main_window_unregister_services(window_info_t* info)
+unregister_services(window_info_t* info)
 {
     if (info->timer_service_registered) {
         tick_timer_service_unsubscribe();
@@ -338,84 +382,51 @@ main_window_unregister_services(window_info_t* info)
 
     if (info->tap_service_registered) {
         accel_tap_service_unsubscribe();
+        info->tap_service_registered = false;
     }
 }
 
 static
 void
-main_window_appear(Window* window)
+register_timer_service(window_info_t* info)
 {
-    window_info_t* info = get_info(window);
-    main_window_register_services(info);
+    bool seconds_visible = layout_widget_is_active(WT_SECONDS) &&
+                           are_widgets_visible(info);
 
-    if (cfg_get_anim_on_load()) {
-        main_window_randomize_anim(info);
-    } else {
-        main_window_set_to_time(info,
-                                false);
-    }
+    tick_timer_service_subscribe(seconds_visible
+                                 ? SECOND_UNIT
+                                 : MINUTE_UNIT,
+                                 handle_time_tick);
+    info->timer_service_registered = true;
 }
+
+// TIME UPDATES =
 
 static
 void
-main_window_disappear(Window* window)
-{
-    main_window_unregister_services(get_info(window));
-}
-
-static
-void
-main_window_unload(Window* window)
-{
-    main_window_remove_widgets(window_get_user_data(window));
-}
-
-static
-void
-main_window_set_to_time(window_info_t* info,
-                        bool animate)
+set_to_current_time(window_info_t* info,
+                    bool animate)
 {
     time_t temp = time(NULL);
     struct tm* tick_time = localtime(&temp);
-    main_window_update_time(tick_time,
-                            info,
-                            animate);
+    set_to_time(info,
+                tick_time,
+                animate);
 }
 
 static
 void
-main_window_update_widget_time(window_info_t* info,
-                               struct tm* tick_time)
+set_to_time(window_info_t* info,
+            struct tm* tick_time,
+            bool animate)
 {
-    if (info->widget_seconds) {
-        seconds_layer_set_time(info->widget_seconds,
-                               tick_time->tm_sec);
-    }
-
-    if (info->widget_date) {
-        date_layer_set_date(info->widget_date,
-                            tick_time->tm_mday,
-                            tick_time->tm_mon + 1);
-    }
-}
-
-static
-void
-main_window_update_time(struct tm* tick_time,
-                        window_info_t* info,
-                        bool animate)
-{
-    int hours;
+    int hours = clock_is_24h_style()
+                ? tick_time->tm_hour
+                : ((tick_time->tm_hour > 12)
+                   ? tick_time->tm_hour - 12
+                   : tick_time->tm_hour);
     int minutes = tick_time->tm_min;
     int seconds = tick_time->tm_sec;
-
-    if (clock_is_24h_style()) {
-        hours = tick_time->tm_hour;
-    } else {
-        hours = (tick_time->tm_hour > 12)
-                ? tick_time->tm_hour - 12
-                : tick_time->tm_hour;
-    }
 
     number_layer_set_number(info->hours,
                             hours,
@@ -424,12 +435,12 @@ main_window_update_time(struct tm* tick_time,
                             minutes,
                             animate);
 
-    if (main_window_are_widgets_visible(info)) {
-        main_window_update_widget_time(info,
-                                       tick_time);
+    if (are_widgets_visible(info)) {
+        set_widget_to_time(info,
+                           tick_time);
     }
 
-    main_window_schedule_animation(info);
+    schedule_animation(info);
 
     if (seconds == 0) {
         switch (cfg_get_vibrate_every()) {
@@ -448,20 +459,26 @@ main_window_update_time(struct tm* tick_time,
 
 static
 void
-main_window_set_anim_speed(window_info_t* info,
-                           animation_speed_t speed)
+set_widget_to_time(window_info_t* info,
+                   struct tm* tick_time)
 {
-    if (info->hours) {
-        number_layer_set_animate_speed(info->hours,
-                                       speed);
-        number_layer_set_animate_speed(info->minutes,
-                                       speed);
+    if (info->widget_seconds) {
+        seconds_layer_set_time(info->widget_seconds,
+                               tick_time->tm_sec);
+    }
+
+    if (info->widget_date) {
+        date_layer_set_date(info->widget_date,
+                            tick_time->tm_mday,
+                            tick_time->tm_mon + 1);
     }
 }
 
+// ANIMATION HANDLING =
+
 static
 void
-main_window_randomize_anim(window_info_t* info)
+animate_random(window_info_t* info)
 {
     int hours = rand() %
                 (clock_is_24h_style()
@@ -474,14 +491,16 @@ main_window_randomize_anim(window_info_t* info)
     number_layer_set_number(info->minutes,
                             minutes,
                             false);
-    main_window_set_to_time(info,
-                            true);
-    main_window_force_anim(info);
+    number_layer_kill_anim(info->hours);
+    number_layer_kill_anim(info->minutes);
+    set_to_current_time(info,
+                        true);
+    force_anim(info);
 }
 
 static
 void
-main_window_schedule_animation(window_info_t* info)
+schedule_animation(window_info_t* info)
 {
     if (!info->animation_timer) {
         info->animation_timer =
@@ -493,100 +512,92 @@ main_window_schedule_animation(window_info_t* info)
 
 static
 void
-main_window_force_anim(window_info_t* info)
+force_anim(window_info_t* info)
 {
     info->extra_animation = true;
-    main_window_set_anim_speed(info,
-                               cfgspeed_get(true));
-    main_window_schedule_animation(info);
+    set_anim_speed(info,
+                   true);
+    schedule_animation(info);
 }
+
+// WIDGETS MANAGEMENT =
 
 static
 void
-main_window_set_widget_visibility(window_info_t* info,
-                                  bool visible)
+set_widget_visibility(window_info_t* info,
+                      bool visible)
 {
-    if (info->widget_seconds) {
-        layer_set_hidden(info->widget_seconds,
-                         !visible);
-    }
-
-    if (info->widget_date) {
-        layer_set_hidden(info->widget_date,
-                         !visible);
-    }
+#define WIDGETVISIBILITY(type) \
+    do { \
+        if (info->widget_##type) { \
+            layer_set_hidden(info->widget_##type, \
+                             !visible); \
+        } \
+    } while (false)
+    WIDGETVISIBILITY(seconds);
+    WIDGETVISIBILITY(date);
+#undef WIDGETVISIBILITY
 
     if (visible) {
         time_t temp = time(NULL);
         struct tm* tick_time = localtime(&temp);
-        main_window_update_widget_time(info,
-                                       tick_time);
+        set_widget_to_time(info,
+                           tick_time);
     }
 
-    main_window_update_timer_service(info);
-}
-
-static
-void
-main_window_update_timer_service(window_info_t* info)
-{
-    bool seconds_visible = layout_widget_is_active(WT_SECONDS) &&
-                           main_window_are_widgets_visible(info);
-
-    tick_timer_service_subscribe(seconds_visible
-                                 ? SECOND_UNIT
-                                 : MINUTE_UNIT,
-                                 handle_time_tick);
-    info->timer_service_registered = true;
+    register_timer_service(info);
 }
 
 static
 bool
-main_window_are_widgets_visible(window_info_t* info)
+are_widgets_visible(window_info_t* info)
 {
     switch (cfg_get_display_widgets()) {
-    case DISPLAY_WIDGETS_NEVER:
-        return false;
-
     case DISPLAY_WIDGETS_ALWAYS:
         return true;
 
     default:
+    case DISPLAY_WIDGETS_NEVER:
         return info->widget_timer != NULL;
     }
 }
 
 static
-window_info_t*
-get_info(MainWindow* window)
+void
+handle_load(Window* window)
 {
-    if (window == NULL) {
-        window = global_main_window;
-    }
-
-    return (window_info_t*) window_get_user_data(window);
+    window_set_background_color(window,
+                                GColorBlack);
+    lay_components(window);
 }
 
 static
-animation_speed_t
-cfgspeed_get(bool forced)
+void
+handle_appear(Window* window)
 {
-    switch (forced
-            ? cfg_get_anim_speed_forced()
-            : cfg_get_anim_speed_normal()) {
-    case ANIM_SPEED_NORMAL_SLOW_SEP:
-        return SLOW_SEPARATE;
+    window_info_t* info = get_info(window);
+    register_services(info);
 
-    case ANIM_SPEED_NORMAL_SLOW_MERGE:
-        return SLOW_MERGED;
-
-    case ANIM_SPEED_NORMAL_FAST_SEP:
-        return FAST_SEPARATE;
-
-    default:
-    case ANIM_SPEED_NORMAL_FAST_MERGE:
-        return FAST_MERGED;
+    if (cfg_get_anim_on_load()) {
+        animate_random(info);
+    } else {
+        set_to_current_time(info,
+                            false);
     }
+}
+
+static
+void
+handle_disappear(Window* window)
+{
+    unregister_services(get_info(window));
+}
+
+static
+void
+handle_unload(Window* window)
+{
+    clear_components(get_info(window));
 }
 
 static
@@ -594,10 +605,9 @@ void
 handle_time_tick(struct tm* tick_time,
                  TimeUnits units_changed)
 {
-    window_info_t* info = get_info(NULL);
-    main_window_update_time(tick_time,
-                            info,
-                            cfg_get_anim_on_time());
+    set_to_time(get_info(NULL),
+                tick_time,
+                cfg_get_anim_on_time());
 }
 
 static
@@ -608,7 +618,7 @@ handle_accel_tap(AccelAxisType axis,
     window_info_t* info = get_info(NULL);
 
     if (cfg_get_anim_on_shake()) {
-        main_window_randomize_anim(info);
+        animate_random(info);
     }
 
     unsigned widget_timer = layout_widgets_shaketimer();
@@ -624,8 +634,8 @@ handle_accel_tap(AccelAxisType axis,
                                    info);
         }
 
-        main_window_set_widget_visibility(info,
-                                          true);
+        set_widget_visibility(info,
+                              true);
     }
 }
 
@@ -634,8 +644,8 @@ void
 handle_widget_hidding(window_info_t* info)
 {
     info->widget_timer = NULL;
-    main_window_set_widget_visibility(info,
-                                      false);
+    set_widget_visibility(info,
+                          false);
 }
 
 static
@@ -655,17 +665,33 @@ handle_anim_timer(window_info_t* info)
     info->animation_timer = NULL;
 
     if (need_animation || widget_need_animation) {
-        main_window_schedule_animation(info);
+        schedule_animation(info);
     }
 
     // Widget animation does not prevent extra_animation from being removed
-    if (!need_animation) {
-        if (info->extra_animation) {
-            info->extra_animation = false;
-            main_window_set_anim_speed(info,
-                                       cfgspeed_get(false));
-        }
+    if (!need_animation && info->extra_animation) {
+        info->extra_animation = false;
+        set_anim_speed(info,
+                       false);
     }
+}
+
+// HELPER =
+
+static
+void
+info_init(window_info_t* info)
+{
+    info->hours = NULL;
+    info->minutes = NULL;
+    info->widget_seconds = NULL;
+    info->widget_date = NULL;
+    info->inverter = NULL;
+    info->animation_timer = NULL;
+    info->widget_timer = NULL;
+    info->timer_service_registered = false;
+    info->tap_service_registered = false;
+    info->extra_animation = false;
 }
 
 // ==============================
@@ -677,25 +703,16 @@ main_window_create(void)
 {
     Window* result = window_create();
     window_set_window_handlers(result, (WindowHandlers) {
-        .load = main_window_load,
-         .appear = main_window_appear,
-          .disappear = main_window_disappear,
-           .unload = main_window_unload
+        .load = handle_load,
+         .appear = handle_appear,
+          .disappear = handle_disappear,
+           .unload = handle_unload
     });
     window_info_t* info = malloc(sizeof(window_info_t));
-    info->hours = NULL;
-    info->minutes = NULL;
-    info->widget_seconds = NULL;
-    info->widget_date = NULL;
-    info->inverter = NULL;
-    info->animation_timer = NULL;
-    info->widget_timer = NULL;
-    info->timer_service_registered = false;
-    info->tap_service_registered = false;
-    info->extra_animation = false;
+    info_init(info);
     window_set_user_data(result, info);
     global_main_window = result;
-    main_window_schedule_animation(info);
+    schedule_animation(info);
     return result;
 }
 
@@ -710,13 +727,10 @@ main_window_destroy(MainWindow* window)
 void
 main_window_update_settings(MainWindow* window)
 {
-    main_window_lay_widgets(window);
+    lay_components(window);
     window_info_t* info = get_info(window);
-    main_window_set_to_time(info,
-                            false);
-    main_window_set_anim_speed(info,
-                               cfgspeed_get(false));
-    main_window_register_services(info);
-    get_info(window)->extra_animation = false;
+    set_to_current_time(info,
+                        false);
+    register_services(info);
 }
 

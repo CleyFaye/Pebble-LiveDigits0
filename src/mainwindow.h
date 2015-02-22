@@ -10,13 +10,13 @@
 #ifndef INCL_WINDOW_H
 #define INCL_WINDOW_H
 
-// Window
 #include <pebble.h>
 
 // =======
 // TYPES =
 // =======
 
+/** The application main window */
 typedef Window MainWindow;
 
 // ===============================
