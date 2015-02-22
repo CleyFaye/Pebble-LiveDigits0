@@ -19,7 +19,7 @@ Pebble.addEventListener("showConfiguration", function() {
             optString = '';
         }
     }
-    Pebble.openURL('http://cleyfaye.net/pebble/livedigits0.htm' + optString);
+    Pebble.openURL('https://rawgit.com/CleyFaye/Pebble-LiveDigits0/b8de0568d6c0b526b16325dee082908ef0d28e5a/html/livedigits0.htm' + optString);
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
