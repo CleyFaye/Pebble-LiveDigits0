@@ -1,13 +1,20 @@
+var appVersion = 1;
+
+function isNewVersion()
+{
+    return localStorage.liveDigits0 === undefined || localStorage.liveDigits0.version === undefined || localStorage.liveDigits0.version != appVersion;
+}
+
 Pebble.addEventListener("ready", function() {
 });
 
 Pebble.addEventListener("showConfiguration", function() {
     var optString;
-    if (localStorage.liveDigits0 === undefined) {
+    if (isNewVersion()) {
         optString = '';
     } else {
         try {
-            optString = '?'+encodeURIComponent(localStorage.liveDigits0);
+            optString = '?'+encodeURIComponent(localStorage.liveDigits0.config);
         } catch (e) {
             optString = '';
         }
@@ -21,7 +28,7 @@ Pebble.addEventListener("webviewclosed", function(e) {
     if (e.response.charAt(0) == "{" && e.response.slice(-1) == "}" && e.response.length > 5) {
         var dialogString = decodeURIComponent(e.response);
         var cfg;
-        if (localStorage.liveDigits0 === undefined) {
+        if (isNewVersion() || localStorage.liveDigits0 === undefined) {
             cfg = JSON.parse(dialogString);
         } else {
             cfg = {};
@@ -33,7 +40,8 @@ Pebble.addEventListener("webviewclosed", function(e) {
                 }
             }
         }
-        localStorage.liveDigits0 = dialogString;
+        localStorage.liveDigits0.version = appVersion;
+        localStorage.liveDigits0.config = dialogString;
         Pebble.sendAppMessage(cfg);
     }
 });

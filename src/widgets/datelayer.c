@@ -79,7 +79,7 @@ date_layer_create(void)
 
     // Vertical text offset to put numbers at the desired coordinate
     static const int small_font_offset = 10;
-    static const int big_font_offset = 9;
+    static const int big_font_offset = 10;
     GRect top_rect = GRect(0,
                            0 - small_font_offset,
                            widget_size,
@@ -107,7 +107,7 @@ date_layer_create(void)
     case DATE_STYLE_DAYONLY:
         info->day_text = text_layer_create(big_rect);
         text_layer_set_font(info->day_text,
-                            fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+                            fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
         break;
 
     case DATE_STYLE_MONFIRST:
@@ -121,8 +121,8 @@ date_layer_create(void)
 
     case DATE_STYLE_MONONLY:
         info->month_text = text_layer_create(big_rect);
-        text_layer_set_font(info->day_text,
-                            fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+        text_layer_set_font(info->month_text,
+                            fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
     }
 
     if (info->day_text) {
