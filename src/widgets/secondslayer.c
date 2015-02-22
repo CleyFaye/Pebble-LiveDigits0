@@ -11,6 +11,7 @@
 #include "digits/digit_info.h"
 #include "layout.h"
 #include "config.h"
+#include "utils.h"
 
 #include "secondslayer.h"
 
@@ -18,6 +19,7 @@
 // TYPES =
 // =======
 
+/** Layer state */
 typedef struct {
     NumberLayer* number_layer;
     InverterLayer* inverter_layer;
@@ -34,9 +36,12 @@ void
 info_init(seconds_info_t* info);
 
 /** Return the seconds_info_t associated with a layer */
-static
+static inline
 seconds_info_t*
-get_info(SecondsLayer* layer);
+get_info(SecondsLayer* layer)
+{
+    return (seconds_info_t*) layer_get_data(layer);
+}
 
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
@@ -49,13 +54,6 @@ info_init(seconds_info_t* info)
     info->number_layer = NULL;
     info->inverter_layer = NULL;
     info->previous_seconds_value = 0;
-}
-
-static
-seconds_info_t*
-get_info(SecondsLayer* layer)
-{
-    return (seconds_info_t*) layer_get_data(layer);
 }
 
 // ==============================
@@ -71,32 +69,27 @@ seconds_layer_create(void)
 
     GRect layer_rect;
     layer_rect.origin = layout_get_widget_offset(WT_SECONDS);
+    layer_rect.size = GSize(widget_size,
+                            widget_size);
 
-    SecondsLayer* result = NULL;
-    seconds_info_t* info = NULL;
+    SecondsLayer* result =
+        layer_create_with_init_data(layer_rect,
+                                    sizeof(seconds_info_t),
+                                    (layer_data_init_t) info_init);
+    seconds_info_t* info = get_info(result);
 
     if (cfg_get_seconds_style() == SECONDS_STYLE_DOT) {
+        layer_rect.origin = GPoint(widget_size / 2 - seconds_dot_size / 2,
+                                   widget_size / 2 - seconds_dot_size / 2);
         layer_rect.size = GSize(seconds_dot_size,
                                 seconds_dot_size);
-        result = layer_create_with_data(layer_rect,
-                                        sizeof(seconds_info_t));
-        info = get_info(result);
-        info_init(info);
-        layer_rect.origin = GPointZero;
         info->inverter_layer = inverter_layer_create(layer_rect);
         layer_add_child(result,
                         inverter_layer_get_layer(info->inverter_layer));
     } else {
-        layer_rect.size = digit_dimensions[DS_SMALL];
-        layer_rect.size.w *= 2;
-        layer_rect.size.w += 3; // Safe margin for the spacing between two digits
-        result = layer_create_with_data(layer_rect,
-                                        sizeof(seconds_info_t));
-        info = get_info(result);
-        info_init(info);
         info->number_layer = number_layer_create(DS_SMALL,
                              2,
-                             GPointZero);
+                             GPoint(1, 2));
         number_layer_set_animate_speed(info->number_layer,
                                        FAST_MERGED);
         number_layer_set_quick_wrap(info->number_layer,
@@ -145,7 +138,7 @@ seconds_layer_set_time(SecondsLayer* layer,
         number_layer_set_number(info->number_layer,
                                 seconds,
                                 animate_seconds);
-    } else if (info->inverter_layer) {
+    } else {
         Layer* dot_layer = inverter_layer_get_layer(info->inverter_layer);
         layer_set_hidden(dot_layer,
                          !layer_get_hidden(dot_layer));
@@ -155,15 +148,11 @@ seconds_layer_set_time(SecondsLayer* layer,
 void
 seconds_layer_destroy(SecondsLayer* layer)
 {
-    if (!layer) {
-        return;
-    }
-
     seconds_info_t* info = get_info(layer);
 
     if (info->number_layer) {
         number_layer_destroy(info->number_layer);
-    } else if (info->inverter_layer) {
+    } else {
         inverter_layer_destroy(info->inverter_layer);
     }
 

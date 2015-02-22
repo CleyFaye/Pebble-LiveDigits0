@@ -5,42 +5,11 @@
  * Licensing informations in LICENSE.md file.
  */
 
-// GPoint
-// watch_info_get_color()
 #include <pebble.h>
-// HOUR_POSITION_LEFT
-// MINUTES_POSITION_LEFT
-// BASE_LAYOUT_HOUR
-// DISPLAY_WIDGETS_ALWAYS
-// SECONDS_STYLE_DOT
-// cfg_get_hour_position()
-// cfg_get_minutes_position()
-// cfg_get_base_layout()
-// cfg_get_date_position()
-// cfg_get_seconds_position()
-// cfg_get_battery_position()
-// cfg_get_bluetooth_position()
-// cfg_get_display_widgets()
-// cfg_get_seconds_style()
+
 #include "config.h"
-// Associated header
+
 #include "layout.h"
-
-// ================
-// PRIVATE CONSTS =
-// ================
-
-static
-GPoint widget_offset[WIDGET_TYPE_COUNT] = {
-    // WT_DATE
-    { .x = 0, .y = 0},
-    // WT_SECONDS
-    { .x = 1, .y = 2},
-    // WT_BATTERY
-    { .x = 0, .y = 0},
-    // WT_BLUETOOTH
-    { .x = 0, .y = 0}
-};
 
 // =========
 // EXTERNS =
@@ -131,16 +100,10 @@ layout_get_widget_offset(widget_type_t widget)
     static const unsigned widget_x_offset_minutes_right = 7;
     // Y offset when hours are on top/bottom (for each lines)
     static const unsigned widget_y_offset_hour_top[4] = {
-        6,
-        46,
-        90,
-        129
+        6, 46, 90, 129
     };
     static const unsigned widget_y_offset_hour_bottom[4] = {
-        3,
-        42,
-        85,
-        125
+        3, 42, 85, 125
     };
     GPoint result;
     bool aligned_with_hour;
@@ -160,18 +123,6 @@ layout_get_widget_offset(widget_type_t widget)
                : ((cfg_get_minutes_position() == MINUTES_POSITION_LEFT)
                   ? widget_x_offset_minutes_left
                   : widget_x_offset_minutes_right);
-
-    // Exception
-    if (widget == WT_SECONDS &&
-        cfg_get_seconds_style() == SECONDS_STYLE_DOT) {
-        // Second dot is centered on widget size
-        result.x += widget_size / 2 - seconds_dot_size / 2;
-        result.y += widget_size / 2 - seconds_dot_size / 2;
-    } else {
-        result.x += widget_offset[widget].x;
-        result.y += widget_offset[widget].y;
-    }
-
     return result;
 }
 
@@ -202,13 +153,6 @@ layout_is_white_background(void)
     return cfg_get_invert_colors()
            ? !need_white_background
            : need_white_background;
-}
-
-bool
-layout_widgets_hidden(void)
-{
-    int cfg_value = cfg_get_display_widgets();
-    return cfg_value != DISPLAY_WIDGETS_ALWAYS;
 }
 
 int

@@ -1,25 +1,16 @@
 /** @đile
- * Implementation of NumberLayer code
+ * Implementation of NumberLayer layer.
  *
  * @author Cley Faye
  * Licensing informations in LICENSE.md file.
  */
 
-// struct Layer
-// GPoint
-// GSize
-// bool
-// layer_create_with_data()
-// layer_get_data()
-// layer_destroy()
 #include <pebble.h>
-// digit_size_t
-// animation_speed_t
-// digit_dimensions
+
+#include "utils.h"
 #include "digit_info.h"
-// DigitLayer
 #include "digitlayer.h"
-// Associated header
+
 #include "numberlayer.h"
 
 // ===============
@@ -28,25 +19,38 @@
 
 /** State of a number layer. */
 typedef struct {
-    /** Number of digits */
     unsigned digits_count;
     /** Target number to display */
     unsigned displayed_number;
-    /** The digits */
     DigitLayer* digits[];
 } number_info_t;
 
-// ================
-// PRIVATE CONSTS =
-// ================
+// ===============================
+// PRIVATE FUNCTION DECLARATIONS =
+// ===============================
 
-/** Spacing between digits for each digit size. */
+static inline
+number_info_t*
+get_info(NumberLayer* layer)
+{
+    return (number_info_t*) layer_get_data(layer);
+}
+
 static
-const unsigned digit_spacing[DIGITS_SIZE_COUNT] = {
-    5,
-    3,
-    2
-};
+void
+info_init(number_info_t* info);
+
+// ==============================
+// PRIVATE FUNCTION DEFINITIONS =
+// ==============================
+
+static
+void
+info_init(number_info_t* info)
+{
+    info->digits_count = 0;
+    info->displayed_number = 0;
+}
 
 // =============================
 // PUBLIC FUNCTION DEFINITIONS =
@@ -69,10 +73,10 @@ number_layer_create(digit_size_t size,
                               sizeof(DigitLayer*) * digit_count;
 
     NumberLayer* result =
-        layer_create_with_data(layer_rect,
-                               number_info_size);
-    number_info_t* info = (number_info_t*) layer_get_data(result);
-    info->displayed_number = 0;
+        layer_create_with_init_data(layer_rect,
+                                    number_info_size,
+                                    (layer_data_init_t) info_init);
+    number_info_t* info = get_info(result);
     info->digits_count = digit_count;
 
     unsigned digit_placement_offset = digit_dimensions[size].w +
@@ -97,7 +101,7 @@ number_layer_set_number(NumberLayer* layer,
                         unsigned number,
                         bool animate)
 {
-    number_info_t* info = (number_info_t*) layer_get_data(layer);
+    number_info_t* info = get_info(layer);
 
     if (info->displayed_number == number) {
         return;
@@ -121,7 +125,7 @@ number_layer_set_number(NumberLayer* layer,
 void
 number_layer_kill_anim(NumberLayer* layer)
 {
-    number_info_t* info = (number_info_t*) layer_get_data(layer);
+    number_info_t* info = get_info(layer);
 
     for (unsigned i = 0;
          i < info->digits_count;
@@ -134,7 +138,7 @@ void
 number_layer_set_quick_wrap(NumberLayer* layer,
                             bool quick_wrap)
 {
-    number_info_t* info = (number_info_t*) layer_get_data(layer);
+    number_info_t* info = get_info(layer);
 
     for (unsigned i = 0;
          i < info->digits_count;
@@ -148,7 +152,7 @@ void
 number_layer_set_animate_speed(NumberLayer* layer,
                                animation_speed_t speed)
 {
-    number_info_t* info = (number_info_t*) layer_get_data(layer);
+    number_info_t* info = get_info(layer);
 
     for (unsigned i = 0;
          i < info->digits_count;
@@ -161,7 +165,7 @@ number_layer_set_animate_speed(NumberLayer* layer,
 bool
 number_layer_animate(NumberLayer* layer)
 {
-    number_info_t* info = (number_info_t*) layer_get_data(layer);
+    number_info_t* info = get_info(layer);
 
     bool need_animate = false;
 
@@ -177,7 +181,7 @@ number_layer_animate(NumberLayer* layer)
 void
 number_layer_destroy(NumberLayer* layer)
 {
-    number_info_t* info = (number_info_t*) layer_get_data(layer);
+    number_info_t* info = get_info(layer);
 
     for (unsigned i = 0;
          i < info->digits_count;

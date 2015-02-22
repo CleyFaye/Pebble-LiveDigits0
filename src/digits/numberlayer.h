@@ -1,7 +1,7 @@
 /** @file
  * Number layer.
  *
- * A number layer is made of multiple digit layers, and update them accordingly.
+ * A number layer is made of multiple digit layers, and update them when needed.
  *
  * @author Cley Faye
  * Licensing informations in LICENSE.md file.
@@ -10,12 +10,8 @@
 #ifndef INCL_NUMBERLAYER_H
 #define INCL_NUMBERLAYER_H
 
-// GPoint
-// Layer
-// bool
 #include <pebble.h>
-// digit_size_t
-// animation_speed_t
+
 #include "digit_info.h"
 
 // =======
@@ -53,7 +49,7 @@ number_layer_set_number(NumberLayer* layer,
 void
 number_layer_kill_anim(NumberLayer* layer);
 
-/** Set the quick-wrap falg.
+/** Set the quick-wrap flag.
  *
  * If enabled, number will not iterate over every number, but shortcut to 0 if
  * it is faster. See digit_layer_set_quick_wrap() for more details.

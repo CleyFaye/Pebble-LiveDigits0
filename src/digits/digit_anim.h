@@ -123,9 +123,13 @@ digit_fixed_segments_t
 anim_get_fixed_segments(digit_anim_t digit_anim);
 
 /** Return true if the given segment is on */
+inline
 bool
 anim_get_fixed_segment_state(digit_fixed_segments_t segments,
-                             unsigned segment_id);
+                             unsigned segment_id)
+{
+    return (segments & (1u << segment_id)) != 0;
+}
 
 /** Return the animated segments from a given animation step. */
 const digit_segment_animation_t*
@@ -149,8 +153,12 @@ digit_anim_t
 anim_get_next_quick_anim(digit_anim_t digit_anim);
 
 /** Return true if the given animation step is a static digit. */
+inline
 bool
-anim_is_static_digit(digit_anim_t digit_anim);
+anim_is_static_digit(digit_anim_t digit_anim)
+{
+    return digit_anim < 0;
+}
 
 /** Return true if the given animation step is part of a two-step transition.
  *
@@ -161,28 +169,50 @@ bool
 anim_is_multipart(digit_anim_t digit_anim);
 
 /** Determine if an animation step is complete. */
+inline
 bool
 anim_is_complete(digit_anim_t digit_anim,
-                 int step);
+                 int step)
+{
+    return (digit_anim < 0)
+           ? true
+           : (step >= 9);
+}
 
 /** Return the number actually displayed by a given animation step.
  *
  * Transition steps will return -1, while static digits will return the
  * appropriate number.
  */
+inline
 int
-anim_get_displayed_number(digit_anim_t digit_anim);
+anim_get_displayed_number(digit_anim_t digit_anim)
+{
+    return (digit_anim < 0)
+           ? (-digit_anim - 1)
+           : -1;
+}
 
 /** Return the number of steps of an animation step.
  *
  * @return 9 for animation step, 0, for static digit.
  */
+inline
 int
-anim_get_step_count(digit_anim_t digit_anim);
+anim_get_step_count(digit_anim_t digit_anim)
+{
+    return (digit_anim < 0)
+           ? 0
+           : 9;
+}
 
 /** Return the static digit animation step for a given number. */
+inline
 digit_anim_t
-anim_get_anim_for_number(int number);
+anim_get_anim_for_number(int number)
+{
+    return -number - 1;
+}
 
 #endif
 

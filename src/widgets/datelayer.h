@@ -10,7 +10,6 @@
 #ifndef INCL_DATELAYER_H
 #define INCL_DATELAYER_H
 
-// Layer
 #include <pebble.h>
 
 // =======

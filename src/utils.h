@@ -10,8 +10,6 @@
 #ifndef INCL_UTILS_H
 #define INCL_UTILS_H
 
-// ResourceId
-// GBitmap
 #include <pebble.h>
 
 // =======

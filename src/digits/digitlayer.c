@@ -91,9 +91,12 @@ draw_animated_segments(digit_info_t* info,
                        GContext* ctx);
 
 /** Return the digit_info_t associated with a layer */
-static
+static inline
 digit_info_t*
-get_info(DigitLayer* layer);
+get_info(DigitLayer* layer)
+{
+    return (digit_info_t*) layer_get_data(layer);
+}
 
 /** Initialize the digit_info_t */
 static
@@ -189,13 +192,6 @@ draw_animated_segments(digit_info_t* info,
                                      digit_bitmap,
                                      draw_rect);
     }
-}
-
-static
-digit_info_t*
-get_info(DigitLayer* layer)
-{
-    return (digit_info_t*) layer_get_data(layer);
 }
 
 static

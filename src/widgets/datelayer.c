@@ -5,22 +5,19 @@
  * Licensing informations in LICENSE.md file.
  */
 
-// struct Layer
-// TextLayer
-// layer_create_with_data()
-// layer_destroy()
 #include <pebble.h>
-// Date widget configuration
+
+#include "utils.h"
 #include "config.h"
-// Widget placement
 #include "layout.h"
-// Associated header
+
 #include "datelayer.h"
 
 // =======
 // TYPES =
 // =======
 
+/** Date layer state */
 typedef struct {
     TextLayer* day_text;
     TextLayer* month_text;
@@ -33,19 +30,30 @@ typedef struct {
 // ================================
 
 /** Return the date_info_t associated with a layer */
-static
+static inline
 date_info_t*
-get_info(DateLayer* layer);
+get_info(DateLayer* layer)
+{
+    return (date_info_t*) layer_get_data(layer);
+}
+
+/** Initialize the state */
+static
+void
+info_init(date_info_t* info);
 
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
 // ===============================
 
 static
-date_info_t*
-get_info(DateLayer* layer)
+void
+info_init(date_info_t* info)
 {
-    return (date_info_t*) layer_get_data(layer);
+    info->day_text = NULL;
+    info->month_text = NULL;
+    info->day_str[0] = '\0';
+    info->month_str[0] = '\0';
 }
 
 // ==============================
@@ -58,17 +66,18 @@ date_layer_create(void)
     if (!layout_widget_is_active(WT_DATE)) {
         return NULL;
     }
+
     GRect layer_rect;
     layer_rect.origin = layout_get_widget_offset(WT_DATE);
     layer_rect.size = GSize(widget_size,
                             widget_size);
     DateLayer* result =
-        layer_create_with_data(layer_rect,
-                               sizeof(date_info_t));
+        layer_create_with_init_data(layer_rect,
+                                    sizeof(date_info_t),
+                                    (layer_data_init_t) info_init);
     date_info_t* info = get_info(result);
-    info->day_text = NULL;
-    info->month_text = NULL;
 
+    // Vertical text offset to put numbers at the desired coordinate
     static const int small_font_offset = 10;
     static const int big_font_offset = 9;
     GRect top_rect = GRect(0,
@@ -170,10 +179,6 @@ date_layer_set_date(DateLayer* layer,
 void
 date_layer_destroy(DateLayer* layer)
 {
-    if (!layer) {
-        return;
-    }
-
     date_info_t* info = get_info(layer);
 
     if (info->day_text) {

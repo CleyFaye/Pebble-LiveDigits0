@@ -7,11 +7,8 @@
  * Licensing informations in LICENSE.md file.
  */
 
-// ResourceId
-// GBitmap
-// gbitmap_create_with_resource()
 #include <pebble.h>
-// Associated header
+
 #include "utils.h"
 
 // ==============================
@@ -37,11 +34,6 @@ layer_create_with_init_data(GRect layer_rect,
 {
     Layer* result = layer_create_with_data(layer_rect,
                                            data_size);
-
-    if (!result) {
-        return NULL;
-    }
-
     layer_data_init(layer_get_data(result));
     return result;
 }

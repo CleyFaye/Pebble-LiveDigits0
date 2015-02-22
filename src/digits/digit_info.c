@@ -67,3 +67,5 @@ const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT] = {
     big_segment_res_ids, medium_segment_res_ids, small_segment_res_ids
 };
 
+const unsigned digit_spacing[DIGITS_SIZE_COUNT] = {5, 3, 2};
+

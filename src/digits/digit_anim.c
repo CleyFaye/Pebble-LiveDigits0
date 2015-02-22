@@ -246,15 +246,7 @@ static const digit_anim_info_t static_anim[10] = {
  * This function perform the triage between animation steps and static digits
  * steps.
  */
-static
-const digit_anim_info_t*
-retrieve_anim(digit_anim_t digit_anim);
-
-// ===============================
-// PRIVATE FUNCTIONS DEFINITIONS =
-// ===============================
-
-static
+static inline
 const digit_anim_info_t*
 retrieve_anim(digit_anim_t digit_anim)
 {
@@ -289,13 +281,6 @@ anim_get_fixed_segments(digit_anim_t digit_anim)
     return retrieve_anim(digit_anim)->fixed_segments;
 }
 
-bool
-anim_get_fixed_segment_state(digit_fixed_segments_t segments,
-                             unsigned segment_id)
-{
-    return (segments & (1u << segment_id)) != 0;
-}
-
 const digit_segment_animation_t*
 anim_get_segment_anim(digit_anim_t digit_anim)
 {
@@ -315,45 +300,8 @@ anim_get_next_quick_anim(digit_anim_t digit_anim)
 }
 
 bool
-anim_is_static_digit(digit_anim_t digit_anim)
-{
-    return digit_anim < 0;
-}
-
-bool
 anim_is_multipart(digit_anim_t digit_anim)
 {
     return retrieve_anim(digit_anim)->multipart;
-}
-
-bool
-anim_is_complete(digit_anim_t digit_anim,
-                 int step)
-{
-    return (digit_anim < 0)
-           ? true
-           : (step >= 9);
-}
-
-int
-anim_get_displayed_number(digit_anim_t digit_anim)
-{
-    return (digit_anim < 0)
-           ? (-digit_anim - 1)
-           : -1;
-}
-
-int
-anim_get_step_count(digit_anim_t digit_anim)
-{
-    return (digit_anim < 0)
-           ? 0
-           : 9;
-}
-
-digit_anim_t
-anim_get_anim_for_number(int number)
-{
-    return -number - 1;
 }
 

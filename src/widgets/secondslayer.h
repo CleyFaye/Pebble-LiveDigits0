@@ -10,7 +10,6 @@
 #ifndef INCL_SECONDSLAYER_H
 #define INCL_SECONDSLAYER_H
 
-// Layer
 #include <pebble.h>
 
 // =======
@@ -39,7 +38,7 @@ seconds_layer_create(void);
 bool
 seconds_layer_animate(SecondsLayer* layer);
 
-/** Set the seconds counter */
+/** Set the value to display */
 void
 seconds_layer_set_time(SecondsLayer* layer,
                        unsigned seconds);

@@ -89,5 +89,9 @@ const GSize digit_dimensions[];
 extern
 const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT];
 
+/** Spacing between digits for each digit size. */
+extern
+const unsigned digit_spacing[DIGITS_SIZE_COUNT];
+
 #endif
 
