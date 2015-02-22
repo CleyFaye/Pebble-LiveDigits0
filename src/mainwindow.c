@@ -274,8 +274,8 @@ main_window_lay_widgets(MainWindow* window)
     }
 
     // Date
-    if (widget_is_active(WT_DATE)) {
-        info->widget_date = date_layer_create();
+    info->widget_date = date_layer_create();
+    if (info->widget_date) {
         layer_add_child(window_layer,
                         info->widget_date);
     }

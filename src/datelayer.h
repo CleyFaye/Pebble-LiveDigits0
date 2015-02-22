@@ -35,8 +35,8 @@ date_layer_create(void);
 /** Set the date */
 void
 date_layer_set_date(DateLayer* layer,
-        unsigned day,
-        unsigned month);
+                    unsigned day,
+                    unsigned month);
 
 /** Destroy a date layer. */
 void

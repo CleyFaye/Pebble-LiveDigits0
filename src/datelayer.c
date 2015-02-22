@@ -12,7 +12,10 @@
 #include <pebble.h>
 // Date widget configuration
 #include "config.h"
+// Widget placement
 #include "layout.h"
+// Widget filter
+#include "widgetfilter.h"
 // Associated header
 #include "datelayer.h"
 
@@ -54,6 +57,9 @@ get_info(DateLayer* layer)
 DateLayer*
 date_layer_create(void)
 {
+    if (!widget_is_active(WT_DATE)) {
+        return NULL;
+    }
     GRect layer_rect;
     layer_rect.origin = layout_get_widget_offset(WT_DATE);
     layer_rect.size = GSize(widget_size,
