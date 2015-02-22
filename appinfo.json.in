@@ -1,6 +1,6 @@
 {
     "appKeys": {
-        %(appKeys)s
+       %(appKeys)s
     },
     "capabilities": [
         "configurable"
@@ -324,6 +324,21 @@
             {
                 "file": "images/bt_off.png",
                 "name": "BT_OFF",
+                "type": "png"
+            },
+            {
+                "file": "images/batt_plug.png",
+                "name": "BATT_PLUG",
+                "type": "png"
+            },
+            {
+                "file": "images/batt_contour.png",
+                "name": "BATT_CONTOUR",
+                "type": "png"
+            },
+            {
+                "file": "images/batt_textimg.png",
+                "name": "BATT_TEXTIMG",
                 "type": "png"
             }
         ]

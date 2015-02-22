@@ -12,6 +12,7 @@
 #include "widgets/secondslayer.h"
 #include "widgets/datelayer.h"
 #include "widgets/btlayer.h"
+#include "widgets/batterylayer.h"
 #include "config.h"
 #include "layout.h"
 
@@ -29,6 +30,7 @@ typedef struct {
     SecondsLayer* widget_seconds;
     DateLayer* widget_date;
     BtLayer* widget_bt;
+    BatteryLayer* widget_battery;
 
     /** Color invertion layer */
     InverterLayer* inverter;
@@ -41,6 +43,7 @@ typedef struct {
     bool timer_service_registered;
     bool tap_service_registered;
     bool bt_service_registered;
+    bool battery_service_registered;
 
     /** Flag indicating that the current animations are forced (on shake, on
      * load)
@@ -215,6 +218,11 @@ static
 void
 handle_bt(bool connected);
 
+/** Handle the battery change event */
+static
+void
+handle_battery(BatteryChargeState charge);
+
 /** Handle the animation timer event */
 static
 void
@@ -291,6 +299,7 @@ lay_components(MainWindow* window)
     WIDGETCREATE(seconds);
     WIDGETCREATE(date);
     WIDGETCREATE(bt);
+    WIDGETCREATE(battery);
 #undef WIDGETCREATE
     set_widget_visibility(info,
                           !layout_widgets_hidden());
@@ -327,6 +336,7 @@ clear_components(window_info_t* info)
     WIDGETDESTROY(seconds);
     WIDGETDESTROY(date);
     WIDGETDESTROY(bt);
+    WIDGETDESTROY(battery);
 #undef WIDGETDESTROY
 
     if (info->inverter) {
@@ -388,6 +398,12 @@ register_services(window_info_t* info)
 
     if (layout_widget_is_active(WT_BLUETOOTH)) {
         bluetooth_connection_service_subscribe(handle_bt);
+        info->bt_service_registered = true;
+    }
+
+    if (layout_widget_is_active(WT_BATTERY)) {
+        battery_state_service_subscribe(handle_battery);
+        info->battery_service_registered = true;
     }
 }
 
@@ -408,6 +424,11 @@ unregister_services(window_info_t* info)
     if (info->bt_service_registered) {
         bluetooth_connection_service_unsubscribe();
         info->bt_service_registered = false;
+    }
+
+    if (info->battery_service_registered) {
+        battery_state_service_unsubscribe();
+        info->battery_service_registered = false;
     }
 }
 
@@ -561,6 +582,7 @@ set_widget_visibility(window_info_t* info,
     WIDGETVISIBILITY(seconds);
     WIDGETVISIBILITY(date);
     WIDGETVISIBILITY(bt);
+    WIDGETVISIBILITY(battery);
 #undef WIDGETVISIBILITY
 
     if (visible) {
@@ -689,6 +711,19 @@ handle_bt(bool connected)
 
 static
 void
+handle_battery(BatteryChargeState charge)
+{
+    window_info_t* info = get_info(NULL);
+
+    if (info->widget_battery) {
+        battery_layer_set_state(info->widget_battery,
+                                charge.is_plugged,
+                                charge.charge_percent);
+    }
+}
+
+static
+void
 handle_anim_timer(window_info_t* info)
 {
     bool need_animation = false;
@@ -726,6 +761,7 @@ info_init(window_info_t* info)
     info->widget_seconds = NULL;
     info->widget_date = NULL;
     info->widget_bt = NULL;
+    info->widget_battery = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
     info->widget_timer = NULL;
