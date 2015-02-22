@@ -67,23 +67,18 @@ seconds_layer_create(void)
         return NULL;
     }
 
-    GRect layer_rect;
-    layer_rect.origin = layout_get_widget_offset(WT_SECONDS);
-    layer_rect.size = GSize(widget_size,
-                            widget_size);
-
     SecondsLayer* result =
-        layer_create_with_init_data(layer_rect,
+        layer_create_with_init_data(layout_get_widget_area(WT_SECONDS),
                                     sizeof(seconds_info_t),
                                     (layer_data_init_t) info_init);
     seconds_info_t* info = get_info(result);
 
     if (cfg_get_seconds_style() == SECONDS_STYLE_DOT) {
-        layer_rect.origin = GPoint(widget_size / 2 - seconds_dot_size / 2,
-                                   widget_size / 2 - seconds_dot_size / 2);
-        layer_rect.size = GSize(seconds_dot_size,
-                                seconds_dot_size);
-        info->inverter_layer = inverter_layer_create(layer_rect);
+        GRect dot_rect = GRect(widget_size / 2 - seconds_dot_size / 2,
+                               widget_size / 2 - seconds_dot_size / 2,
+                               seconds_dot_size,
+                               seconds_dot_size);
+        info->inverter_layer = inverter_layer_create(dot_rect);
         layer_add_child(result,
                         inverter_layer_get_layer(info->inverter_layer));
     } else {
@@ -147,6 +142,14 @@ seconds_layer_set_time(SecondsLayer* layer,
         layer_set_hidden(dot_layer,
                          !layer_get_hidden(dot_layer));
     }
+}
+
+void
+seconds_layer_set_hidden(SecondsLayer* layer,
+                         bool hidden)
+{
+    layer_set_hidden(layer,
+                     hidden);
 }
 
 void

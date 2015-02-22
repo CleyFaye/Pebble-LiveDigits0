@@ -62,8 +62,8 @@ layout_get_minute_offset(void)
     return result;
 }
 
-GPoint
-layout_get_widget_offset(widget_type_t widget)
+GRect
+layout_get_widget_area(widget_type_t widget)
 {
     unsigned line;
 
@@ -88,7 +88,8 @@ layout_get_widget_offset(widget_type_t widget)
 
     if (line == 0) {
         // Woops, this widget is not enabled
-        return GPointZero;
+        return GRect(0, 0,
+                     widget_size, widget_size);
     }
 
     // Line indices start at 0, config values start at 1
@@ -105,24 +106,26 @@ layout_get_widget_offset(widget_type_t widget)
     static const unsigned widget_y_offset_hour_bottom[4] = {
         3, 42, 85, 125
     };
-    GPoint result;
+    GRect result;
     bool aligned_with_hour;
 
     if (cfg_get_base_layout() == BASE_LAYOUT_HOUR) {
-        result.y = widget_y_offset_hour_top[line];
+        result.origin.y = widget_y_offset_hour_top[line];
         aligned_with_hour = line <= 1;
     } else {
-        result.y = widget_y_offset_hour_bottom[line];
+        result.origin.y = widget_y_offset_hour_bottom[line];
         aligned_with_hour = line >= 2;
     }
 
-    result.x = aligned_with_hour
-               ? ((cfg_get_hour_position() == HOUR_POSITION_LEFT)
-                  ? widget_x_offset_hour_left
-                  : widget_x_offset_hour_right)
-               : ((cfg_get_minutes_position() == MINUTES_POSITION_LEFT)
-                  ? widget_x_offset_minutes_left
-                  : widget_x_offset_minutes_right);
+    result.origin.x = aligned_with_hour
+                      ? ((cfg_get_hour_position() == HOUR_POSITION_LEFT)
+                         ? widget_x_offset_hour_left
+                         : widget_x_offset_hour_right)
+                      : ((cfg_get_minutes_position() == MINUTES_POSITION_LEFT)
+                         ? widget_x_offset_minutes_left
+                         : widget_x_offset_minutes_right);
+    result.size = GSize(widget_size,
+                        widget_size);
     return result;
 }
 

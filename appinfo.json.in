@@ -315,6 +315,16 @@
                 "file": "images/small_horiz.png",
                 "name": "SMALLDIGIT_HORIZONTAL",
                 "type": "png"
+            },
+            {
+                "file": "images/bt_on.png",
+                "name": "BT_ON",
+                "type": "png"
+            },
+            {
+                "file": "images/bt_off.png",
+                "name": "BT_OFF",
+                "type": "png"
             }
         ]
     },

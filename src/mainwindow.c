@@ -11,6 +11,7 @@
 #include "digits/numberlayer.h"
 #include "widgets/secondslayer.h"
 #include "widgets/datelayer.h"
+#include "widgets/btlayer.h"
 #include "config.h"
 #include "layout.h"
 
@@ -22,14 +23,12 @@
 
 /** MainWindow state */
 typedef struct {
-    /** Hours number */
     NumberLayer* hours;
-    /** Minutes number */
     NumberLayer* minutes;
-    /** Seconds widget */
+
     SecondsLayer* widget_seconds;
-    /** Date widget */
     DateLayer* widget_date;
+    BtLayer* widget_bt;
 
     /** Color invertion layer */
     InverterLayer* inverter;
@@ -41,6 +40,7 @@ typedef struct {
 
     bool timer_service_registered;
     bool tap_service_registered;
+    bool bt_service_registered;
 
     /** Flag indicating that the current animations are forced (on shake, on
      * load)
@@ -210,6 +210,11 @@ static
 void
 handle_widget_hidding(window_info_t* info);
 
+/** Handle the Bluetooth state changes */
+static
+void
+handle_bt(bool connected);
+
 /** Handle the animation timer event */
 static
 void
@@ -285,6 +290,7 @@ lay_components(MainWindow* window)
     } while (false)
     WIDGETCREATE(seconds);
     WIDGETCREATE(date);
+    WIDGETCREATE(bt);
 #undef WIDGETCREATE
     set_widget_visibility(info,
                           !layout_widgets_hidden());
@@ -320,6 +326,7 @@ clear_components(window_info_t* info)
     } while (false)
     WIDGETDESTROY(seconds);
     WIDGETDESTROY(date);
+    WIDGETDESTROY(bt);
 #undef WIDGETDESTROY
 
     if (info->inverter) {
@@ -378,6 +385,10 @@ register_services(window_info_t* info)
         accel_tap_service_subscribe(handle_accel_tap);
         info->tap_service_registered = true;
     }
+
+    if (layout_widget_is_active(WT_BLUETOOTH)) {
+        bluetooth_connection_service_subscribe(handle_bt);
+    }
 }
 
 static
@@ -393,6 +404,11 @@ unregister_services(window_info_t* info)
         accel_tap_service_unsubscribe();
         info->tap_service_registered = false;
     }
+
+    if (info->bt_service_registered) {
+        bluetooth_connection_service_unsubscribe();
+        info->bt_service_registered = false;
+    }
 }
 
 static
@@ -401,7 +417,6 @@ register_timer_service(window_info_t* info)
 {
     bool seconds_visible = layout_widget_is_active(WT_SECONDS) &&
                            are_widgets_visible(info);
-
     tick_timer_service_subscribe(seconds_visible
                                  ? SECOND_UNIT
                                  : MINUTE_UNIT,
@@ -539,12 +554,13 @@ set_widget_visibility(window_info_t* info,
 #define WIDGETVISIBILITY(type) \
     do { \
         if (info->widget_##type) { \
-            layer_set_hidden(info->widget_##type, \
-                             !visible); \
+            type##_layer_set_hidden(info->widget_##type, \
+                                    !visible); \
         } \
     } while (false)
     WIDGETVISIBILITY(seconds);
     WIDGETVISIBILITY(date);
+    WIDGETVISIBILITY(bt);
 #undef WIDGETVISIBILITY
 
     if (visible) {
@@ -570,6 +586,8 @@ are_widgets_visible(window_info_t* info)
         return info->widget_timer != NULL;
     }
 }
+
+// EVENTS HANDLER =
 
 static
 void
@@ -659,6 +677,18 @@ handle_widget_hidding(window_info_t* info)
 
 static
 void
+handle_bt(bool connected)
+{
+    window_info_t* info = get_info(NULL);
+
+    if (info->widget_bt) {
+        bt_layer_set_state(info->widget_bt,
+                           connected);
+    }
+}
+
+static
+void
 handle_anim_timer(window_info_t* info)
 {
     bool need_animation = false;
@@ -695,11 +725,13 @@ info_init(window_info_t* info)
     info->minutes = NULL;
     info->widget_seconds = NULL;
     info->widget_date = NULL;
+    info->widget_bt = NULL;
     info->inverter = NULL;
     info->animation_timer = NULL;
     info->widget_timer = NULL;
     info->timer_service_registered = false;
     info->tap_service_registered = false;
+    info->bt_service_registered = false;
     info->extra_animation = false;
 }
 
