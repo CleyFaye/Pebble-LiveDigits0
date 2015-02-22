@@ -145,14 +145,6 @@ seconds_layer_set_time(SecondsLayer* layer,
 }
 
 void
-seconds_layer_set_hidden(SecondsLayer* layer,
-                         bool hidden)
-{
-    layer_set_hidden(layer,
-                     hidden);
-}
-
-void
 seconds_layer_destroy(SecondsLayer* layer)
 {
     seconds_info_t* info = get_info(layer);

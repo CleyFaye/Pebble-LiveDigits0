@@ -173,14 +173,6 @@ date_layer_set_date(DateLayer* layer,
 }
 
 void
-date_layer_set_hidden(DateLayer* layer,
-                      bool hidden)
-{
-    layer_set_hidden(layer,
-                     hidden);
-}
-
-void
 date_layer_destroy(DateLayer* layer)
 {
     date_info_t* info = get_info(layer);

@@ -37,9 +37,14 @@ date_layer_set_date(DateLayer* layer,
                     unsigned day,
                     unsigned month);
 
+inline
 void
 date_layer_set_hidden(DateLayer* layer,
-                      bool hidden);
+                      bool hidden)
+{
+    layer_set_hidden(layer,
+                     hidden);
+}
 
 /** Destroy a date layer. */
 void

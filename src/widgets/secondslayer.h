@@ -43,9 +43,14 @@ void
 seconds_layer_set_time(SecondsLayer* layer,
                        unsigned seconds);
 
+inline
 void
 seconds_layer_set_hidden(SecondsLayer* layer,
-                         bool hidden);
+                         bool hidden)
+{
+    layer_set_hidden(layer,
+                     hidden);
+}
 
 /** Destroy a seconds layer. */
 void
