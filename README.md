@@ -21,7 +21,6 @@ Future features:
  - Animation speed setting
  - Display additional informations: current date, Bluetooth state, seconds, Pebble battery state.
  - Alternative orientation (hour in the top-right corner, minutes in the bottom-left)
- - Demo mode: cycle all digits through every animation, just for showing off
 
 Known bugs:
  - The configuration dialog forget the settings every time it is open. It doesn't affect the watchapp though, as settings are saved correctly.
