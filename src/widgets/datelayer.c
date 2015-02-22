@@ -67,12 +67,8 @@ date_layer_create(void)
         return NULL;
     }
 
-    GRect layer_rect;
-    layer_rect.origin = layout_get_widget_offset(WT_DATE);
-    layer_rect.size = GSize(widget_size,
-                            widget_size);
     DateLayer* result =
-        layer_create_with_init_data(layer_rect,
+        layer_create_with_init_data(layout_get_widget_area(WT_DATE),
                                     sizeof(date_info_t),
                                     (layer_data_init_t) info_init);
     date_info_t* info = get_info(result);
@@ -174,6 +170,14 @@ date_layer_set_date(DateLayer* layer,
         text_layer_set_text(info->month_text,
                             info->month_str);
     }
+}
+
+void
+date_layer_set_hidden(DateLayer* layer,
+                      bool hidden)
+{
+    layer_set_hidden(layer,
+                     hidden);
 }
 
 void

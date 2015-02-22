@@ -51,9 +51,9 @@ layout_get_hour_offset(void);
 GPoint
 layout_get_minute_offset(void);
 
-/** Return the offset for a widget. */
-GPoint
-layout_get_widget_offset(widget_type_t widget);
+/** Return the area for a widget. */
+GRect
+layout_get_widget_area(widget_type_t widget);
 
 /** Determine if the colors must be inverted.
  *
