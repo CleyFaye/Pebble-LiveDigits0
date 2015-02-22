@@ -14,8 +14,6 @@
 #include "config.h"
 // Widget placement
 #include "layout.h"
-// Widget filter
-#include "widgetfilter.h"
 // Associated header
 #include "datelayer.h"
 
@@ -57,7 +55,7 @@ get_info(DateLayer* layer)
 DateLayer*
 date_layer_create(void)
 {
-    if (!widget_is_active(WT_DATE)) {
+    if (!layout_widget_is_active(WT_DATE)) {
         return NULL;
     }
     GRect layer_rect;

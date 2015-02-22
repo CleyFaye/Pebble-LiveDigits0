@@ -7,13 +7,12 @@
 
 #include <pebble.h>
 
+#include "digits/digit_info.h"
+#include "digits/numberlayer.h"
+#include "widgets/secondslayer.h"
+#include "widgets/datelayer.h"
 #include "config.h"
-#include "digit_info.h"
 #include "layout.h"
-#include "widgetfilter.h"
-#include "numberlayer.h"
-#include "secondslayer.h"
-#include "datelayer.h"
 
 #include "mainwindow.h"
 
@@ -531,7 +530,7 @@ static
 void
 main_window_update_timer_service(window_info_t* info)
 {
-    bool seconds_visible = widget_is_active(WT_SECONDS) &&
+    bool seconds_visible = layout_widget_is_active(WT_SECONDS) &&
                            main_window_are_widgets_visible(info);
 
     tick_timer_service_subscribe(seconds_visible

@@ -23,8 +23,6 @@
 // cfg_get_display_widgets()
 // cfg_get_seconds_style()
 #include "config.h"
-// widget_type_t
-#include "widgetfilter.h"
 // Associated header
 #include "layout.h"
 
@@ -227,6 +225,31 @@ layout_widgets_shaketimer(void)
 
     case DISPLAY_WIDGETS_SHAKE6:
         return 6;
+    }
+}
+
+bool
+layout_widget_is_active(widget_type_t widget)
+{
+    if (cfg_get_display_widgets() == DISPLAY_WIDGETS_NEVER) {
+        return false;
+    }
+
+    switch (widget) {
+    case WT_DATE:
+        return cfg_get_date_position() != DATE_POSITION_OFF;
+
+    case WT_SECONDS:
+        return cfg_get_seconds_position() != SECONDS_POSITION_OFF;
+
+    case WT_BATTERY:
+        return cfg_get_battery_position() != BATTERY_POSITION_OFF;
+
+    case WT_BLUETOOTH:
+        return cfg_get_bluetooth_position() != BLUETOOTH_POSITION_OFF;
+
+    default:
+        return false;
     }
 }
 

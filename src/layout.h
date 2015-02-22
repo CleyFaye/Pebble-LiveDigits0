@@ -12,7 +12,19 @@
 // GSize
 #include <pebble.h>
 // widget_type_t
-#include "widgetfilter.h"
+#include "layout.h"
+
+// =======
+// TYPES =
+// =======
+
+typedef enum {
+    WT_DATE,
+    WT_SECONDS,
+    WT_BATTERY,
+    WT_BLUETOOTH,
+    WIDGET_TYPE_COUNT
+} widget_type_t;
 
 // =========
 // EXTERNS =
@@ -65,6 +77,10 @@ layout_widgets_hidden(void);
  */
 int
 layout_widgets_shaketimer(void);
+
+/** Determine if a given widget should be loaded */
+bool
+layout_widget_is_active(widget_type_t widget);
 
 #endif
 

@@ -6,11 +6,12 @@
  */
 
 #include <pebble.h>
-#include "numberlayer.h"
-#include "widgetfilter.h"
+
+#include "digits/numberlayer.h"
+#include "digits/digit_info.h"
 #include "layout.h"
-#include "digit_info.h"
 #include "config.h"
+
 #include "secondslayer.h"
 
 // =======
@@ -64,7 +65,7 @@ get_info(SecondsLayer* layer)
 SecondsLayer*
 seconds_layer_create(void)
 {
-    if (!widget_is_active(WT_SECONDS)) {
+    if (!layout_widget_is_active(WT_SECONDS)) {
         return NULL;
     }
 
