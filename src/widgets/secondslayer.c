@@ -104,6 +104,10 @@ seconds_layer_create(void)
 bool
 seconds_layer_animate(SecondsLayer* layer)
 {
+    if (layer_get_hidden(layer)) {
+        return false;
+    }
+
     seconds_info_t* info = get_info(layer);
     return info->number_layer
            ? number_layer_animate(info->number_layer)
