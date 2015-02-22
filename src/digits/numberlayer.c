@@ -119,6 +119,18 @@ number_layer_set_number(NumberLayer* layer,
 }
 
 void
+number_layer_kill_anim(NumberLayer* layer)
+{
+    number_info_t* info = (number_info_t*) layer_get_data(layer);
+
+    for (unsigned i = 0;
+         i < info->digits_count;
+         ++i) {
+        digit_layer_kill_anim(info->digits[i]);
+    }
+}
+
+void
 number_layer_set_quick_wrap(NumberLayer* layer,
                             bool quick_wrap)
 {

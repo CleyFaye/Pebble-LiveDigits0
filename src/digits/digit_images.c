@@ -5,17 +5,11 @@
  * Licensing informations in LICENSE.md file.
  */
 
-// GBitmap
-// GSize
-// gbitmap_destroy()
 #include <pebble.h>
-// load_bitmap_into_array_from_id()
+
 #include "utils.h"
-// segment_orientation_t
-// digit_size_t
-// segment_res_ids
 #include "digit_info.h"
-// Associated header
+
 #include "digit_images.h"
 
 // ===================
@@ -28,11 +22,9 @@ typedef GBitmap* bitmap_array_t[SEGMENTS_ORIENTATION_COUNT];
 /** Array of GSize for all possible orientations. */
 typedef GSize size_array_t[SEGMENTS_ORIENTATION_COUNT];
 
-/** All big segment's images. */
 static
 bitmap_array_t big_segments;
 
-/** All big segment's images size. */
 static
 size_array_t big_segments_size = {
     // VERT
@@ -77,11 +69,9 @@ size_array_t big_segments_size = {
     { .w = 12, .h = 33}
 };
 
-/** All medium segment's images. */
 static
 bitmap_array_t medium_segments;
 
-/** All medium segment's images size. */
 static
 size_array_t medium_segments_size = {
     // VERT
@@ -126,11 +116,9 @@ size_array_t medium_segments_size = {
     { .w = 11, .h = 31}
 };
 
-/** All small segment's images. */
 static
 bitmap_array_t small_segments;
 
-/** All small segment's images size. */
 static
 size_array_t small_segments_size = {
     // VERT
@@ -200,9 +188,6 @@ size_array_t* segments_sizes[DIGITS_SIZE_COUNT] = {
 static
 unsigned segments_images_load_counter[DIGITS_SIZE_COUNT] = { 0, 0};
 
-/** Simple function profile, used to load/unload stuff. */
-typedef void(*func_t)(void);
-
 // ==============================
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
@@ -212,8 +197,8 @@ segment_load_images(digit_size_t size)
 {
     if (segments_images_load_counter[size]++ == 0) {
         load_bitmap_into_array_from_id(segment_res_ids[size],
-                *segments_images[size],
-                SEGMENTS_ORIENTATION_COUNT);
+                                       *segments_images[size],
+                                       SEGMENTS_ORIENTATION_COUNT);
     }
 }
 
@@ -222,8 +207,8 @@ segment_unload_images(digit_size_t size)
 {
     if (--segments_images_load_counter[size] == 0) {
         for (unsigned index = 0;
-                index < SEGMENTS_ORIENTATION_COUNT;
-                ++index) {
+             index < SEGMENTS_ORIENTATION_COUNT;
+             ++index) {
             gbitmap_destroy((*segments_images[size])[index]);
             (*segments_images[size])[index] = NULL;
         }
@@ -236,11 +221,7 @@ segment_get_image(digit_size_t size,
                   GSize* bitmap_size)
 {
     GBitmap* result = (*segments_images[size])[orientation];
-
-    if (bitmap_size) {
-        *bitmap_size = (*segments_sizes[size])[orientation];
-    }
-
+    *bitmap_size = (*segments_sizes[size])[orientation];
     return result;
 }
 

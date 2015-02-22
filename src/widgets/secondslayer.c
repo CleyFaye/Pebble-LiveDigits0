@@ -139,6 +139,7 @@ seconds_layer_set_time(SecondsLayer* layer,
             number_layer_set_number(info->number_layer,
                                     prev_second,
                                     false);
+            number_layer_kill_anim(info->number_layer);
         }
 
         number_layer_set_number(info->number_layer,

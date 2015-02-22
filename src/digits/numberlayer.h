@@ -41,12 +41,17 @@ number_layer_create(digit_size_t size,
 /** Set the number displayed by the layer.
  *
  * @param animate Set to true to animate from the currently displayed digit to
- * the requested number, false to immediately change it.
+ * the requested number, false to immediately change it. If an animation is
+ * already ongoing, it will not skip it. Use number_layer_kill_anim() for that.
  */
 void
 number_layer_set_number(NumberLayer* layer,
                         unsigned number,
                         bool animate);
+
+/** Kill current animation, immediately displaying the target number. */
+void
+number_layer_kill_anim(NumberLayer* layer);
 
 /** Set the quick-wrap falg.
  *

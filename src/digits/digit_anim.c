@@ -1,16 +1,14 @@
 /** @file
- * Implementation of digit animation code.
+ * Implementation of digit animation construction.
  *
  * @author Cley Faye
  * Licensing informations in LICENSE.md file.
  */
 
-// true, false
 #include <pebble.h>
-// segment_orientation_t
-// digit_size_t
+
 #include "digit_info.h"
-// Associated header
+
 #include "digit_anim.h"
 
 // ===============
@@ -19,11 +17,11 @@
 
 /** All info about a digit animation step. */
 typedef struct {
-    /** The digits to statically display (not animated) */
-    animation_fixed_digits_t fixed_digits;
-    /** The animated digits (up to two) */
-    animation_digit_segment_t moving_segments;
-    /** The next animation in the sequence */
+    /** The segments to statically display (not animated) */
+    digit_fixed_segments_t fixed_segments;
+    /** The animated segments (up to two) */
+    digit_segment_animation_t moving_segments;
+    /** The next animation step in the sequence */
     digit_anim_t next_animation;
     /** The shortcut animation to 0 */
     digit_anim_t quick_next;
@@ -31,235 +29,125 @@ typedef struct {
     bool multipart;
 } digit_anim_info_t;
 
-/** All segment position when animated */
-typedef const animated_segment_info_t animated_segment_array_t[7 * 9];
+/** All segment position when animated.
+ *
+ * There are 7 segments animations (illustrated by the values of
+ * segment_anim_t). Each segments animations is made of 9 steps. Each of these
+ * steps is a combination of an offset (this data type) and an orientation (in
+ * animated_segment_orientation_t).
+ */
+typedef const GPoint animated_segment_offset_t[7 * 9];
+
+/** All segment orientation when animated.
+ *
+ * See animated_segment_offset_t for details about the composition of this
+ * array.
+ */
+typedef const segment_orientation_t animated_segment_orientation_t[7 * 9];
 
 // ==============
 // PRIVATE DATA =
 // ==============
 
+/** Segment orientation when animated.
+ * These are shared between all digit's size.
+ */
+static
+animated_segment_orientation_t animated_segment_orientation = {
+    // SA_1_TO_0
+    SO_171, SO_162, SO_153, SO_144, SO_135,
+    SO_126, SO_117, SO_108, SO_99,
+    // SA_4_TO_6
+    SO_9,  SO_18, SO_27, SO_36, SO_45,
+    SO_54, SO_63, SO_72, SO_81,
+    // SA_0_TO_2
+    SO_81, SO_72, SO_63, SO_54, SO_45,
+    SO_36, SO_27, SO_18, SO_9,
+    // SA_6_TO_5
+    SO_99,  SO_108, SO_117, SO_126, SO_135,
+    SO_144, SO_153, SO_162, SO_171,
+    // SA_2_TO_3
+    SO_171, SO_162, SO_153, SO_144, SO_135,
+    SO_126, SO_117, SO_108, SO_99,
+    // SA_3_TO_4
+    SO_99,  SO_108, SO_117, SO_126, SO_135,
+    SO_144, SO_153, SO_162, SO_171,
+    // SA_1_TO_3
+    SO_9,  SO_18, SO_27, SO_36, SO_45,
+    SO_54, SO_63, SO_72, SO_81
+};
+
 /** Segment position when animated.
- * First 9 are for 1->0, next 9 for 4->6, etc. and represent all segments
- * positions for each segment_anim_t positive values.
- * Negative values are simply the positive one taken in reverse.
- * To accomodate negative animation values, they start at 1/-1 and not at 0.
  * These are for the big, medium, and small digits.
  */
 static
-animated_segment_array_t animated_segment_info_list[DIGITS_SIZE_COUNT] = {
+animated_segment_offset_t animated_segment_offsets[DIGITS_SIZE_COUNT] = {
     {
         // SA_1_TO_0
-        { SO_171, {1, 6}},
-        { SO_162, {2, 6}},
-        { SO_153, {2, 5}},
-        { SO_144, {4, 5}},
-        { SO_135, {5, 5}},
-        { SO_126, {5, 3}},
-        { SO_117, {6, 3}},
-        { SO_108, {6, 2}},
-        { SO_99, {6, 2}},
+        {1, 6}, {2, 6}, {2, 5}, {4, 5}, {5, 5},
+        {5, 3}, {6, 3}, {6, 2}, {6, 2},
         // SA_4_TO_6
-        { SO_9, {1, 43}},
-        { SO_18, {1, 45}},
-        { SO_27, {2, 47}},
-        { SO_36, {4, 50}},
-        { SO_45, {5, 54}},
-        { SO_54, {5, 57}},
-        { SO_63, {6, 60}},
-        { SO_72, {6, 65}},
-        { SO_81, {6, 70}},
+        {1, 43}, {1, 45}, {2, 47}, {4, 50}, {5, 54},
+        {5, 57}, {6, 60}, {6, 65}, {6, 70},
         // SA_0_TO_2
-        { SO_81, {7, 1}},
-        { SO_72, {7, 2}},
-        { SO_63, {9, 3}},
-        { SO_54, {13, 4}},
-        { SO_45, {16, 5}},
-        { SO_36, {19, 6}},
-        { SO_27, {24, 6}},
-        { SO_18, {28, 6}},
-        { SO_9, {32, 6}},
+        {7, 1},  {7, 2},  {9, 3},  {13, 4}, {16, 5},
+        {19, 6}, {24, 6}, {28, 6}, {32, 6},
         // SA_6_TO_5
-        { SO_99, {6, 69}},
-        { SO_108, {8, 65}},
-        { SO_117, {10, 62}},
-        { SO_126, {12, 57}},
-        { SO_135, {16, 54}},
-        { SO_144, {19, 52}},
-        { SO_153, {23, 47}},
-        { SO_162, {28, 44}},
-        { SO_171, {33, 44}},
+        {6, 69},  {8, 65},  {10, 62}, {12, 57}, {16, 54},
+        {19, 52}, {23, 47}, {28, 44}, {33, 44},
         // SA_2_TO_3
-        { SO_171, {33, 7}},
-        { SO_162, {28, 7}},
-        { SO_153, {23, 10}},
-        { SO_144, {19, 15}},
-        { SO_135, {16, 17}},
-        { SO_126, {12, 20}},
-        { SO_117, {10, 25}},
-        { SO_108, {8, 28}},
-        { SO_99, {6, 32}},
+        {33, 7},  {28, 7},  {23, 10}, {19, 15}, {16, 17},
+        {12, 20}, {10, 25}, {8, 28},  {6, 32},
         // SA_3_TO_4
-        { SO_99, {6, 39}},
-        { SO_108, {6, 39}},
-        { SO_117, {6, 40}},
-        { SO_126, {5, 40}},
-        { SO_135, {5, 42}},
-        { SO_144, {4, 42}},
-        { SO_153, {2, 42}},
-        { SO_162, {2, 43}},
-        { SO_171, {1, 43}},
+        {6, 39}, {6, 39}, {6, 40}, {5, 40}, {5, 42},
+        {4, 42}, {2, 42}, {2, 43}, {1, 43},
         // SA_1_TO_3
-        { SO_9, {1, 6}},
-        { SO_18, {1, 8}},
-        { SO_27, {2, 10}},
-        { SO_36, {4, 13}},
-        { SO_45, {5, 17}},
-        { SO_54, {5, 20}},
-        { SO_63, {6, 23}},
-        { SO_72, {6, 28}},
-        { SO_81, {6, 33}}
+        {1, 6},  {1, 8},  {2, 10}, {4, 13}, {5, 17},
+        {5, 20}, {6, 23}, {6, 28}, {6, 33}
     }, {
         // SA_1_TO_0
-        { SO_171, {2, 5}},
-        { SO_162, {3, 5}},
-        { SO_153, {2, 5}},
-        { SO_144, {5, 5}},
-        { SO_135, {5, 3}},
-        { SO_126, {6, 3}},
-        { SO_117, {6, 2}},
-        { SO_108, {6, 2}},
-        { SO_99, {6, 0}},
+        {2, 5}, {3, 5}, {2, 5}, {5, 5}, {5, 3},
+        {6, 3}, {6, 2}, {6, 2}, {6, 0},
         // SA_4_TO_6
-        { SO_9, {0, 40}},
-        { SO_18, {1, 42}},
-        { SO_27, {3, 45}},
-        { SO_36, {3, 47}},
-        { SO_45, {4, 49}},
-        { SO_54, {5, 55}},
-        { SO_63, {5, 57}},
-        { SO_72, {5, 62}},
-        { SO_81, {5, 66}},
+        {0, 40}, {1, 42}, {3, 45}, {3, 47}, {4, 49},
+        {5, 55}, {5, 57}, {5, 62}, {5, 66},
         // SA_0_TO_2
-        { SO_81, {6, 1}},
-        { SO_72, {6, 2}},
-        { SO_63, {8, 2}},
-        { SO_54, {12, 3}},
-        { SO_45, {14, 4}},
-        { SO_36, {18, 4}},
-        { SO_27, {23, 5}},
-        { SO_18, {26, 5}},
-        { SO_9, {31, 5}},
+        {6, 1},  {6, 2},  {8, 2},  {12, 3}, {14, 4},
+        {18, 4}, {23, 5}, {26, 5}, {31, 5},
         // SA_6_TO_5
-        { SO_99, {5, 65}},
-        { SO_108, {7, 62}},
-        { SO_117, {9, 58}},
-        { SO_126, {11, 54}},
-        { SO_135, {15, 50}},
-        { SO_144, {18, 47}},
-        { SO_153, {21, 45}},
-        { SO_162, {27, 42}},
-        { SO_171, {31, 41}},
+        {5, 65},  {7, 62},  {9, 58},  {11, 54}, {15, 50},
+        {18, 47}, {21, 45}, {27, 42}, {31, 41},
         // SA_2_TO_3
-        { SO_171, {31, 6}},
-        { SO_162, {27, 7}},
-        { SO_153, {21, 10}},
-        { SO_144, {18, 12}},
-        { SO_135, {15, 15}},
-        { SO_126, {11, 19}},
-        { SO_117, {9, 23}},
-        { SO_108, {7, 27}},
-        { SO_99, {5, 30}},
+        {31, 6},  {27, 7}, {21, 10}, {18, 12}, {15, 15},
+        {11, 19}, {9, 23}, {7, 27},  {5, 30},
         // SA_3_TO_4
-        { SO_99, {6, 35}},
-        { SO_108, {6, 37}},
-        { SO_117, {6, 37}},
-        { SO_126, {6, 38}},
-        { SO_135, {5, 38}},
-        { SO_144, {5, 40}},
-        { SO_153, {2, 40}},
-        { SO_162, {3, 40}},
-        { SO_171, {2, 40}},
+        {6, 35}, {6, 37}, {6, 37}, {6, 38}, {5, 38},
+        {5, 40}, {2, 40}, {3, 40}, {2, 40},
         // SA_1_TO_3
-        { SO_9, {0, 5}},
-        { SO_18, {1, 7}},
-        { SO_27, {3, 10}},
-        { SO_36, {3, 12}},
-        { SO_45, {4, 14}},
-        { SO_54, {5, 20}},
-        { SO_63, {5, 22}},
-        { SO_72, {5, 27}},
-        { SO_81, {5, 31}},
+        {0, 5},  {1, 7},  {3, 10}, {3, 12}, {4, 14},
+        {5, 20}, {5, 22}, {5, 27}, {5, 31},
     }, {
         // SA_1_TO_0
-        { SO_171, {0, 3}},
-        { SO_162, {1, 3}},
-        { SO_153, {0, 3}},
-        { SO_144, {2, 3}},
-        { SO_135, {2, 3}},
-        { SO_126, {2, 2}},
-        { SO_117, {2, 2}},
-        { SO_108, {2, 0}},
-        { SO_99, {2, 0}},
+        {0, 3}, {1, 3}, {0, 3}, {2, 3}, {2, 3},
+        {2, 2}, {2, 2}, {2, 0}, {2, 0},
         // SA_4_TO_6
-        { SO_9, {1, 19}},
-        { SO_18, {2, 18}},
-        { SO_27, {1, 21}},
-        { SO_36, {2, 21}},
-        { SO_45, {2, 23}},
-        { SO_54, {2, 23}},
-        { SO_63, {2, 25}},
-        { SO_72, {2, 27}},
-        { SO_81, {2, 29}},
+        {1, 19}, {2, 18}, {1, 21}, {2, 21}, {2, 23},
+        {2, 23}, {2, 25}, {2, 27}, {2, 29},
         // SA_0_TO_2
-        { SO_81, {3, 0}},
-        { SO_72, {3, 0}},
-        { SO_63, {3, 1}},
-        { SO_54, {5, 1}},
-        { SO_45, {5, 2}},
-        { SO_36, {7, 2}},
-        { SO_27, {8, 2}},
-        { SO_18, {10, 3}},
-        { SO_9, {11, 3}},
+        {3, 0}, {3, 0}, {3, 1},  {5, 1}, {5, 2},
+        {7, 2}, {8, 2}, {10, 3}, {11, 3},
         // SA_6_TO_5
-        { SO_99, {3, 29}},
-        { SO_108, {3, 27}},
-        { SO_117, {3, 26}},
-        { SO_126, {5, 24}},
-        { SO_135, {5, 23}},
-        { SO_144, {7, 21}},
-        { SO_153, {7, 21}},
-        { SO_162, {9, 18}},
-        { SO_171, {11, 18}},
+        {3, 29}, {3, 27}, {3, 26}, {5, 24},  {5, 23},
+        {7, 21}, {7, 21}, {9, 18}, {11, 18},
         // SA_2_TO_3
-        { SO_171, {11, 3}},
-        { SO_162, {9, 3}},
-        { SO_153, {7, 6}},
-        { SO_144, {7, 6}},
-        { SO_135, {5, 8}},
-        { SO_126, {5, 9}},
-        { SO_117, {3, 11}},
-        { SO_108, {3, 12}},
-        { SO_99, {3, 14}},
+        {11, 3}, {9, 3},  {7, 6},  {7, 6},  {5, 8},
+        {5, 9},  {3, 11}, {3, 12}, {3, 14},
         // SA_3_TO_4
-        { SO_99, {2, 15}},
-        { SO_108, {2, 15}},
-        { SO_117, {2, 17}},
-        { SO_126, {2, 17}},
-        { SO_135, {2, 18}},
-        { SO_144, {2, 18}},
-        { SO_153, {0, 18}},
-        { SO_162, {1, 18}},
-        { SO_171, {0, 18}},
+        {2, 15}, {2, 15}, {2, 17}, {2, 17}, {2, 18},
+        {2, 18}, {0, 18}, {1, 18}, {0, 18},
         // SA_1_TO_3
-        { SO_9, {1, 4}},
-        { SO_18, {2, 3}},
-        { SO_27, {1, 6}},
-        { SO_36, {2, 6}},
-        { SO_45, {2, 8}},
-        { SO_54, {2, 8}},
-        { SO_63, {2, 10}},
-        { SO_72, {2, 12}},
-        { SO_81, {2, 14}}
+        {1, 4}, {2, 3},  {1, 6},  {2, 6}, {2, 8},
+        {2, 8}, {2, 10}, {2, 12}, {2, 14}
     }
 };
 
@@ -268,109 +156,57 @@ animated_segment_array_t animated_segment_info_list[DIGITS_SIZE_COUNT] = {
  */
 static const digit_anim_info_t moving_anim[] = {
     // 1 - 0>1
-    {   {{true, false, true, false, false, true, true}},
-        {{SA_1_TO_0, SA_4_TO_6}}, DA_0_TO_1_b, DA_0_TO_1_b, true
-    },
+    {0x65, {SA_1_TO_0, SA_4_TO_6}, DA_0_TO_1_b, DA_0_TO_1_b, true},
     // 2 - 0>1
-    {   {{false, false, true, false, false, true, false}},
-        {{SA_0_TO_2, SA_6_TO_5}}, DA_1, DA_1, true
-    },
+    {0x24, {SA_0_TO_2, SA_6_TO_5}, DA_1, DA_1, true},
     // 3 - 1>2
-    {   {{false, false, true, false, false, false, false}},
-        {{SA_2_TO_0, SA_5_TO_6}}, DA_1_TO_2_b, DA_1_TO_2_b, true
-    },
+    {0x04, {SA_2_TO_0, SA_5_TO_6}, DA_1_TO_2_b, DA_1_TO_2_b, true},
     // 4 - 1>2
-    {   {{true, false, true, false, false, false, true}},
-        {{SA_2_TO_3, SA_6_TO_4}}, DA_2, DA_2, true
-    },
+    {0x45, {SA_2_TO_3, SA_6_TO_4}, DA_2, DA_2, true},
     // 5 - 2>3
-    {   {{true, false, true, true, false, false, true}},
-        {{SA_4_TO_6, SA_NOANIM}}, DA_2_TO_3_b, DA_2_TO_3_b, true
-    },
+    {0x4D, {SA_4_TO_6, SA_NOANIM}, DA_2_TO_3_b, DA_2_TO_3_b, true},
     // 6 - 2>3
-    {   {{true, false, true, true, false, false, true}},
-        {{SA_6_TO_5, SA_NOANIM}}, DA_3, DA_3, true
-    },
+    {0x4D, {SA_6_TO_5, SA_NOANIM}, DA_3, DA_3, true},
     // 7 - 3>4
-    {   {{false, false, true, true, false, true, false}},
-        {{SA_0_TO_1, SA_6_TO_5}}, DA_4, DA_4, false
-    },
+    {0x2C, {SA_0_TO_1, SA_6_TO_5}, DA_4, DA_4, false},
     // 8 - 4>5
-    {   {{false, true, false, true, false, true, false}},
-        {{SA_2_TO_0, SA_5_TO_6}}, DA_5, DA_5, false
-    },
+    {0x2A, {SA_2_TO_0, SA_5_TO_6}, DA_5, DA_5, false},
     // 9 - 5>6
-    {   {{true, true, false, true, false, true, true}},
-        {{SA_3_TO_4, SA_NOANIM}}, DA_6, DA_6, false
-    },
+    {0x6B, {SA_3_TO_4, SA_NOANIM}, DA_6, DA_6, false},
     // 10 - 6>7
-    {   {{true, true, false, false, false, true, true}},
-        {{SA_3_TO_2, SA_4_TO_6}}, DA_6_TO_7_b, DA_6_TO_7_b, true
-    },
+    {0x63, {SA_3_TO_2, SA_4_TO_6}, DA_6_TO_7_b, DA_6_TO_7_b, true},
     // 11 - 6>7
-    {   {{true, false, true, false, false, true, false}},
-        {{SA_1_TO_0, SA_6_TO_5}}, DA_7, DA_7, true
-    },
+    {0x25, {SA_1_TO_0, SA_6_TO_5}, DA_7, DA_7, true},
     // 12 - 7>8
-    {   {{true, false, true, false, false, true, false}},
-        {{SA_0_TO_1, SA_5_TO_6}}, DA_7_TO_8_b, DA_7_TO_8_b, true
-    },
+    {0x25, {SA_0_TO_1, SA_5_TO_6}, DA_7_TO_8_b, DA_7_TO_8_b, true},
     // 13 - 7>8
-    {   {{true, true, true, false, false, true, true}},
-        {{SA_1_TO_3, SA_6_TO_4}}, DA_8, DA_8, true
-    },
+    {0x67, {SA_1_TO_3, SA_6_TO_4}, DA_8, DA_8, true},
     // 14 - 8>9
-    {   {{true, true, true, true, false, true, true}},
-        {{SA_4_TO_3, SA_NOANIM}}, DA_9, DA_9, false
-    },
+    {0x6F, {SA_4_TO_3, SA_NOANIM}, DA_9, DA_9, false},
     // 15 - 9>0
-    {   {{true, true, true, false, false, true, true}},
-        {{SA_3_TO_1, SA_6_TO_4}}, DA_0, DA_0, false
-    },
+    {0x67, {SA_3_TO_1, SA_6_TO_4}, DA_0, DA_0, false},
     // 16 - 1>0
-    {   {{false, false, true, false, false, true, false}},
-        {{SA_2_TO_0, SA_5_TO_6}}, DA_1_TO_0_b, DA_1_TO_0_b, true
-    },
+    {0x24, {SA_2_TO_0, SA_5_TO_6}, DA_1_TO_0_b, DA_1_TO_0_b, true},
     // 17 - 1>0
-    {   {{true, false, true, false, false, true, true}},
-        {{SA_0_TO_1, SA_6_TO_4}}, DA_0, DA_0, true
-    },
+    {0x65, {SA_0_TO_1, SA_6_TO_4}, DA_0, DA_0, true},
     // 18 - 2>0
-    {   {{true, false, true, false, true, false, true}},
-        {{SA_3_TO_1, SA_6_TO_5}}, DA_0, DA_0, false
-    },
+    {0x55, {SA_3_TO_1, SA_6_TO_5}, DA_0, DA_0, false},
     // 19 - 3>0
-    {   {{true, false, true, false, false, true, true}},
-        {{SA_3_TO_4, SA_0_TO_1}}, DA_0, DA_0, false
-    },
+    {0x65, {SA_3_TO_4, SA_0_TO_1}, DA_0, DA_0, false},
     // 20 - 4>0
-    {   {{false, true, true, false, false, true, false}},
-        {{SA_3_TO_4, SA_NOANIM}}, DA_4_TO_0_b, DA_4_TO_0_b, true
-    },
+    {0x26, {SA_3_TO_4, SA_NOANIM}, DA_4_TO_0_b, DA_4_TO_0_b, true},
     // 21 - 4>0
-    {   {{false, true, true, false, true, true, false}},
-        {{SA_5_TO_6, SA_1_TO_0}}, DA_0, DA_0, true
-    },
+    {0x36, {SA_5_TO_6, SA_1_TO_0}, DA_0, DA_0, true},
     // 22 - 5>0
-    {   {{true, true, false, false, false, true, true}},
-        {{SA_0_TO_2, SA_6_TO_4}}, DA_0, DA_0, false
-    },
+    {0x63, {SA_0_TO_2, SA_6_TO_4}, DA_0, DA_0, false},
     // 23 - 6>0
-    {   {{true, true, false, false, true, true, true}},
-        {{SA_3_TO_2, SA_NOANIM}}, DA_0, DA_0, false
-    },
+    {0x73, {SA_3_TO_2, SA_NOANIM}, DA_0, DA_0, false},
     // 24 - 7>0
-    {   {{true, false, true, false, false, true, false}},
-        {{SA_5_TO_6, SA_0_TO_1}}, DA_7_TO_0_b, DA_7_TO_0_b, true
-    },
+    {0x25, {SA_5_TO_6, SA_0_TO_1}, DA_7_TO_0_b, DA_7_TO_0_b, true},
     // 25 - 7>0
-    {   {{true, true, true, false, false, true, true}},
-        {{SA_6_TO_4, SA_NOANIM}}, DA_0, DA_0, true
-    },
+    {0x67, {SA_6_TO_4, SA_NOANIM}, DA_0, DA_0, true},
     // 26 - 8>0
-    {   {{true, true, true, false, true, true, true}},
-        {{SA_3_TO_4, SA_NOANIM}}, DA_0, DA_0, false
-    }
+    {0x77, {SA_3_TO_4, SA_NOANIM}, DA_0, DA_0, false}
 };
 
 /** Digit animation steps.
@@ -378,47 +214,27 @@ static const digit_anim_info_t moving_anim[] = {
  *
  * Each value correspond to a negative value in digit_anim_t.
  */
-static const digit_anim_info_t fixed_digits_anim[10] = {
+static const digit_anim_info_t static_anim[10] = {
     // -1 - 0
-    {   {{true, true, true, false, true, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_0_TO_1_a, DA_0_TO_1_a, false
-    },
+    {0x77, {SA_NOANIM, SA_NOANIM}, DA_0_TO_1_a, DA_0_TO_1_a, false},
     // -2 - 1
-    {   {{false, false, true, false, false, true, false}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_1_TO_2_a, DA_1_TO_0_a, false
-    },
+    {0x24, {SA_NOANIM, SA_NOANIM}, DA_1_TO_2_a, DA_1_TO_0_a, false},
     // -3 - 2
-    {   {{true, false, true, true, true, false, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_2_TO_3_a, DA_2_TO_0, false
-    },
+    {0x5D, {SA_NOANIM, SA_NOANIM}, DA_2_TO_3_a, DA_2_TO_0, false},
     // -4 - 3
-    {   {{true, false, true, true, false, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_3_TO_4, DA_3_TO_0, false
-    },
+    {0x6D, {SA_NOANIM, SA_NOANIM}, DA_3_TO_4, DA_3_TO_0, false},
     // -5 - 4
-    {   {{false, true, true, true, false, true, false}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_4_TO_5, DA_4_TO_0_a, false
-    },
+    {0x2E, {SA_NOANIM, SA_NOANIM}, DA_4_TO_5, DA_4_TO_0_a, false},
     // -6 - 5
-    {   {{true, true, false, true, false, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_5_TO_6, DA_5_TO_0, false
-    },
+    {0x6B, {SA_NOANIM, SA_NOANIM}, DA_5_TO_6, DA_5_TO_0, false},
     // -7 - 6
-    {   {{true, true, false, true, true, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_6_TO_7_a, DA_6_TO_0, false
-    },
+    {0x7B, {SA_NOANIM, SA_NOANIM}, DA_6_TO_7_a, DA_6_TO_0, false},
     // -8 - 7
-    {   {{true, false, true, false, false, true, false}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_7_TO_8_a, DA_7_TO_0_a, false
-    },
+    {0x25, {SA_NOANIM, SA_NOANIM}, DA_7_TO_8_a, DA_7_TO_0_a, false},
     // -9 - 8
-    {   {{true, true, true, true, true, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_8_TO_9, DA_8_TO_0, false
-    },
+    {0x7F, {SA_NOANIM, SA_NOANIM}, DA_8_TO_9, DA_8_TO_0, false},
     // -10 - 9
-    {   {{true, true, true, true, false, true, true}},
-        {{SA_NOANIM, SA_NOANIM}}, DA_9_TO_0, DA_9_TO_0, false
-    }
+    {0x6F, {SA_NOANIM, SA_NOANIM}, DA_9_TO_0, DA_9_TO_0, false}
 };
 
 // ================================
@@ -429,9 +245,6 @@ static const digit_anim_info_t fixed_digits_anim[10] = {
  *
  * This function perform the triage between animation steps and static digits
  * steps.
- *
- * @param digit_anim The digit animation id
- * @return The digit_anim_info_t to use.
  */
 static
 const digit_anim_info_t*
@@ -445,27 +258,20 @@ static
 const digit_anim_info_t*
 retrieve_anim(digit_anim_t digit_anim)
 {
-    const digit_anim_info_t* source =
-        (digit_anim > 0)
-        ? moving_anim
-        : fixed_digits_anim;
-
-    if (digit_anim < 0) {
-        digit_anim = -digit_anim;
-    }
-
-    --digit_anim;
-    return &source[digit_anim];
+    return (digit_anim > 0)
+           ? &moving_anim[digit_anim - 1]
+           : &static_anim[-digit_anim - 1];
 }
 
 // ==============================
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
-//
-const animated_segment_info_t*
+
+segment_orientation_t
 anim_segment_get(segment_anim_t segment_anim,
                  int anim_pos,
-                 digit_size_t digit_size)
+                 digit_size_t digit_size,
+                 GPoint* offset)
 {
     if (segment_anim < 0) {
         segment_anim = -segment_anim;
@@ -473,16 +279,24 @@ anim_segment_get(segment_anim_t segment_anim,
     }
 
     --segment_anim;
-    return &animated_segment_info_list[digit_size][segment_anim * 9 + anim_pos];
+    *offset = animated_segment_offsets[digit_size][segment_anim * 9 + anim_pos];
+    return animated_segment_orientation[segment_anim * 9 + anim_pos];
 }
 
-const animation_fixed_digits_t*
-anim_get_fixed_digits(digit_anim_t digit_anim)
+digit_fixed_segments_t
+anim_get_fixed_segments(digit_anim_t digit_anim)
 {
-    return &retrieve_anim(digit_anim)->fixed_digits;
+    return retrieve_anim(digit_anim)->fixed_segments;
 }
 
-const animation_digit_segment_t*
+bool
+anim_get_fixed_segment_state(digit_fixed_segments_t segments,
+                             unsigned segment_id)
+{
+    return (segments & (1u << segment_id)) != 0;
+}
+
+const digit_segment_animation_t*
 anim_get_segment_anim(digit_anim_t digit_anim)
 {
     return &retrieve_anim(digit_anim)->moving_segments;
@@ -513,7 +327,8 @@ anim_is_multipart(digit_anim_t digit_anim)
 }
 
 bool
-anim_is_complete(digit_anim_t digit_anim, int step)
+anim_is_complete(digit_anim_t digit_anim,
+                 int step)
 {
     return (digit_anim < 0)
            ? true
@@ -523,21 +338,17 @@ anim_is_complete(digit_anim_t digit_anim, int step)
 int
 anim_get_displayed_number(digit_anim_t digit_anim)
 {
-    if (anim_is_static_digit(digit_anim)) {
-        return -digit_anim - 1;
-    } else {
-        return -1;
-    }
+    return (digit_anim < 0)
+           ? (-digit_anim - 1)
+           : -1;
 }
 
 int
 anim_get_step_count(digit_anim_t digit_anim)
 {
-    if (anim_is_static_digit(digit_anim)) {
-        return 0;
-    } else {
-        return 9;
-    }
+    return (digit_anim < 0)
+           ? 0
+           : 9;
 }
 
 digit_anim_t

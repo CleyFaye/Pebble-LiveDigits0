@@ -26,8 +26,6 @@
 #ifndef INCL_DIGIT_INFO_H
 #define INCL_DIGIT_INFO_H
 
-// GSize
-// ResourceId
 #include <pebble.h>
 
 // =======
@@ -38,26 +36,12 @@
 typedef enum {
     SO_VERTICAL = 0,
     SO_0 = SO_VERTICAL,
-    SO_9,
-    SO_18,
-    SO_27,
-    SO_36,
-    SO_45,
-    SO_54,
-    SO_63,
-    SO_72,
-    SO_81,
+    SO_9,  SO_18, SO_27, SO_36, SO_45,
+    SO_54, SO_63, SO_72, SO_81,
     SO_HORIZONTAL,
     SO_90 = SO_HORIZONTAL,
-    SO_99,
-    SO_108,
-    SO_117,
-    SO_126,
-    SO_135,
-    SO_144,
-    SO_153,
-    SO_162,
-    SO_171,
+    SO_99,  SO_108, SO_117, SO_126, SO_135,
+    SO_144, SO_153, SO_162, SO_171,
     SEGMENTS_ORIENTATION_COUNT
 } segment_orientation_t;
 
@@ -82,7 +66,7 @@ typedef enum {
      * required.
      *
      * By design, the FAST_MERGED animations will always fit in slightly less
-     * than a second to transition between two consecutive numbers.
+     * than a second for transition between two consecutive numbers.
      */
     FAST_MERGED
 } animation_speed_t;
@@ -91,17 +75,19 @@ typedef enum {
 // EXTERNS =
 // =========
 
-/** The size (in pixel) of digits.
+/** The size (in pixel) of a digit.
  *
  * Each value correspond to an enum value of digit_size_t
  */
-extern const GSize digit_dimensions[];
+extern
+const GSize digit_dimensions[];
 
 /** Image resource identifiers for segments.
  * Each value correspond to an enum value of digit_size_t, and point to an array
  * where each value correspond to an enum value of segment_orientation_t
  */
-extern const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT];
+extern
+const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT];
 
 #endif
 

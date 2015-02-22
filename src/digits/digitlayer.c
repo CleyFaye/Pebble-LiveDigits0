@@ -5,39 +5,13 @@
  * Licensing informations in LICENSE.md file.
  */
 
-// struct Layer
-// GContext
-// GPoint
-// GRect
-// GCompOpOr
-// GBitmap
-// layer_create_with_data()
-// layer_get_data()
-// layer_get_bounds()
-// layer_set_update_proc()
-// layer_destroy()
-// graphics_context_set_compositing_mode()
-// graphics_draw_bitmap_in_rect()
 #include <pebble.h>
-// digit_anim_t
-// animated_segment_info_t
-// animation_digit_segment_t
-// animation_fixed_digits_t
-// anim_get_anim_for_number()
-// anim_get_fixed_digits()
-// anim_get_segment_anim()
-// anim_segment_get()
+
+#include "utils.h"
 #include "digit_anim.h"
-// segment_get_image()
-// segment_load_images()
-// segment_unload_images()
 #include "digit_images.h"
-// digit_size_t
-// segment_orientation_t
-// digit_dimensions
-// animation_speed_t
 #include "digit_info.h"
-// Associated header
+
 #include "digitlayer.h"
 
 // ===============
@@ -46,58 +20,50 @@
 
 /** State of a digit layer. */
 typedef struct {
-    /** Size of the digit */
     digit_size_t size;
-    /** Currently displayed number */
+    /** Currently displayed number (updated with each transition) */
     int current_number;
-    /** Target number to display */
+    /** Target number to display (set by digit_layer_set_number()) */
     unsigned target_number;
     /** Current animation step */
     digit_anim_t current_anim;
     /** Current animation position (always <9) */
     int current_anim_position;
-    /** Animation speed */
+
     animation_speed_t animate_speed;
-    /** Quick wrap flag */
     bool quick_wrap;
-    /** Skip every other tick in slow animation mode */
+    /** Used to skip every other tick in slow animation mode */
     bool animate_skipbeat;
 } digit_info_t;
 
-/** Information on how to draw the 7 static segments of a digit */
-typedef const animated_segment_info_t static_segment_info_t[7];
+/** Offsets to draw the 7 static segments of a digit. */
+typedef const GPoint static_segment_offset_t[7];
 
 // ===============
 // PRIVATE CONST =
 // ===============
 
 /** Placement of the segments to display each digit size. */
-static static_segment_info_t digit_static_draw_info[DIGITS_SIZE_COUNT] = {
+static
+static_segment_offset_t static_segment_offset[DIGITS_SIZE_COUNT] = {
     {
-        {SO_HORIZONTAL, { .x = 6, .y = 0}},
-        {SO_VERTICAL, { .x = 0, .y = 6}},
-        {SO_VERTICAL, { .x = 37, .y = 6}},
-        {SO_HORIZONTAL, { .x = 6, .y = 37}},
-        {SO_VERTICAL, { .x = 0, .y = 43}},
-        {SO_VERTICAL, { .x = 37, .y = 43}},
-        {SO_HORIZONTAL, { .x = 6, .y = 74}}
+        {6, 0},  {0, 6},   {37, 6}, {6, 37},
+        {0, 43}, {37, 43}, {6, 74}
     }, {
-        {SO_HORIZONTAL, { .x = 5, .y = 0}},
-        {SO_VERTICAL, { .x = 0, .y = 5}},
-        {SO_VERTICAL, { .x = 35, .y = 5}},
-        {SO_HORIZONTAL, { .x = 5, .y = 35}},
-        {SO_VERTICAL, { .x = 0, .y = 40}},
-        {SO_VERTICAL, { .x = 35, .y = 40}},
-        {SO_HORIZONTAL, { .x = 5, .y = 70}}
+        {5, 0},  {0, 5},   {35, 5}, {5, 35},
+        {0, 40}, {35, 40}, {5, 70}
     }, {
-        {SO_HORIZONTAL, { .x = 2, .y = 0}},
-        {SO_VERTICAL, { .x = 0, .y = 3}},
-        {SO_VERTICAL, { .x = 13, .y = 3}},
-        {SO_HORIZONTAL, { .x = 2, .y = 15}},
-        {SO_VERTICAL, { .x = 0, .y = 18}},
-        {SO_VERTICAL, { .x = 13, .y = 18}},
-        {SO_HORIZONTAL, { .x = 2, .y = 30}}
+        {2, 0},  {0, 3},   {13, 3}, {2, 15},
+        {0, 18}, {13, 18}, {2, 30}
     }
+};
+
+/** Orientation of static segments. (shared by all digits size) */
+static
+segment_orientation_t static_segment_orientation[7] = {
+    SO_HORIZONTAL, SO_VERTICAL, SO_VERTICAL,
+    SO_HORIZONTAL, SO_VERTICAL, SO_VERTICAL,
+    SO_HORIZONTAL
 };
 
 // ================================
@@ -129,6 +95,11 @@ static
 digit_info_t*
 get_info(DigitLayer* layer);
 
+/** Initialize the digit_info_t */
+static
+void
+info_init(digit_info_t* info);
+
 // ===============================
 // PRIVATE FUNCTIONS DEFINITIONS =
 // ===============================
@@ -138,7 +109,7 @@ void
 handle_layer_update(struct Layer* layer,
                     GContext* ctx)
 {
-    digit_info_t* info = (digit_info_t*) layer_get_data(layer);
+    digit_info_t* info = get_info(layer);
     GRect layer_bounds = layer_get_bounds(layer);
     graphics_context_set_compositing_mode(ctx,
                                           GCompOpOr);
@@ -157,26 +128,26 @@ draw_static_digit(digit_info_t* info,
                   GPoint* layer_offset,
                   GContext* ctx)
 {
-    const animated_segment_info_t* digit_draw_info =
-        digit_static_draw_info[info->size];
+    const GPoint* segment_offsets = static_segment_offset[info->size];
 
-    const animation_fixed_digits_t* fixed_digits =
-        anim_get_fixed_digits(info->current_anim);
+    digit_fixed_segments_t segments =
+        anim_get_fixed_segments(info->current_anim);
 
     for (int i = 0;
          i < 7;
          ++i) {
-        if (!fixed_digits->enabled[i]) {
+        if (!anim_get_fixed_segment_state(segments,
+                                          i)) {
             continue;
         }
 
         GRect draw_rect;
-        draw_rect.origin = digit_draw_info[i].offset;
+        draw_rect.origin = segment_offsets[i];
         draw_rect.origin.x += layer_offset->x;
         draw_rect.origin.y += layer_offset->y;
         GBitmap* digit_bitmap =
             segment_get_image(info->size,
-                              digit_draw_info[i].segment_angle,
+                              static_segment_orientation[i],
                               &draw_rect.size);
         graphics_draw_bitmap_in_rect(ctx,
                                      digit_bitmap,
@@ -190,29 +161,33 @@ draw_animated_segments(digit_info_t* info,
                        GPoint* layer_offset,
                        GContext* ctx)
 {
-    const animation_digit_segment_t* segment_anim =
+    const digit_segment_animation_t* segment_anim =
         anim_get_segment_anim(info->current_anim);
 
     for (int i = 0;
          i < 2;
          ++i) {
-        if (segment_anim->segment_anim[i] != SA_NOANIM) {
-            const animated_segment_info_t* segment_info =
-                anim_segment_get(segment_anim->segment_anim[i],
-                                 info->current_anim_position,
-                                 info->size);
-            GRect draw_rect;
-            draw_rect.origin = segment_info->offset;
-            draw_rect.origin.x += layer_offset->x;
-            draw_rect.origin.y += layer_offset->y;
-            GBitmap* digit_bitmap =
-                segment_get_image(info->size,
-                                  segment_info->segment_angle,
-                                  &draw_rect.size);
-            graphics_draw_bitmap_in_rect(ctx,
-                                         digit_bitmap,
-                                         draw_rect);
+        segment_anim_t anim = (*segment_anim)[i];
+
+        if (anim == SA_NOANIM) {
+            continue;
         }
+
+        GRect draw_rect;
+        segment_orientation_t orientation =
+            anim_segment_get(anim,
+                             info->current_anim_position,
+                             info->size,
+                             &draw_rect.origin);
+        draw_rect.origin.x += layer_offset->x;
+        draw_rect.origin.y += layer_offset->y;
+        GBitmap* digit_bitmap =
+            segment_get_image(info->size,
+                              orientation,
+                              &draw_rect.size);
+        graphics_draw_bitmap_in_rect(ctx,
+                                     digit_bitmap,
+                                     draw_rect);
     }
 }
 
@@ -223,6 +198,20 @@ get_info(DigitLayer* layer)
     return (digit_info_t*) layer_get_data(layer);
 }
 
+static
+void
+info_init(digit_info_t* info)
+{
+    info->size = DS_BIG;
+    info->current_number = 0;
+    info->target_number = 0;
+    info->current_anim = DA_0;
+    info->current_anim_position = 0;
+    info->animate_speed = FAST_MERGED;
+    info->quick_wrap = false;
+    info->animate_skipbeat = false;
+}
+
 // ==============================
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
@@ -231,25 +220,19 @@ DigitLayer*
 digit_layer_create(digit_size_t size,
                    GPoint offset)
 {
+    segment_load_images(size);
     GRect layer_rect;
     layer_rect.origin = offset;
-    segment_load_images(size);
-
     layer_rect.size = digit_dimensions[size];
     DigitLayer* result =
-        layer_create_with_data(layer_rect,
-                               sizeof(digit_info_t));
-    digit_info_t* info = get_info(result);
-    info->size = size;
-    info->current_number = 0;
-    info->target_number = 0;
-    info->current_anim = DA_0;
-    info->current_anim_position = 0;
-    info->animate_speed = FAST_MERGED;
-    info->quick_wrap = false;
-    info->animate_skipbeat = false;
+        layer_create_with_init_data(layer_rect,
+                                    sizeof(digit_info_t),
+                                    (layer_data_init_t) info_init);
     layer_set_update_proc(result,
                           handle_layer_update);
+
+    digit_info_t* info = get_info(result);
+    info->size = size;
     return result;
 }
 
@@ -257,16 +240,14 @@ void
 digit_layer_set_quick_wrap(DigitLayer* layer,
                            bool quick_wrap)
 {
-    digit_info_t* info = get_info(layer);
-    info->quick_wrap = quick_wrap;
+    get_info(layer)->quick_wrap = quick_wrap;
 }
 
 void
 digit_layer_set_animate_speed(DigitLayer* layer,
                               animation_speed_t speed)
 {
-    digit_info_t* info = get_info(layer);
-    info->animate_speed = speed;
+    get_info(layer)->animate_speed = speed;
 }
 
 void
@@ -289,6 +270,16 @@ digit_layer_set_number(DigitLayer* layer,
         info->current_anim_position = 0;
     }
 
+    layer_mark_dirty(layer);
+}
+
+void
+digit_layer_kill_anim(DigitLayer* layer)
+{
+    digit_info_t* info = get_info(layer);
+    info->current_anim = anim_get_anim_for_number(info->target_number);
+    info->current_number = info->target_number;
+    info->current_anim_position = 0;
     layer_mark_dirty(layer);
 }
 
@@ -317,8 +308,6 @@ digit_layer_animate(DigitLayer* layer)
             info->animate_skipbeat = false;
         }
 
-        ++info->current_anim_position;
-
         break;
 
     case SLOW_MERGED:
@@ -333,26 +322,20 @@ digit_layer_animate(DigitLayer* layer)
             }
         }
 
-        ++info->current_anim_position;
-
         break;
 
     case FAST_SEPARATE:
-        // Tick every time.
-        ++info->current_anim_position;
         break;
 
     case FAST_MERGED:
 
         // Tick every time, twice faster for two-step transitions
         if (anim_is_multipart(info->current_anim)) {
-            info->current_anim_position += 2;
-        } else {
             ++info->current_anim_position;
         }
-
-        break;
     }
+
+    ++info->current_anim_position;
 
     if (anim_is_complete(info->current_anim,
                          info->current_anim_position)) {

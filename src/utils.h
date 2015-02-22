@@ -14,6 +14,13 @@
 // GBitmap
 #include <pebble.h>
 
+// =======
+// TYPES =
+// =======
+
+/** Layer custom-data initialization function */
+typedef void(*layer_data_init_t)(void* data);
+
 // ===============================
 // PUBLIC FUNCTIONS DECLARATIONS =
 // ===============================
@@ -30,6 +37,12 @@ void
 load_bitmap_into_array_from_id(const ResourceId* resource_ids,
                                GBitmap* target_array[],
                                unsigned resources_count);
+
+/** Create a layer with initialized custom data. */
+Layer*
+layer_create_with_init_data(GRect layer_rect,
+                            size_t data_size,
+                            layer_data_init_t layer_data_init);
 
 #endif
 
