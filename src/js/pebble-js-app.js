@@ -2,7 +2,12 @@ var appVersion = 1;
 
 function isNewVersion()
 {
-    return localStorage.liveDigits0 === undefined || localStorage.liveDigits0.version === undefined || localStorage.liveDigits0.version != appVersion;
+    try {
+        cfgObj = JSON.parse(localStorage.liveDigits0);
+        return cfgObj.version != appVersion;
+    } catch (e) {
+        return true;
+    }
 }
 
 Pebble.addEventListener("ready", function() {
@@ -14,7 +19,7 @@ Pebble.addEventListener("showConfiguration", function() {
         optString = '';
     } else {
         try {
-            optString = '?'+encodeURIComponent(localStorage.liveDigits0.config);
+            optString = '?'+encodeURIComponent(JSON.parse(localStorage.liveDigits0).config);
         } catch (e) {
             optString = '';
         }
@@ -28,20 +33,19 @@ Pebble.addEventListener("webviewclosed", function(e) {
     if (e.response.charAt(0) == "{" && e.response.slice(-1) == "}" && e.response.length > 5) {
         var dialogString = decodeURIComponent(e.response);
         var cfg;
-        if (isNewVersion() || localStorage.liveDigits0 === undefined) {
+        if (isNewVersion()) {
             cfg = JSON.parse(dialogString);
         } else {
             cfg = {};
             var dialogCfg = JSON.parse(dialogString);
-            var savedCfg = JSON.parse(localStorage.liveDigits0);
+            var savedCfg = JSON.parse(JSON.parse(localStorage.liveDigits0).config);
             for (var key in dialogCfg) {
                 if (savedCfg[key] != dialogCfg[key]) {
                     cfg[key] = dialogCfg[key];
                 }
             }
         }
-        localStorage.liveDigits0.version = appVersion;
-        localStorage.liveDigits0.config = dialogString;
+        localStorage.liveDigits0 = JSON.stringify({"version": appVersion, "config": dialogString});
         Pebble.sendAppMessage(cfg);
     }
 });

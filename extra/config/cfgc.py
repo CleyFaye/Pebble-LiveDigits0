@@ -23,6 +23,7 @@ def generateCSource(config, defines):
                     'size_t len = strlen(str);\n'
                     'int res = 0;\n'
                     'for (size_t i = 0; i < len; ++i) {\n'
+                    'res *= 10;\n'
                     'res += str[i] - \'0\';\n'
                     '}\n'
                     'return res;\n'

@@ -217,6 +217,15 @@ handle_anim_timer(window_info_t* info);
 
 // HELPER =
 
+/** Return true if we are within a "vibrate" period */
+static inline
+bool
+can_vibrate(unsigned hour)
+{
+    return ((int) hour) >= cfg_get_vibrate_not_before() &&
+           ((int) hour) <= cfg_get_vibrate_not_after();
+}
+
 /** Return the window_info_t associated with a window */
 static inline
 window_info_t*
@@ -442,7 +451,7 @@ set_to_time(window_info_t* info,
 
     schedule_animation(info);
 
-    if (seconds == 0) {
+    if (seconds == 0 && can_vibrate(hours)) {
         switch (cfg_get_vibrate_every()) {
         case VIBRATE_EVERY_HOUR:
             if (minutes == 0) {
