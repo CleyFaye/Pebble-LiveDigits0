@@ -345,8 +345,8 @@
     },
     "shortName": "LiveDigits0",
     "uuid": "25d9a4fb-18fd-4508-ab41-4b217ebb2161",
-    "versionCode": 2,
-    "versionLabel": "1.2",
+    "versionCode": 3,
+    "versionLabel": "1.3",
     "watchapp": {
         "watchface": true
     }

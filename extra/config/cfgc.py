@@ -64,6 +64,7 @@ def generateCSource(config, defines):
                  'if (!persist_exists(CONFIG) || persist_read_int(CONFIG) != %(configCRC)u) {\n'
                  '%(clearStorage)s'
                  '}\n'
+                 'persist_write_int(CONFIG, %(configCRC)u);\n'
                  '%(persistload)s'
                  '%(initAppMessage)s'
                  '}\n'
