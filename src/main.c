@@ -1,32 +1,57 @@
+/** @file
+ * Application entry point
+ *
+ * @author Cley Faye
+ * Licensing informations in LICENSE.md file.
+ */
+
 #include <pebble.h>
+
 #include "config.h"
-#include "images.h"
-#include "window.h"
+#include "mainwindow.h"
 
-static MainWindow* main_window;
+// ================================
+// PRIVATE FUNCTIONS DECLARATIONS =
+// ================================
 
-static void init(void);
-static void clear(void);
+static void init(MainWindow** main_window);
+static void clear(MainWindow* main_window);
 
-static void init(void)
+// ===============================
+// PRIVATE FUNCTIONS DEFINITIONS =
+// ===============================
+
+static inline
+void init(MainWindow** main_window)
 {
     srand(time(NULL));
-    load_images();
-    main_window = main_window_create();
-    cfg_init(main_window_update_config, main_window);
-    window_stack_push(main_window, true);
+
+    MainWindow* window;
+    window = main_window_create();
+    cfg_init((config_callback_t) main_window_update_settings,
+             window);
+    window_stack_push(window,
+                      true);
+
+    *main_window = window;
 }
 
-static void clear(void)
+static void clear(MainWindow* main_window)
 {
     main_window_destroy(main_window);
-    unload_images();
     cfg_clear();
 }
 
+// ======
+// MAIN =
+// ======
+
 int main(void)
 {
-    init();
+    MainWindow* main_window;
+
+    init(&main_window);
     app_event_loop();
-    clear();
+    clear(main_window);
 }
+

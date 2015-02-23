@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import binascii
+import json
 import cfgdef
 
 def generateCSource(config, defines):
@@ -23,6 +25,7 @@ def generateCSource(config, defines):
                     'size_t len = strlen(str);\n'
                     'int res = 0;\n'
                     'for (size_t i = 0; i < len; ++i) {\n'
+                    'res *= 10;\n'
                     'res += str[i] - \'0\';\n'
                     '}\n'
                     'return res;\n'
@@ -58,6 +61,9 @@ def generateCSource(config, defines):
                  '{\n'
                  'config_callback = callback;\n'
                  'config_callback_data = data;\n'
+                 'if (!persist_exists(CONFIG) || persist_read_int(CONFIG) != %(configCRC)u) {\n'
+                 '%(clearStorage)s'
+                 '}\n'
                  '%(persistload)s'
                  '%(initAppMessage)s'
                  '}\n'
@@ -83,9 +89,21 @@ def generateCSource(config, defines):
                      'atoiImplHead': atoiImplHead,
                      'atoiImpl': atoiImpl,
                      'keyDefines': getKeyDefines(defines),
-                     'appMessageClear': appMessageClear
+                     'appMessageClear': appMessageClear,
+                     'clearStorage': getClearStorage(entries),
+                     'configCRC': getConfigCRC(config)
                      })
     output.close()
+
+def getClearStorage(entries):
+    result = ''
+    for section in entries:
+        for entry in section[1:]:
+            result += 'persist_delete(%s);\n' % entry[0].upper()
+    return result
+
+def getConfigCRC(config):
+    return binascii.crc32(json.dumps(config));
 
 def getKeyDefines(defines):
     "Return all keys #define"
