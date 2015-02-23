@@ -33,18 +33,7 @@ Pebble.addEventListener("webviewclosed", function(e) {
     if (e.response.charAt(0) == "{" && e.response.slice(-1) == "}" && e.response.length > 5) {
         var dialogString = decodeURIComponent(e.response);
         var cfg;
-        if (isNewVersion()) {
-            cfg = JSON.parse(dialogString);
-        } else {
-            cfg = {};
-            var dialogCfg = JSON.parse(dialogString);
-            var savedCfg = JSON.parse(JSON.parse(localStorage.liveDigits0).config);
-            for (var key in dialogCfg) {
-                if (savedCfg[key] != dialogCfg[key]) {
-                    cfg[key] = dialogCfg[key];
-                }
-            }
-        }
+        cfg = JSON.parse(dialogString);
         localStorage.liveDigits0 = JSON.stringify({"version": appVersion, "config": dialogString});
         Pebble.sendAppMessage(cfg);
     }
