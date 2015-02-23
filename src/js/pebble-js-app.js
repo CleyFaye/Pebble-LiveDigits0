@@ -1,4 +1,4 @@
-var appVersion = 10005;
+var appVersion = 2;
 
 function isNewVersion()
 {
