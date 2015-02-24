@@ -13,6 +13,7 @@
 #include "widgets/datelayer.h"
 #include "widgets/btlayer.h"
 #include "widgets/batterylayer.h"
+#include "widgets/daytimelayer.h"
 #include "config.h"
 #include "layout.h"
 
@@ -31,6 +32,8 @@ typedef struct {
     DateLayer* widget_date;
     BtLayer* widget_bt;
     BatteryLayer* widget_battery;
+
+    DayTimeLayer* extrawidget_daytime;
 
     /** Color invertion layer */
     InverterLayer* inverter;
@@ -304,6 +307,14 @@ lay_components(MainWindow* window)
     set_widget_visibility(info,
                           !layout_widgets_hidden());
 
+    // Extra widgets
+    info->extrawidget_daytime = daytime_layer_create();
+
+    if (info->extrawidget_daytime) {
+        layer_add_child(window_layer,
+                        info->extrawidget_daytime);
+    }
+
     // Must be last: the inverter, if required
     if (layout_is_white_background()) {
         info->inverter = inverter_layer_create(GRect(0,
@@ -338,6 +349,11 @@ clear_components(window_info_t* info)
     WIDGETDESTROY(bt);
     WIDGETDESTROY(battery);
 #undef WIDGETDESTROY
+
+    if (info->extrawidget_daytime) {
+        daytime_layer_destroy(info->extrawidget_daytime);
+        info->extrawidget_daytime = NULL;
+    }
 
     if (info->inverter) {
         inverter_layer_destroy(info->inverter);
@@ -465,13 +481,17 @@ set_to_time(window_info_t* info,
             struct tm* tick_time,
             bool animate)
 {
-    int hours = clock_is_24h_style()
-                ? tick_time->tm_hour
-                : ((tick_time->tm_hour > 12)
-                   ? tick_time->tm_hour - 12
-                   : tick_time->tm_hour);
+    int hours = tick_time->tm_hour;
     int minutes = tick_time->tm_min;
     int seconds = tick_time->tm_sec;
+
+    if (!clock_is_24h_style()) {
+        if (hours > 12) {
+            hours -= 12;
+        } else if (hours == 0) {
+            hours = 12;
+        }
+    }
 
     number_layer_set_number(info->hours,
                             hours,
@@ -483,6 +503,11 @@ set_to_time(window_info_t* info,
     if (are_widgets_visible(info)) {
         set_widget_to_time(info,
                            tick_time);
+    }
+
+    if (info->extrawidget_daytime) {
+        daytime_layer_set_time(info->extrawidget_daytime,
+                               tick_time);
     }
 
     schedule_animation(info);

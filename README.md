@@ -1,7 +1,7 @@
 # Pebble-LiveDigits0
 A watchface for the Pebble smartwatch.
 
-v1.3
+v1.4
 
 Inspiration: this reddit thread
 https://www.reddit.com/r/pebble/comments/2un40u/could_someone_put_this_animation_in_a_watchface/
@@ -10,7 +10,7 @@ Digit animation concept from /u/MattBaster
 Watchface by me, /u/Cley_Faye
 
 Current features:
- - Display the current time (hour/minutes) with animated digits (customizable speed/animation trigger)
+ - Display the current time (hour/minutes) with animated digits (customizable speed/animation trigger, toggleable am/pm display)
  - Customizable layout
  - Invert color (by default use black background on dark pebble, white background on light pebble)
  - Customizable vibrate every hour/minute (with off-time)

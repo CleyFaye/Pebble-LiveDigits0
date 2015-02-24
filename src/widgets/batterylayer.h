@@ -14,7 +14,6 @@
 // TYPES =
 // =======
 
-
 typedef Layer BatteryLayer;
 
 // ===============================

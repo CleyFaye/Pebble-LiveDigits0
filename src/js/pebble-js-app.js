@@ -1,4 +1,4 @@
-var appVersion = 2;
+var appVersion = 4;
 
 function isNewVersion()
 {
@@ -24,7 +24,8 @@ Pebble.addEventListener("showConfiguration", function() {
             optString = '';
         }
     }
-    Pebble.openURL('https://cdn.rawgit.com/CleyFaye/Pebble-LiveDigits0/2a4a8b63cd6bf0a30404b54e190493849ddf2d99/html/livedigits0.htm' + optString);
+    var commit = 'f33e34f8a50779a801b492ef44ef67bf4a2a14ac';
+    Pebble.openURL('https://cdn.rawgit.com/CleyFaye/Pebble-LiveDigits0/' + commit + '/html/livedigits0.htm' + optString);
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
