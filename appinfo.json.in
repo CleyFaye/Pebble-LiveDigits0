@@ -344,10 +344,15 @@
         ]
     },
     "shortName": "LiveDigits0",
-    "uuid": "25d9a4fb-18fd-4508-ab41-4b217ebb2161",
-    "versionCode": 4,
-    "versionLabel": "1.4",
+    "uuid": "25d9a4fb-18fd-4508-ab41-4b217ebb2160",
+    "versionCode": 10,
+    "versionLabel": "2.0",
     "watchapp": {
         "watchface": true
-    }
+    },
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "sdkVersion": "3"
 }
