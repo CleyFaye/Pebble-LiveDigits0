@@ -75,6 +75,13 @@ handle_layer_update(Layer* layer,
 {
     battery_info_t* info = get_info(layer);
 
+#ifdef PBL_COLOR
+        graphics_context_set_compositing_mode(ctx,
+                                              GCompOpSet);
+#else
+        graphics_context_set_compositing_mode(ctx,
+                                              GCompOpOr);
+#endif
     if (cfg_get_battery_style() == BATTERY_STYLE_STATE) {
         // Display progress icons
         graphics_draw_bitmap_in_rect(ctx,

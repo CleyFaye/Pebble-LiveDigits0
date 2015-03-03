@@ -114,8 +114,13 @@ handle_layer_update(struct Layer* layer,
 {
     digit_info_t* info = get_info(layer);
     GRect layer_bounds = layer_get_bounds(layer);
+#ifdef PBL_COLOR
     graphics_context_set_compositing_mode(ctx,
-                                          GCompOpOr);
+                                          GCompOpSet);
+#else
+    graphics_context_set_compositing_mode(ctx,
+            GCompOpOr);
+#endif
 
     draw_static_digit(info,
                       &layer_bounds.origin,
