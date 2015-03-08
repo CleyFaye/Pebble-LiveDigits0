@@ -17,329 +17,194 @@
                 "menuIcon" : true
             },
             {
-                "file": "images/med2.png",
+                "file": "mbp/med2.mbp",
                 "name": "SEGMENT_MEDIUM_2",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med17.png",
-                "name": "SEGMENT_MEDIUM_17",
-                "type": "png"
-            },
-            {
-                "file": "images/med16.png",
-                "name": "SEGMENT_MEDIUM_16",
-                "type": "png"
-            },
-            {
-                "file": "images/med15.png",
-                "name": "SEGMENT_MEDIUM_15",
-                "type": "png"
-            },
-            {
-                "file": "images/med14.png",
-                "name": "SEGMENT_MEDIUM_14",
-                "type": "png"
-            },
-            {
-                "file": "images/med13.png",
-                "name": "SEGMENT_MEDIUM_13",
-                "type": "png"
-            },
-            {
-                "file": "images/med12.png",
-                "name": "SEGMENT_MEDIUM_12",
-                "type": "png"
-            },
-            {
-                "file": "images/med11.png",
-                "name": "SEGMENT_MEDIUM_11",
-                "type": "png"
-            },
-            {
-                "file": "images/med10.png",
-                "name": "SEGMENT_MEDIUM_10",
-                "type": "png"
-            },
-            {
-                "file": "images/med9.png",
-                "name": "SEGMENT_MEDIUM_9",
-                "type": "png"
-            },
-            {
-                "file": "images/med8.png",
+                "file": "mbp/med8.mbp",
                 "name": "SEGMENT_MEDIUM_8",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med7.png",
+                "file": "mbp/med7.mbp",
                 "name": "SEGMENT_MEDIUM_7",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med6.png",
+                "file": "mbp/med6.mbp",
                 "name": "SEGMENT_MEDIUM_6",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med5.png",
+                "file": "mbp/med5.mbp",
                 "name": "SEGMENT_MEDIUM_5",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med4.png",
+                "file": "mbp/med4.mbp",
                 "name": "SEGMENT_MEDIUM_4",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med3.png",
+                "file": "mbp/med3.mbp",
                 "name": "SEGMENT_MEDIUM_3",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med1.png",
+                "file": "mbp/med1.mbp",
                 "name": "SEGMENT_MEDIUM_1",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med0.png",
+                "file": "mbp/med0.mbp",
                 "name": "SEGMENT_MEDIUM_0",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big17.png",
-                "name": "SEGMENT_BIG_17",
-                "type": "png"
-            },
-            {
-                "file": "images/big16.png",
-                "name": "SEGMENT_BIG_16",
-                "type": "png"
-            },
-            {
-                "file": "images/big15.png",
-                "name": "SEGMENT_BIG_15",
-                "type": "png"
-            },
-            {
-                "file": "images/big14.png",
-                "name": "SEGMENT_BIG_14",
-                "type": "png"
-            },
-            {
-                "file": "images/big13.png",
-                "name": "SEGMENT_BIG_13",
-                "type": "png"
-            },
-            {
-                "file": "images/big12.png",
-                "name": "SEGMENT_BIG_12",
-                "type": "png"
-            },
-            {
-                "file": "images/big11.png",
-                "name": "SEGMENT_BIG_11",
-                "type": "png"
-            },
-            {
-                "file": "images/big10.png",
-                "name": "SEGMENT_BIG_10",
-                "type": "png"
-            },
-            {
-                "file": "images/big9.png",
-                "name": "SEGMENT_BIG_9",
-                "type": "png"
-            },
-            {
-                "file": "images/big8.png",
+                "file": "mbp/big8.mbp",
                 "name": "SEGMENT_BIG_8",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big7.png",
+                "file": "mbp/big7.mbp",
                 "name": "SEGMENT_BIG_7",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big6.png",
+                "file": "mbp/big6.mbp",
                 "name": "SEGMENT_BIG_6",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big5.png",
+                "file": "mbp/big5.mbp",
                 "name": "SEGMENT_BIG_5",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big4.png",
+                "file": "mbp/big4.mbp",
                 "name": "SEGMENT_BIG_4",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big3.png",
+                "file": "mbp/big3.mbp",
                 "name": "SEGMENT_BIG_3",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big2.png",
+                "file": "mbp/big2.mbp",
                 "name": "SEGMENT_BIG_2",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big1.png",
+                "file": "mbp/big1.mbp",
                 "name": "SEGMENT_BIG_1",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big0.png",
+                "file": "mbp/big0.mbp",
                 "name": "SEGMENT_BIG_0",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small17.png",
-                "name": "SEGMENT_SMALL_17",
-                "type": "png"
-            },
-            {
-                "file": "images/small16.png",
-                "name": "SEGMENT_SMALL_16",
-                "type": "png"
-            },
-            {
-                "file": "images/small15.png",
-                "name": "SEGMENT_SMALL_15",
-                "type": "png"
-            },
-            {
-                "file": "images/small14.png",
-                "name": "SEGMENT_SMALL_14",
-                "type": "png"
-            },
-            {
-                "file": "images/small13.png",
-                "name": "SEGMENT_SMALL_13",
-                "type": "png"
-            },
-            {
-                "file": "images/small12.png",
-                "name": "SEGMENT_SMALL_12",
-                "type": "png"
-            },
-            {
-                "file": "images/small11.png",
-                "name": "SEGMENT_SMALL_11",
-                "type": "png"
-            },
-            {
-                "file": "images/small10.png",
-                "name": "SEGMENT_SMALL_10",
-                "type": "png"
-            },
-            {
-                "file": "images/small9.png",
-                "name": "SEGMENT_SMALL_9",
-                "type": "png"
-            },
-            {
-                "file": "images/small8.png",
+                "file": "mbp/small8.mbp",
                 "name": "SEGMENT_SMALL_8",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small7.png",
+                "file": "mbp/small7.mbp",
                 "name": "SEGMENT_SMALL_7",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small6.png",
+                "file": "mbp/small6.mbp",
                 "name": "SEGMENT_SMALL_6",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small5.png",
+                "file": "mbp/small5.mbp",
                 "name": "SEGMENT_SMALL_5",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small4.png",
+                "file": "mbp/small4.mbp",
                 "name": "SEGMENT_SMALL_4",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small3.png",
+                "file": "mbp/small3.mbp",
                 "name": "SEGMENT_SMALL_3",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small2.png",
+                "file": "mbp/small2.mbp",
                 "name": "SEGMENT_SMALL_2",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small1.png",
+                "file": "mbp/small1.mbp",
                 "name": "SEGMENT_SMALL_1",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small0.png",
+                "file": "mbp/small0.mbp",
                 "name": "SEGMENT_SMALL_0",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med_vert.png",
+                "file": "mbp/med_vert.mbp",
                 "name": "MEDIUMDIGIT_VERTICAL",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/med_horiz.png",
+                "file": "mbp/med_horiz.mbp",
                 "name": "MEDIUMDIGIT_HORIZONTAL",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big_vert.png",
+                "file": "mbp/big_vert.mbp",
                 "name": "BIGDIGIT_VERTICAL",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/big_horiz.png",
+                "file": "mbp/big_horiz.mbp",
                 "name": "BIGDIGIT_HORIZONTAL",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small_vert.png",
+                "file": "mbp/small_vert.mbp",
                 "name": "SMALLDIGIT_VERTICAL",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/small_horiz.png",
+                "file": "mbp/small_horiz.mbp",
                 "name": "SMALLDIGIT_HORIZONTAL",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/bt_on.png",
+                "file": "mbp/bt_on.mbp",
                 "name": "BT_ON",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/bt_off.png",
+                "file": "mbp/bt_off.mbp",
                 "name": "BT_OFF",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/batt_plug.png",
+                "file": "mbp/batt_plug.mbp",
                 "name": "BATT_PLUG",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/batt_contour.png",
+                "file": "mbp/batt_contour.mbp",
                 "name": "BATT_CONTOUR",
-                "type": "png"
+                "type": "raw"
             },
             {
-                "file": "images/batt_textimg.png",
+                "file": "mbp/batt_textimg.mbp",
                 "name": "BATT_TEXTIMG",
-                "type": "png"
+                "type": "raw"
             }
         ]
     },
