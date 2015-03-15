@@ -10,6 +10,7 @@
 #include "config.h"
 #include "layout.h"
 #include "utils.h"
+#include "monobitmaps/monobitmap.h"
 
 #include "btlayer.h"
 
@@ -18,8 +19,8 @@
 // ===============
 
 typedef struct {
-    GBitmap* image_on;
-    GBitmap* image_off;
+    MonoBitmap image_on;
+    MonoBitmap image_off;
     bool bt_state;
     /** Flag set by the call to bt_layer_set_hidden() */
     bool required_hidden;
@@ -28,10 +29,6 @@ typedef struct {
 // ================
 // PRIVATE CONSTS =
 // ================
-
-/** Size of Bluetooth state images */
-static
-const GSize image_size = {19, 23};
 
 /** Bluetooth state image offset */
 static
@@ -124,15 +121,6 @@ handle_layer_update(struct Layer* layer,
                     GContext* ctx)
 {
     bt_info_t* info = get_info(layer);
-    GRect image_rect;
-    image_rect.origin = image_offset;
-    image_rect.size = image_size;
-    graphics_context_set_fill_color(ctx,
-                                    GColorBlack);
-    graphics_fill_rect(ctx,
-                       image_rect,
-                       0,
-                       GCornerNone);
     int style = cfg_get_bluetooth_style();
 
     if (info->bt_state) {
@@ -142,9 +130,9 @@ handle_layer_update(struct Layer* layer,
 
         case BLUETOOTH_STYLE_ALWAYS:
         case BLUETOOTH_STYLE_ONLYON:
-            graphics_draw_bitmap_in_rect(ctx,
-                                         info->image_on,
-                                         image_rect);
+            monobitmap_draw_bitmap(ctx,
+                                   info->image_on,
+                                   image_offset);
         }
     } else {
         switch (style) {
@@ -156,9 +144,9 @@ handle_layer_update(struct Layer* layer,
         case BLUETOOTH_STYLE_ONLYOFFBUZZ:
         case BLUETOOTH_STYLE_ONLYOFFFORCE:
         case BLUETOOTH_STYLE_ONLYOFFFORCEBUZZ:
-            graphics_draw_bitmap_in_rect(ctx,
-                                         info->image_off,
-                                         image_rect);
+            monobitmap_draw_bitmap(ctx,
+                                   info->image_off,
+                                   image_offset);
         }
     }
 }
@@ -181,8 +169,16 @@ bt_layer_create(void)
     layer_set_update_proc(result,
                           handle_layer_update);
     bt_info_t* info = get_info(result);
-    info->image_on = gbitmap_create_with_resource(RESOURCE_ID_BT_ON);
-    info->image_off = gbitmap_create_with_resource(RESOURCE_ID_BT_OFF);
+    info->image_on = monobitmap_create_with_resource(RESOURCE_ID_BT_ON,
+                     MONO_WHITE,
+                     MONO_BLACK,
+                     false,
+                     false);
+    info->image_off = monobitmap_create_with_resource(RESOURCE_ID_BT_OFF,
+                      MONO_WHITE,
+                      MONO_BLACK,
+                      false,
+                      false);
     info->bt_state = bluetooth_connection_service_peek();
     return result;
 }
@@ -222,8 +218,8 @@ void
 bt_layer_destroy(BtLayer* layer)
 {
     bt_info_t* info = get_info(layer);
-    gbitmap_destroy(info->image_on);
-    gbitmap_destroy(info->image_off);
+    monobitmap_destroy(info->image_on);
+    monobitmap_destroy(info->image_off);
     layer_destroy(layer);
 }
 

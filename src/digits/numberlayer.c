@@ -88,7 +88,9 @@ number_layer_create(digit_size_t size,
         info->digits[i] =
             digit_layer_create(size,
                                GPoint(digit_placement_offset * i,
-                                      0));
+                                      0),
+                               MONO_RED,
+                               MONO_BLACK);
         layer_add_child(result,
                         info->digits[i]);
     }

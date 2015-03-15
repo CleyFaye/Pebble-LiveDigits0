@@ -23,3 +23,4 @@ Current features:
 
 Known bugs:
  - The watchapp consistently leak 68 bytes of heap when closed. Not an issue (the leak won't explode and the Pebble OS take care of that) but I'm puzzled. I know that 40 bytes of "leak" are caused by some timing functions, but the other 28 bytes are a mystery.
+ - Huzza, another leak (probably my fault this time). I'll fix it (leak 8B in aplite, 32B in basalt).

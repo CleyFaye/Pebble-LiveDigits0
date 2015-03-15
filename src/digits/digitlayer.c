@@ -7,9 +7,9 @@
 
 #include <pebble.h>
 
+#include "monobitmaps/monobitmap.h"
 #include "utils.h"
 #include "digit_anim.h"
-#include "digit_images.h"
 #include "digit_info.h"
 
 #include "digitlayer.h"
@@ -34,6 +34,8 @@ typedef struct {
     bool quick_wrap;
     /** Used to skip every other tick in slow animation mode */
     bool animate_skipbeat;
+    /** Preload all orientations */
+    MonoBitmap bitmaps[SEGMENTS_ORIENTATION_COUNT];
 } digit_info_t;
 
 /** Offsets to draw the 7 static segments of a digit. */
@@ -98,6 +100,13 @@ get_info(DigitLayer* layer)
     return (digit_info_t*) layer_get_data(layer);
 }
 
+/** Preload segment's images */
+static
+void
+info_preload(digit_info_t* info,
+             MonoColor foreground,
+             MonoColor background);
+
 /** Initialize the digit_info_t */
 static
 void
@@ -119,7 +128,7 @@ handle_layer_update(struct Layer* layer,
                                           GCompOpSet);
 #else
     graphics_context_set_compositing_mode(ctx,
-            GCompOpOr);
+                                          GCompOpOr);
 #endif
 
     draw_static_digit(info,
@@ -149,17 +158,13 @@ draw_static_digit(digit_info_t* info,
             continue;
         }
 
-        GRect draw_rect;
-        draw_rect.origin = segment_offsets[i];
-        draw_rect.origin.x += layer_offset->x;
-        draw_rect.origin.y += layer_offset->y;
-        GBitmap* digit_bitmap =
-            segment_get_image(info->size,
-                              static_segment_orientation[i],
-                              &draw_rect.size);
-        graphics_draw_bitmap_in_rect(ctx,
-                                     digit_bitmap,
-                                     draw_rect);
+        GPoint draw_point;
+        draw_point = segment_offsets[i];
+        //        draw_point.x += layer_offset->x;
+        //        draw_point.y += layer_offset->y;
+        monobitmap_draw_bitmap(ctx,
+                               info->bitmaps[static_segment_orientation[i]],
+                               draw_point);
     }
 }
 
@@ -181,21 +186,35 @@ draw_animated_segments(digit_info_t* info,
             continue;
         }
 
-        GRect draw_rect;
+        GPoint draw_point;
         segment_orientation_t orientation =
             anim_segment_get(anim,
                              info->current_anim_position,
                              info->size,
-                             &draw_rect.origin);
-        draw_rect.origin.x += layer_offset->x;
-        draw_rect.origin.y += layer_offset->y;
-        GBitmap* digit_bitmap =
-            segment_get_image(info->size,
-                              orientation,
-                              &draw_rect.size);
-        graphics_draw_bitmap_in_rect(ctx,
-                                     digit_bitmap,
-                                     draw_rect);
+                             &draw_point);
+        //        draw_point.x += layer_offset->x;
+        //        draw_point.y += layer_offset->y;
+        monobitmap_draw_bitmap(ctx,
+                               info->bitmaps[orientation],
+                               draw_point);
+    }
+}
+
+static
+void
+info_preload(digit_info_t* info,
+             MonoColor foreground,
+             MonoColor background)
+{
+    for (unsigned i = 0;
+         i < SEGMENTS_ORIENTATION_COUNT;
+         ++i) {
+        info->bitmaps[i] =
+            monobitmap_create_with_resource(segment_res_ids[info->size][i],
+                                            foreground,
+                                            background,
+                                            segment_res_vertical_invert[i],
+                                            false);
     }
 }
 
@@ -211,6 +230,12 @@ info_init(digit_info_t* info)
     info->animate_speed = FAST_MERGED;
     info->quick_wrap = false;
     info->animate_skipbeat = false;
+
+    for (unsigned i = 0;
+         i < SEGMENTS_ORIENTATION_COUNT;
+         ++i) {
+        info->bitmaps[i] = NULL;
+    }
 }
 
 // ==============================
@@ -219,9 +244,10 @@ info_init(digit_info_t* info)
 
 DigitLayer*
 digit_layer_create(digit_size_t size,
-                   GPoint offset)
+                   GPoint offset,
+                   MonoColor foreground,
+                   MonoColor background)
 {
-    segment_load_images(size);
     GRect layer_rect;
     layer_rect.origin = offset;
     layer_rect.size = digit_dimensions[size];
@@ -234,6 +260,9 @@ digit_layer_create(digit_size_t size,
 
     digit_info_t* info = get_info(result);
     info->size = size;
+    info_preload(info,
+                 foreground,
+                 background);
     return result;
 }
 
@@ -369,7 +398,15 @@ void
 digit_layer_destroy(DigitLayer* layer)
 {
     digit_info_t* info = get_info(layer);
-    segment_unload_images(info->size);
+
+    for (unsigned i = 0;
+         i < SEGMENTS_ORIENTATION_COUNT;
+         ++i) {
+        if (info->bitmaps[i]) {
+            monobitmap_destroy(info->bitmaps[i]);
+        }
+    }
+
     layer_destroy(layer);
 }
 

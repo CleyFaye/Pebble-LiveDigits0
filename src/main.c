@@ -8,7 +8,11 @@
 #include <pebble.h>
 
 #include "config.h"
+#include "monobitmaps/monobitmap.h"
 #include "mainwindow.h"
+
+// DEBUG
+//#include "debug.h"
 
 // ================================
 // PRIVATE FUNCTIONS DECLARATIONS =
@@ -46,12 +50,20 @@ static void clear(MainWindow* main_window)
 // MAIN =
 // ======
 
-int main(void)
+static inline
+void main_real(void)
 {
     MainWindow* main_window;
 
     init(&main_window);
     app_event_loop();
     clear(main_window);
+    monobitmap_commit_destroy();
+}
+
+
+int main(void)
+{
+    main_real();
 }
 

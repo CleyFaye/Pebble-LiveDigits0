@@ -9,6 +9,7 @@
 
 #include "layout.h"
 #include "utils.h"
+#include "monobitmaps/monobitmap.h"
 
 #include "batterylayer.h"
 
@@ -17,8 +18,8 @@
 // ===============
 
 typedef struct {
-    GBitmap* batt_plug;
-    GBitmap* batt_border;
+    MonoBitmap batt_plug;
+    MonoBitmap batt_border;
     GFont* font;
     unsigned last_state;
     bool loading;
@@ -75,20 +76,8 @@ handle_layer_update(Layer* layer,
 {
     battery_info_t* info = get_info(layer);
 
-#ifdef PBL_COLOR
-        graphics_context_set_compositing_mode(ctx,
-                                              GCompOpSet);
-#else
-        graphics_context_set_compositing_mode(ctx,
-                                              GCompOpOr);
-#endif
     if (cfg_get_battery_style() == BATTERY_STYLE_STATE) {
         // Display progress icons
-        graphics_draw_bitmap_in_rect(ctx,
-                                     info->batt_border,
-                                     GRect(19, 10,
-                                           10, 17));
-
         graphics_context_set_fill_color(ctx,
                                         GColorWhite);
 
@@ -102,18 +91,20 @@ handle_layer_update(Layer* layer,
                                GCornerNone);
         }
 
+        monobitmap_draw_bitmap(ctx,
+                               info->batt_border,
+                               GPoint(19, 10));
+
         if (info->loading) {
-            graphics_draw_bitmap_in_rect(ctx,
-                                         info->batt_plug,
-                                         GRect(5, 11,
-                                               plug_width, plug_height));
+            monobitmap_draw_bitmap(ctx,
+                                   info->batt_plug,
+                                   GPoint(5, 11));
         }
     } else {
         // Display text percent
-        graphics_draw_bitmap_in_rect(ctx,
-                                     info->batt_border,
-                                     GRect(1, 9,
-                                           23, 17));
+        monobitmap_draw_bitmap(ctx,
+                               info->batt_border,
+                               GPoint(1, 9));
 
         const unsigned text_vertical_offset = 7;
         const unsigned layer_x_position = 4;
@@ -133,10 +124,9 @@ handle_layer_update(Layer* layer,
                            NULL);
 
         if (info->loading) {
-            graphics_draw_bitmap_in_rect(ctx,
-                                         info->batt_plug,
-                                         GRect(25, 9,
-                                               plug_width, plug_height));
+            monobitmap_draw_bitmap(ctx,
+                                   info->batt_plug,
+                                   GPoint(25, 9));
         }
     }
 }
@@ -161,15 +151,27 @@ battery_layer_create(void)
     battery_info_t* info = get_info(result);
 
     info->batt_plug =
-        gbitmap_create_with_resource(RESOURCE_ID_BATT_PLUG);
+        monobitmap_create_with_resource(RESOURCE_ID_BATT_PLUG,
+                                        MONO_WHITE,
+                                        MONO_BLACK,
+                                        false,
+                                        false);
 
     if (cfg_get_battery_style() == BATTERY_STYLE_STATE) {
         info->batt_border =
-            gbitmap_create_with_resource(RESOURCE_ID_BATT_CONTOUR);
+            monobitmap_create_with_resource(RESOURCE_ID_BATT_CONTOUR,
+                                            MONO_WHITE,
+                                            MONO_BLACK,
+                                            false,
+                                            false);
     } else {
         info->font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
         info->batt_border =
-            gbitmap_create_with_resource(RESOURCE_ID_BATT_TEXTIMG);
+            monobitmap_create_with_resource(RESOURCE_ID_BATT_TEXTIMG,
+                                            MONO_WHITE,
+                                            MONO_BLACK,
+                                            false,
+                                            false);
     }
 
     BatteryChargeState batt_state = battery_state_service_peek();
@@ -239,10 +241,10 @@ battery_layer_destroy(BatteryLayer* layer)
 {
     battery_info_t* info = get_info(layer);
 
-    gbitmap_destroy(info->batt_plug);
+    monobitmap_destroy(info->batt_plug);
 
     if (info->batt_border) {
-        gbitmap_destroy(info->batt_border);
+        monobitmap_destroy(info->batt_border);
     }
 
     layer_destroy(layer);

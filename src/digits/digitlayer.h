@@ -12,6 +12,7 @@
 
 #include <pebble.h>
 
+#include "monobitmaps/monobitmap.h"
 #include "digit_info.h"
 
 // =======
@@ -33,7 +34,9 @@ typedef Layer DigitLayer;
  */
 DigitLayer*
 digit_layer_create(digit_size_t size,
-                   GPoint offset);
+                   GPoint offset,
+                   MonoColor foreground,
+                   MonoColor background);
 
 /** Set the number currently displayed by the layer.
  *

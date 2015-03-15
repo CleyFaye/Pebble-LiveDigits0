@@ -4,3 +4,5 @@ build
 appinfo.json
 /src/config.c
 /src/config.h
+/resources/mbp
+src/debug.h

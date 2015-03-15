@@ -72,7 +72,6 @@ def PNGtoHorizRLE(img, outFile):
                     if newR != currentR:
                         addNewStripe(out, currentR, currentLength)
                         currentR, currentG, currentB = newR, newG, newB
-                        currentR = normalizeColor(currentR)
                         currentLength = 1
                     else:
                         currentLength += 1
@@ -93,9 +92,9 @@ def PNGtoVertRLE(img, outFile):
                     newR, newG, newB = img.getpixel((x, y))
                     newR = normalizeColor(newR)
                     if newR != currentR:
+                        print currentR, newR
                         addNewStripe(out, currentR, currentLength)
                         currentR, currentG, currentB = newR, newG, newB
-                        currentR = normalizeColor(currentR)
                         currentLength = 1
                     else:
                         currentLength += 1
@@ -116,11 +115,17 @@ def PNGtoMBP(inFile, outFile):
     horizRLESize = PNGtoHorizRLE(img, 'NUL')
     vertRLESize = PNGtoVertRLE(img, 'NUL')
     rawSize = PNGtoRaw(img, 'NUL')
+    print 'HRLE:%i' % horizRLESize
+    print 'VRLE:%i' % vertRLESize
+    print 'RAW:%i' % rawSize
     if horizRLESize <= vertRLESize and horizRLESize <= rawSize:
+        print 'Save HRLE'
         PNGtoHorizRLE(img, outFile)
     elif vertRLESize <= horizRLESize and vertRLESize <= rawSize:
+        print 'Save VRLE'
         PNGtoVertRLE(img, outFile)
     else:
+        print 'Save RAW'
         PNGtoRaw(img, outFile)
 
 if __name__ == '__main__':

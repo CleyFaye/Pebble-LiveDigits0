@@ -33,7 +33,8 @@ typedef enum {
     MONO_BLUE,
     MONO_DEEPBLUE,
     MONO_PURPLE,
-    MONO_MAGENTA
+    MONO_MAGENTA,
+    MONO_COUNT
 } MonoColor;
 
 /** Opaque handle for a mono bitmap */

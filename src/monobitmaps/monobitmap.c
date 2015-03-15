@@ -439,6 +439,7 @@ decodeRAW(bitres_t in_res,
         for (unsigned x = 0;
              (int) x < bitmap_size.w;
              ++x) {
+            int byteValue = bitres_readbyte(in_res, 2);
             bitmap_data_set_pixel_2b(bitmap_data,
                                      (horizontal_flip
                                       ? (bitmap_size.w - x - 1)
@@ -447,8 +448,8 @@ decodeRAW(bitres_t in_res,
                                       ? (bitmap_size.h - y - 1)
                                       : y),
                                      row_byte_size,
-                                     bitres_readbyte(in_res,
-                                             2));
+                                     byteValue);
+
         }
     }
 }
@@ -567,6 +568,8 @@ monobitmap_create_with_resource(uint32_t resource_id,
     result->white = white;
 #endif
     result->ref_count = 1;
+    result->vertical_flip = vertical_flip;
+    result->horizontal_flip = horizontal_flip;
     result->next = heap_monobitmaps;
 
     if (result->next) {

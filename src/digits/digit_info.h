@@ -89,6 +89,13 @@ const GSize digit_dimensions[];
 extern
 const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT];
 
+/** Resource vertical invert to create all segments orientation.
+ *
+ * When loading segment's images, some of them must be vertically inverted.
+ */
+extern
+const bool segment_res_vertical_invert[SEGMENTS_ORIENTATION_COUNT];
+
 /** Spacing between digits for each digit size. */
 extern
 const unsigned digit_spacing[DIGITS_SIZE_COUNT];
