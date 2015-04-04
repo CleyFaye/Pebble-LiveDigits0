@@ -30,6 +30,8 @@ typedef struct {
     int current_anim_position;
     /** Segment polygon path */
     GPath* segment_poly;
+    /** Draw outlines */
+    bool draw_outlines;
 
     animation_speed_t animate_speed;
     bool quick_wrap;
@@ -75,7 +77,8 @@ draw_segment(GContext* ctx,
              GPath* path,
              GPoint offset,
              int32_t angle,
-             GColor color);
+             GColor color,
+             bool fill);
 
 /** Draw the current digit animation step on the layer. */
 static
@@ -120,7 +123,8 @@ draw_segment(GContext* ctx,
              GPath* path,
              GPoint offset,
              int32_t angle,
-             GColor color)
+             GColor color,
+             bool fill)
 {
     gpath_move_to(path,
                   offset);
@@ -128,8 +132,16 @@ draw_segment(GContext* ctx,
                     angle_to_pebangle(angle));
     graphics_context_set_fill_color(ctx,
                                     color);
-    gpath_draw_filled(ctx,
-                      path);
+    graphics_context_set_stroke_color(ctx,
+                                      color);
+
+    if (fill) {
+        gpath_draw_filled(ctx,
+                          path);
+    }
+
+    gpath_draw_outline(ctx,
+                       path);
 }
 
 static
@@ -160,12 +172,15 @@ draw_static_digit(digit_info_t* info,
 
     digit_fixed_segments_t segments =
         anim_get_fixed_segments(info->current_anim);
+    bool draw_outline = info->draw_outline && info->size != DS_SMALL;
 
     for (int i = 0;
          i < 7;
          ++i) {
-        if (!anim_get_fixed_segment_state(segments,
-                                          i)) {
+        bool digit_active = anim_get_fixed_segment_state(segments,
+                            i);
+
+        if (!digit_active && !draw_outline) {
             continue;
         }
 
@@ -173,7 +188,8 @@ draw_static_digit(digit_info_t* info,
                      info->segment_poly,
                      segment_offsets[i],
                      static_segment_orientation[i],
-                     GColorWhite);
+                     GColorWhite,
+                     digit_active);
     }
 }
 
@@ -205,7 +221,8 @@ draw_animated_segments(digit_info_t* info,
                      info->segment_poly,
                      offset,
                      orientation,
-                     GColorWhite);
+                     GColorWhite,
+                     true);
     }
 }
 
@@ -219,6 +236,7 @@ info_init(digit_info_t* info)
     info->current_anim = DA_0;
     info->current_anim_position = 0;
     info->segment_poly = NULL;
+    info->draw_outline = true;
     info->animate_speed = FAST_MERGED;
     info->quick_wrap = false;
     info->animate_skipbeat = false;

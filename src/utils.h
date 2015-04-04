@@ -36,11 +36,7 @@ int32_t angle_to_pebangle(int32_t angle_deg)
         }
     }
 
-    int32_t result = TRIG_MAX_ANGLE * angle_deg / 360;
-    if (angle_deg == 90) {
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "90=%li", result);
-    }
-    return result;
+    return TRIG_MAX_ANGLE * angle_deg / 360;
 }
 
 /** Load a list of resource identifier into an array of bitmaps.
