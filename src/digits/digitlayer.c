@@ -9,7 +9,6 @@
 
 #include "utils.h"
 #include "digit_anim.h"
-#include "digit_images.h"
 #include "digit_info.h"
 
 #include "digitlayer.h"
@@ -29,6 +28,8 @@ typedef struct {
     digit_anim_t current_anim;
     /** Current animation position (always <9) */
     int current_anim_position;
+    /** Segment polygon path */
+    GPath* segment_poly;
 
     animation_speed_t animate_speed;
     bool quick_wrap;
@@ -47,28 +48,34 @@ typedef const GPoint static_segment_offset_t[7];
 static
 static_segment_offset_t static_segment_offset[DIGITS_SIZE_COUNT] = {
     {
-        {6, 0},  {0, 6},   {37, 6}, {6, 37},
-        {0, 43}, {37, 43}, {6, 74}
+        {4, 4},  {4, 4},   {41, 4}, {4, 41},
+        {4, 41}, {41, 41}, {4, 78}
     }, {
-        {5, 0},  {0, 5},   {35, 5}, {5, 35},
-        {0, 40}, {35, 40}, {5, 70}
+        {3, 3},  {3, 3},   {38, 3}, {3, 38},
+        {3, 38}, {38, 38}, {3, 73}
     }, {
-        {2, 0},  {0, 3},   {13, 3}, {2, 15},
-        {0, 18}, {13, 18}, {2, 30}
+        {1, 1},  {1, 2},   {14, 2}, {1, 16},
+        {1, 17}, {14, 17}, {1, 31}
     }
 };
 
 /** Orientation of static segments. (shared by all digits size) */
 static
-segment_orientation_t static_segment_orientation[7] = {
-    SO_HORIZONTAL, SO_VERTICAL, SO_VERTICAL,
-    SO_HORIZONTAL, SO_VERTICAL, SO_VERTICAL,
-    SO_HORIZONTAL
+int32_t static_segment_orientation[7] = {
+    0, 90, 90, 0, 90, 90, 0
 };
 
 // ================================
 // PRIVATE FUNCTIONS DECLARATIONS =
 // ================================
+
+static
+void
+draw_segment(GContext* ctx,
+             GPath* path,
+             GPoint offset,
+             int32_t angle,
+             GColor color);
 
 /** Draw the current digit animation step on the layer. */
 static
@@ -109,6 +116,24 @@ info_init(digit_info_t* info);
 
 static
 void
+draw_segment(GContext* ctx,
+             GPath* path,
+             GPoint offset,
+             int32_t angle,
+             GColor color)
+{
+    gpath_move_to(path,
+                  offset);
+    gpath_rotate_to(path,
+                    angle_to_pebangle(angle));
+    graphics_context_set_fill_color(ctx,
+                                    color);
+    gpath_draw_filled(ctx,
+                      path);
+}
+
+static
+void
 handle_layer_update(struct Layer* layer,
                     GContext* ctx)
 {
@@ -144,17 +169,11 @@ draw_static_digit(digit_info_t* info,
             continue;
         }
 
-        GRect draw_rect;
-        draw_rect.origin = segment_offsets[i];
-        draw_rect.origin.x += layer_offset->x;
-        draw_rect.origin.y += layer_offset->y;
-        GBitmap* digit_bitmap =
-            segment_get_image(info->size,
-                              static_segment_orientation[i],
-                              &draw_rect.size);
-        graphics_draw_bitmap_in_rect(ctx,
-                                     digit_bitmap,
-                                     draw_rect);
+        draw_segment(ctx,
+                     info->segment_poly,
+                     segment_offsets[i],
+                     static_segment_orientation[i],
+                     GColorWhite);
     }
 }
 
@@ -176,21 +195,17 @@ draw_animated_segments(digit_info_t* info,
             continue;
         }
 
-        GRect draw_rect;
-        segment_orientation_t orientation =
+        GPoint offset;
+        int32_t orientation =
             anim_segment_get(anim,
                              info->current_anim_position,
                              info->size,
-                             &draw_rect.origin);
-        draw_rect.origin.x += layer_offset->x;
-        draw_rect.origin.y += layer_offset->y;
-        GBitmap* digit_bitmap =
-            segment_get_image(info->size,
-                              orientation,
-                              &draw_rect.size);
-        graphics_draw_bitmap_in_rect(ctx,
-                                     digit_bitmap,
-                                     draw_rect);
+                             &offset);
+        draw_segment(ctx,
+                     info->segment_poly,
+                     offset,
+                     orientation,
+                     GColorWhite);
     }
 }
 
@@ -203,6 +218,7 @@ info_init(digit_info_t* info)
     info->target_number = 0;
     info->current_anim = DA_0;
     info->current_anim_position = 0;
+    info->segment_poly = NULL;
     info->animate_speed = FAST_MERGED;
     info->quick_wrap = false;
     info->animate_skipbeat = false;
@@ -216,7 +232,6 @@ DigitLayer*
 digit_layer_create(digit_size_t size,
                    GPoint offset)
 {
-    segment_load_images(size);
     GRect layer_rect;
     layer_rect.origin = offset;
     layer_rect.size = digit_dimensions[size];
@@ -229,6 +244,7 @@ digit_layer_create(digit_size_t size,
 
     digit_info_t* info = get_info(result);
     info->size = size;
+    info->segment_poly = poly_aquire(size);
     return result;
 }
 
@@ -364,7 +380,7 @@ void
 digit_layer_destroy(DigitLayer* layer)
 {
     digit_info_t* info = get_info(layer);
-    segment_unload_images(info->size);
+    poly_release(info->size);
     layer_destroy(layer);
 }
 

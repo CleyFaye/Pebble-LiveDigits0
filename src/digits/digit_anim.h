@@ -110,7 +110,7 @@ typedef segment_anim_t digit_segment_animation_t[2];
  *
  * @param anim_pos The animation position. From 0 to 9.
  */
-segment_orientation_t
+int32_t
 anim_segment_get(segment_anim_t segment_anim,
                  int anim_pos,
                  digit_size_t digit_size,

@@ -32,18 +32,18 @@ typedef struct {
 /** All segment position when animated.
  *
  * There are 7 segments animations (illustrated by the values of
- * segment_anim_t). Each segments animations is made of 9 steps. Each of these
- * steps is a combination of an offset (this data type) and an orientation (in
- * animated_segment_orientation_t).
+ * segment_anim_t).
  */
-typedef const GPoint animated_segment_offset_t[7 * 9];
+typedef const GPoint animated_segment_offset_t[7];
 
-/** All segment orientation when animated.
- *
- * See animated_segment_offset_t for details about the composition of this
- * array.
- */
-typedef const segment_orientation_t animated_segment_orientation_t[7 * 9];
+/** The rotation direction for an animation step. */
+typedef struct {
+    int32_t start_angle;
+    bool clockwise;
+} segment_orientation_anim_t;
+
+/** All segment orientation when animated. */
+typedef const segment_orientation_anim_t animated_segment_orientation_t[7];
 
 // ==============
 // PRIVATE DATA =
@@ -55,26 +55,19 @@ typedef const segment_orientation_t animated_segment_orientation_t[7 * 9];
 static
 animated_segment_orientation_t animated_segment_orientation = {
     // SA_1_TO_0
-    SO_171, SO_162, SO_153, SO_144, SO_135,
-    SO_126, SO_117, SO_108, SO_99,
+    { .start_angle = 90, .clockwise = false },
     // SA_4_TO_6
-    SO_9,  SO_18, SO_27, SO_36, SO_45,
-    SO_54, SO_63, SO_72, SO_81,
+    { .start_angle = 270, .clockwise = true },
     // SA_0_TO_2
-    SO_81, SO_72, SO_63, SO_54, SO_45,
-    SO_36, SO_27, SO_18, SO_9,
+    { .start_angle = 180, .clockwise = false },
     // SA_6_TO_5
-    SO_99,  SO_108, SO_117, SO_126, SO_135,
-    SO_144, SO_153, SO_162, SO_171,
+    { .start_angle = 180, .clockwise = true },
     // SA_2_TO_3
-    SO_171, SO_162, SO_153, SO_144, SO_135,
-    SO_126, SO_117, SO_108, SO_99,
+    { .start_angle = 270, .clockwise = false },
     // SA_3_TO_4
-    SO_99,  SO_108, SO_117, SO_126, SO_135,
-    SO_144, SO_153, SO_162, SO_171,
+    { .start_angle = 0, .clockwise = true },
     // SA_1_TO_3
-    SO_9,  SO_18, SO_27, SO_36, SO_45,
-    SO_54, SO_63, SO_72, SO_81
+    { .start_angle = 270, .clockwise = true }
 };
 
 /** Segment position when animated.
@@ -84,70 +77,49 @@ static
 animated_segment_offset_t animated_segment_offsets[DIGITS_SIZE_COUNT] = {
     {
         // SA_1_TO_0
-        {1, 6}, {2, 6}, {2, 5}, {4, 5}, {5, 5},
-        {5, 3}, {6, 3}, {6, 2}, {6, 2},
+        {4, 4},
         // SA_4_TO_6
-        {1, 43}, {1, 45}, {2, 47}, {4, 50}, {5, 54},
-        {5, 57}, {6, 60}, {6, 65}, {6, 70},
+        {4, 78},
         // SA_0_TO_2
-        {7, 1},  {7, 2},  {9, 3},  {13, 4}, {16, 5},
-        {19, 6}, {24, 6}, {28, 6}, {32, 6},
+        {41, 4},
         // SA_6_TO_5
-        {6, 69},  {8, 65},  {10, 62}, {12, 57}, {16, 54},
-        {19, 52}, {23, 47}, {28, 44}, {33, 44},
+        {41, 78},
         // SA_2_TO_3
-        {33, 7},  {28, 7},  {23, 10}, {19, 15}, {16, 17},
-        {12, 20}, {10, 25}, {8, 28},  {6, 32},
+        {41, 41},
         // SA_3_TO_4
-        {6, 39}, {6, 39}, {6, 40}, {5, 40}, {5, 42},
-        {4, 42}, {2, 42}, {2, 43}, {1, 43},
+        {4, 41},
         // SA_1_TO_3
-        {1, 6},  {1, 8},  {2, 10}, {4, 13}, {5, 17},
-        {5, 20}, {6, 23}, {6, 28}, {6, 33}
+        {4, 41}
     }, {
         // SA_1_TO_0
-        {2, 5}, {3, 5}, {2, 5}, {5, 5}, {5, 3},
-        {6, 3}, {6, 2}, {6, 2}, {6, 0},
+        {3, 3},
         // SA_4_TO_6
-        {0, 40}, {1, 42}, {3, 45}, {3, 47}, {4, 49},
-        {5, 55}, {5, 57}, {5, 62}, {5, 66},
+        {3, 73},
         // SA_0_TO_2
-        {6, 1},  {6, 2},  {8, 2},  {12, 3}, {14, 4},
-        {18, 4}, {23, 5}, {26, 5}, {31, 5},
+        {38, 3},
         // SA_6_TO_5
-        {5, 65},  {7, 62},  {9, 58},  {11, 54}, {15, 50},
-        {18, 47}, {21, 45}, {27, 42}, {31, 41},
+        {38, 73},
         // SA_2_TO_3
-        {31, 6},  {27, 7}, {21, 10}, {18, 12}, {15, 15},
-        {11, 19}, {9, 23}, {7, 27},  {5, 30},
+        {38, 38},
         // SA_3_TO_4
-        {6, 35}, {6, 37}, {6, 37}, {6, 38}, {5, 38},
-        {5, 40}, {2, 40}, {3, 40}, {2, 40},
+        {3, 38},
         // SA_1_TO_3
-        {0, 5},  {1, 7},  {3, 10}, {3, 12}, {4, 14},
-        {5, 20}, {5, 22}, {5, 27}, {5, 31},
+        {3, 38}
     }, {
         // SA_1_TO_0
-        {0, 3}, {1, 3}, {0, 3}, {2, 3}, {2, 3},
-        {2, 2}, {2, 2}, {2, 0}, {2, 0},
+        {1, 2},
         // SA_4_TO_6
-        {1, 19}, {2, 18}, {1, 21}, {2, 21}, {2, 23},
-        {2, 23}, {2, 25}, {2, 27}, {2, 29},
+        {1, 30},
         // SA_0_TO_2
-        {3, 0}, {3, 0}, {3, 1},  {5, 1}, {5, 2},
-        {7, 2}, {8, 2}, {10, 3}, {11, 3},
+        {14, 2},
         // SA_6_TO_5
-        {3, 29}, {3, 27}, {3, 26}, {5, 24},  {5, 23},
-        {7, 21}, {7, 21}, {9, 18}, {11, 18},
+        {14, 30},
         // SA_2_TO_3
-        {11, 3}, {9, 3},  {7, 6},  {7, 6},  {5, 8},
-        {5, 9},  {3, 11}, {3, 12}, {3, 14},
+        {14, 15},
         // SA_3_TO_4
-        {2, 15}, {2, 15}, {2, 17}, {2, 17}, {2, 18},
-        {2, 18}, {0, 18}, {1, 18}, {0, 18},
+        {1, 17},
         // SA_1_TO_3
-        {1, 4}, {2, 3},  {1, 6},  {2, 6}, {2, 8},
-        {2, 8}, {2, 10}, {2, 12}, {2, 14}
+        {1, 15}
     }
 };
 
@@ -259,7 +231,7 @@ retrieve_anim(digit_anim_t digit_anim)
 // PUBLIC FUNCTIONS DEFINITIONS =
 // ==============================
 
-segment_orientation_t
+int32_t
 anim_segment_get(segment_anim_t segment_anim,
                  int anim_pos,
                  digit_size_t digit_size,
@@ -271,8 +243,11 @@ anim_segment_get(segment_anim_t segment_anim,
     }
 
     --segment_anim;
-    *offset = animated_segment_offsets[digit_size][segment_anim * 9 + anim_pos];
-    return animated_segment_orientation[segment_anim * 9 + anim_pos];
+    *offset = animated_segment_offsets[digit_size][segment_anim];
+    const segment_orientation_anim_t* base_angle =
+        &animated_segment_orientation[segment_anim];
+    return base_angle->start_angle +
+           (base_angle->clockwise ? 9 : -9) * (anim_pos + 1);
 }
 
 digit_fixed_segments_t

@@ -1,7 +1,7 @@
 # Pebble-LiveDigits0
 A watchface for the Pebble smartwatch.
 
-v1.4
+v1.5
 
 Inspiration: this reddit thread
 https://www.reddit.com/r/pebble/comments/2un40u/could_someone_put_this_animation_in_a_watchface/

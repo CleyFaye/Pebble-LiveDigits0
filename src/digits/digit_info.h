@@ -32,19 +32,6 @@
 // TYPES =
 // =======
 
-/** The orientation of a digit segment. */
-typedef enum {
-    SO_VERTICAL = 0,
-    SO_0 = SO_VERTICAL,
-    SO_9,  SO_18, SO_27, SO_36, SO_45,
-    SO_54, SO_63, SO_72, SO_81,
-    SO_HORIZONTAL,
-    SO_90 = SO_HORIZONTAL,
-    SO_99,  SO_108, SO_117, SO_126, SO_135,
-    SO_144, SO_153, SO_162, SO_171,
-    SEGMENTS_ORIENTATION_COUNT
-} segment_orientation_t;
-
 /** The size of the digit */
 typedef enum {
     DS_BIG = 0,
@@ -82,16 +69,24 @@ typedef enum {
 extern
 const GSize digit_dimensions[];
 
-/** Image resource identifiers for segments.
- * Each value correspond to an enum value of digit_size_t, and point to an array
- * where each value correspond to an enum value of segment_orientation_t
- */
-extern
-const ResourceId* const segment_res_ids[DIGITS_SIZE_COUNT];
-
 /** Spacing between digits for each digit size. */
 extern
 const unsigned digit_spacing[DIGITS_SIZE_COUNT];
+
+// ===============================
+// PUBLIC FUNCTIONS DECLARATIONS =
+// ===============================
+
+/** Get a path for a given segment size.
+ *
+ * The GPath object is shared.
+ */
+GPath*
+poly_aquire(digit_size_t digit_size);
+
+/** Release a path for a given segment size. */
+void
+poly_release(digit_size_t digit_size);
 
 #endif
 

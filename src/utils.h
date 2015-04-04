@@ -23,6 +23,26 @@ typedef void(*layer_data_init_t)(void* data);
 // PUBLIC FUNCTIONS DECLARATIONS =
 // ===============================
 
+static inline
+int32_t angle_to_pebangle(int32_t angle_deg)
+{
+    if (angle_deg >= 360) {
+        do {
+            angle_deg -= 360;
+        } while (angle_deg >= 360);
+    } else {
+        while (angle_deg < 0) {
+            angle_deg += 360;
+        }
+    }
+
+    int32_t result = TRIG_MAX_ANGLE * angle_deg / 360;
+    if (angle_deg == 90) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "90=%li", result);
+    }
+    return result;
+}
+
 /** Load a list of resource identifier into an array of bitmaps.
  *
  * The target array must already be initialized.
