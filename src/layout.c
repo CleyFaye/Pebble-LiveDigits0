@@ -135,22 +135,10 @@ layout_is_white_background(void)
     bool need_white_background;
 
     switch (watch_info_get_color()) {
+    // TODO this will disappear to support colors
     default:
-    case WATCH_INFO_COLOR_UNKNOWN:
-    case WATCH_INFO_COLOR_BLACK:
-    case WATCH_INFO_COLOR_GREY:
-    case WATCH_INFO_COLOR_STAINLESS_STEEL:
-    case WATCH_INFO_COLOR_MATTE_BLACK:
         need_white_background = false;
         break;
-
-    case WATCH_INFO_COLOR_WHITE:
-    case WATCH_INFO_COLOR_RED:
-    case WATCH_INFO_COLOR_ORANGE:
-    case WATCH_INFO_COLOR_BLUE:
-    case WATCH_INFO_COLOR_GREEN:
-    case WATCH_INFO_COLOR_PINK:
-        need_white_background = true;
     }
 
     return cfg_get_invert_colors()

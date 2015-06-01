@@ -172,7 +172,7 @@ draw_static_digit(digit_info_t* info,
 
     digit_fixed_segments_t segments =
         anim_get_fixed_segments(info->current_anim);
-    bool draw_outline = info->draw_outline && info->size != DS_SMALL;
+    bool draw_outline = info->draw_outlines && info->size != DS_SMALL;
 
     for (int i = 0;
          i < 7;
@@ -236,7 +236,7 @@ info_init(digit_info_t* info)
     info->current_anim = DA_0;
     info->current_anim_position = 0;
     info->segment_poly = NULL;
-    info->draw_outline = true;
+    info->draw_outlines = true;
     info->animate_speed = FAST_MERGED;
     info->quick_wrap = false;
     info->animate_skipbeat = false;

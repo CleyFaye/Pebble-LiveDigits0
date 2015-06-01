@@ -35,9 +35,6 @@ typedef struct {
 
     DayTimeLayer* extrawidget_daytime;
 
-    /** Color invertion layer */
-    InverterLayer* inverter;
-
     /** Animation timer */
     AppTimer* animation_timer;
     /** Timer to hide the widgets */
@@ -314,16 +311,6 @@ lay_components(MainWindow* window)
         layer_add_child(window_layer,
                         info->extrawidget_daytime);
     }
-
-    // Must be last: the inverter, if required
-    if (layout_is_white_background()) {
-        info->inverter = inverter_layer_create(GRect(0,
-                                               0,
-                                               144,
-                                               168));
-        layer_add_child(window_layer,
-                        inverter_layer_get_layer(info->inverter));
-    }
 }
 
 static
@@ -353,11 +340,6 @@ clear_components(window_info_t* info)
     if (info->extrawidget_daytime) {
         daytime_layer_destroy(info->extrawidget_daytime);
         info->extrawidget_daytime = NULL;
-    }
-
-    if (info->inverter) {
-        inverter_layer_destroy(info->inverter);
-        info->inverter = NULL;
     }
 }
 
@@ -787,7 +769,6 @@ info_init(window_info_t* info)
     info->widget_date = NULL;
     info->widget_bt = NULL;
     info->widget_battery = NULL;
-    info->inverter = NULL;
     info->animation_timer = NULL;
     info->widget_timer = NULL;
     info->timer_service_registered = false;

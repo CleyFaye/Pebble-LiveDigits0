@@ -22,7 +22,7 @@
 /** Layer state */
 typedef struct {
     NumberLayer* number_layer;
-    InverterLayer* inverter_layer;
+    // TODO dot-mode need to be redone for SDK3.0
     unsigned previous_seconds_value;
 } seconds_info_t;
 
@@ -52,7 +52,6 @@ void
 info_init(seconds_info_t* info)
 {
     info->number_layer = NULL;
-    info->inverter_layer = NULL;
     info->previous_seconds_value = 0;
 }
 
@@ -78,9 +77,6 @@ seconds_layer_create(void)
                                widget_size / 2 - seconds_dot_size / 2,
                                seconds_dot_size,
                                seconds_dot_size);
-        info->inverter_layer = inverter_layer_create(dot_rect);
-        layer_add_child(result,
-                        inverter_layer_get_layer(info->inverter_layer));
     } else {
         info->number_layer = number_layer_create(DS_SMALL,
                              2,
@@ -137,10 +133,6 @@ seconds_layer_set_time(SecondsLayer* layer,
         number_layer_set_number(info->number_layer,
                                 seconds,
                                 animate_seconds);
-    } else {
-        Layer* dot_layer = inverter_layer_get_layer(info->inverter_layer);
-        layer_set_hidden(dot_layer,
-                         !layer_get_hidden(dot_layer));
     }
 }
 
@@ -151,8 +143,6 @@ seconds_layer_destroy(SecondsLayer* layer)
 
     if (info->number_layer) {
         number_layer_destroy(info->number_layer);
-    } else {
-        inverter_layer_destroy(info->inverter_layer);
     }
 
     layer_destroy(layer);
